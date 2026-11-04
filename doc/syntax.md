@@ -33,11 +33,14 @@ digits, `_` or `-`. The strategy after `/` goes through
 | Call                                            | Gives                         |
 | :---------------------------------------------- | :---------------------------- |
 | `program("work")`                               | `"work"`                      |
+| `program("usual")`                              | `Timetable::USUAL`            |
 | `program("06:30=comfort,22:30=+17..+27/quiet")` | an anonymous `Program`        |
 | `transition("06:30=comfort/quick")`             | a `Transition`, preset `"comfort"` |
 | `minute("06:30")`                               | 390                           |
 
-Times are `H:MM` or `HH:MM`, 00:00 to 23:59.
+Times are `H:MM` or `HH:MM`, 00:00 to 23:59. `usual` is a keyword, a
+special day's binding to the zone's usual weekday, never a program's
+name.
 
 ## Days
 

@@ -13,6 +13,8 @@ class CalendarTest < Minitest::Test
     CHRISTMAS = Entry.new(id: 1, calendar: "fr", priority: 8, zone: nil,
                           kind: "holiday", first: Date.new(2026, 12, 24),
                           last: Date.new(2026, 12, 25), description: nil)
+    LEAVE = CHRISTMAS.with(id: 2, calendar: "leave", priority: 5,
+                           kind: "leave", first: Date.new(2026, 12, 21))
 
     def setup
         work    = program("work", "06:45" => COMFORT, "08:30" => ECO,
@@ -102,7 +104,35 @@ class CalendarTest < Minitest::Test
                      decision.to_h.values_at(:label, :source)
     end
 
+    # Leave (priority 5) over Christmas (8): the office has a holiday
+    # program but no leave one, so leave says nothing to it.
+    def test_an_entry_the_zone_cannot_use_lets_the_next_one_through
+        office = office_with("holiday" => holiday)
+        layers = calendar(CHRISTMAS, LEAVE)
+        decision = resolve("2026-12-24 09:00", zone: office, layers:)
+        assert_equal ["comfort", "calendar:fr:holiday", at("2026-12-24 23:30")],
+                     decision.to_h.values_at(:label, :source, :until)
+        assert_equal at("2026-12-24 08:15"),
+                     resolve("2026-12-23 23:30", zone: office, layers:).until
+    end
+
+    def test_usual_takes_the_entry_and_runs_the_weekday
+        office = office_with("holiday" => holiday,
+                             "leave" => Schedule::Timetable::USUAL)
+        layers = calendar(CHRISTMAS, LEAVE)
+        decision = resolve("2026-12-24 09:00", zone: office, layers:)
+        assert_equal ["eco", "calendar:leave:leave", at("2026-12-24 23:00")],
+                     decision.to_h.values_at(:label, :source, :until)
+    end
+
     private
+
+    def holiday = @zone.timetable.specials.fetch("holiday")
+
+    def office_with(specials)
+        timetable = @zone.timetable.with(specials:)
+        Schedule::Zone.new(name: "office", timetable:)
+    end
 
     def calendar(*entries) = [base, Schedule::Layers::Calendar.new(entries)]
 end

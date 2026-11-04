@@ -7,7 +7,7 @@ module Thermidor
         # ones as an anonymous Preset or Program.
         #
         #   preset    comfort  +20.5..+25  +5..  ..+26  off  (then /quick)
-        #   program   workday  06:30=comfort,22:30=+17..+27/quiet
+        #   program   workday  06:30=comfort,22:30=+17..+27/quiet  usual
         #   days      mon  mon-fri  sat,sun   (or a special day: holiday)
         #
         # Dates, times and durations are in syntax/time.rb.
@@ -50,8 +50,10 @@ module Thermidor
                 raise ParseError, "bad name #{text.inspect}"
             end
 
-            # A name, or an anonymous Program for "06:30=x,22:30=y".
+            # A name, an anonymous Program for "06:30=x,22:30=y", or
+            # Timetable::USUAL for the keyword "usual".
             def program(text)
+                return Timetable::USUAL if text == "usual"
                 return name(text) unless text.include?("=")
                 Program.new(transitions: text.split(",").map { transition(it) })
             end

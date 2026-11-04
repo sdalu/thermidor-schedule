@@ -24,9 +24,15 @@ zone's [timetable](timetable.md) says what that day means for the zone:
 ```
 
 The day is a special day (`holiday`, `leave`, any name) or a weekday
-(`sun` runs each zone's Sunday program). A zone without a program for
-the day keeps its normal weekday, so one calendar can serve rooms that
-should change and rooms that should not.
+(`sun` runs each zone's Sunday program). An entry for a day a zone has
+no program for does not apply to that zone, as an entry for another
+zone would not: the zone keeps its normal weekday, so one calendar can
+serve rooms that should change and rooms that should not.
+
+A zone can also take a day without a program of its own: binding the
+day to `Timetable::USUAL` (`usual` in the [text forms](syntax.md#programs))
+says the entry applies, and the zone runs its usual weekday. That
+matters when calendars overlap, below.
 
 The timetable below knows nothing of these dates. So the calendar does
 not patch its decision: it resolves the zone's timetable again, with
@@ -71,16 +77,28 @@ given that day by the caller. So is everything else about a calendar
 
 ## Overlaps and priority
 
-When several entries cover a date for a zone, the one with the
-smallest `rank` wins:
+When several entries cover a date for a zone, only those that apply
+to it count: for the zone or every zone, and naming a day the zone has
+a program for (or `usual`). Of these, the one with the smallest `rank`
+wins:
 
 1. the lowest `priority`;
 2. an entry for the zone itself over one for every zone;
 3. the highest `id`, the latest added.
 
-The winner is chosen before the zone's programs are looked at: when
-the zone has no program for the winner's day, it keeps its normal
-weekday, even if a lower-ranked entry names a day it has.
+With a `leave` calendar (priority 5) over 21 to 25 December and `fr`
+(priority 8) giving the 24th as `holiday`:
+
+| Zone   | Its special days           | 24 December runs        | Source                 |
+| :----- | :------------------------- | :---------------------- | :--------------------- |
+| living | `holiday`, `leave`         | its `leave` program     | `calendar:leave:leave` |
+| office | `holiday`                  | its `holiday` program   | `calendar:fr:holiday`  |
+| study  | `holiday`, `leave=usual`   | its usual Thursday      | `calendar:leave:leave` |
+
+The office has no program for `leave`, so leave does not apply to it
+and the holiday does. The study takes leave as a usual day, which wins
+over the holiday by priority: on leave, its owner works there even on
+a public holiday.
 
 ## Recurring entries
 

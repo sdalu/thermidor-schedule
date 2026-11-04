@@ -8,8 +8,12 @@ module Thermidor
         # as Time#wday), and per special day ("holiday") for the calendar
         # to call on. A day without a program, or before its first
         # transition, carries on from the last transition of an earlier day.
+        # A special day bound to USUAL runs the zone's usual weekday.
         Timetable = Data.define(:days, :specials) do
             def initialize(days: {}, specials: {})
+                if days.value?(Timetable::USUAL)
+                    raise Error, "usual binds a special day, not a weekday"
+                end
                 super(days: days.compact.freeze,
                       specials: specials.compact.freeze)
             end
@@ -66,6 +70,16 @@ module Thermidor
             # What is in force at a given time: which program, which of its
             # transitions, and the date that program ran on.
             Entry = Data.define(:program, :transition, :date)
+
+            # Bound to a special day: a calendar entry for that day applies
+            # to the zone, which runs its usual weekday. Not a program: it
+            # has no transitions of its own, and "usual" names no program.
+            Usual = Data.define do
+                def name        = "usual"
+                def label       = name
+                def transitions = []
+            end
+            USUAL = Usual.new
         end
     end
 end

@@ -19,6 +19,8 @@ module Thermidor
         # program (name nil) is written inline.
         Program = Data.define(:name, :transitions) do
             def initialize(transitions:, name: nil)
+                raise Error, "usual is reserved, not a program name" if
+                    name == "usual"
                 sorted = transitions.sort_by(&:minute).freeze
                 if sorted.map(&:minute).uniq.size != sorted.size
                     raise Error, "two transitions at the same time"

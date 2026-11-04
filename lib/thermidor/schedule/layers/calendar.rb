@@ -5,10 +5,14 @@ module Thermidor
         module Layers
             # Dates that run another kind of day: a special day ("holiday")
             # or a weekday ("sun"), for the whole house (entry zone nil) or
-            # one zone. Each zone runs its own program for that kind; a zone
-            # without one keeps its usual day. When entries overlap, the
-            # calendar with the highest priority (1) wins, then a zone's own
-            # entry over a house-wide one, then the latest added.
+            # one zone. Each zone runs its own program for that kind; an
+            # entry for a kind the zone has no program for does not apply
+            # to it, as one for another zone would not. Of the entries that
+            # apply, the calendar with the highest priority (1) wins, then
+            # a zone's own entry over a house-wide one, then the latest
+            # added; with none, the zone keeps its usual day. A zone binding
+            # the kind to Schedule::Timetable::USUAL takes the entry and
+            # runs its usual weekday.
             #
             # The timetable below does not know these dates, so this layer
             # decides afresh from the dates' programs, even when what is in
@@ -47,23 +51,29 @@ module Thermidor
                 private
 
                 def source(zone, entry)
-                    found = entry_on(zone, entry.date)
+                    found, = entry_on(zone, entry.date)
                     return "calendar:#{found.calendar}:#{found.kind}" if found
                     "timetable:#{entry.program.label}"
                 end
 
                 def program_on(zone, date)
-                    found = entry_on(zone, date)
-                    return zone.timetable.days[date.wday] unless found
-                    zone.timetable.program_for(found.kind)
+                    _, program = entry_on(zone, date)
+                    usual = program.nil? || program.equal?(Schedule::Timetable::USUAL)
+                    usual ? zone.timetable.days[date.wday] : program
                 end
 
-                # The entry `date` follows in `zone`, if the zone has a
-                # program for its kind.
+                # [entry, program]: the entry `date` follows in `zone`, the
+                # best ranked of those the zone has a program for, and that
+                # program; nil if none applies.
                 def entry_on(zone, date)
-                    entry = @entries.select { it.covers?(date, zone.name) }
-                                    .min_by(&:rank)
-                    entry if entry && zone.timetable.program_for(entry.kind)
+                    @entries.select { it.covers?(date, zone.name) }
+                            .filter_map { applying(zone, it) }
+                            .min_by { |entry, _| entry.rank }
+                end
+
+                def applying(zone, entry)
+                    program = zone.timetable.program_for(entry.kind)
+                    [entry, program] if program
                 end
             end
         end

@@ -90,6 +90,14 @@ class SyntaxTest < Minitest::Test
         end
     end
 
+    def test_usual_is_a_keyword_not_a_program_name
+        assert_same Schedule::Timetable::USUAL, Syntax.program("usual")
+        error = assert_raises(Schedule::Error) do
+            Schedule::Program.new(name: "usual", transitions: [])
+        end
+        assert_match(/usual is reserved/, error.message)
+    end
+
     def test_years
         assert_equal 2027..2027, Syntax.years("2027")
         assert_equal 2027..2029, Syntax.years("2027..2029")

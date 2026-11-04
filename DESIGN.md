@@ -58,6 +58,15 @@ lookup rather than patching the decision below. When entries overlap,
 the calendar of highest priority wins, then a zone's own entry over a
 house-wide one, then the latest added.
 
+An entry for a day the zone has no program for does not apply to it,
+like an entry for another zone, so it takes no part in that ranking.
+Ranking first and checking the program after made priority reach zones
+a calendar says nothing about: a leave calendar raised above public
+holidays for the living room turned an office kept cold on holidays
+back to a workday. A zone that does want such an entry to win while
+running its usual day binds the day to `usual`; that is a keyword, not
+a program, so it cannot be confused with one named alike.
+
 ## Recurrence: iCalendar's, for whole days
 
 Recurring calendar entries use RFC 5545's RRULE, the form CalDAV and

@@ -85,7 +85,7 @@ A `Program` is one day: `Transition`s, each a minute after midnight
 from which a preset holds, with a strategy overriding the preset's when
 given. They are sorted by time, and two at the same minute raise
 `Error`. A program without a name is anonymous (`label` is
-`(inline)`).
+`(inline)`). `usual` is reserved and names no program.
 
 ```ruby
 work = Program.new(name: "work", transitions: [
@@ -106,6 +106,12 @@ and special days (`specials:`, by name, such as `"holiday"`) to
 programs. A weekday may have none. Special days only run when a
 [calendar](calendar.md) gives a date that day. `program_for(kind)` gives
 the program of `"sun"`..`"sat"` or of a special day.
+
+A special day may be bound to `Timetable::USUAL` instead of a program:
+a calendar entry for that day then applies to the zone, which runs its
+usual weekday ([calendar.md](calendar.md#overlaps-and-priority) says
+why that differs from having no binding). It binds special days only;
+on a weekday it raises `Error`.
 
 ## How a time is resolved
 

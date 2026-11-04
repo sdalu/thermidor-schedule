@@ -36,6 +36,16 @@ class TimetableTest < Minitest::Test
                      @timetable.next_change(at("2026-11-01 23:45"))
     end
 
+    def test_usual_binds_a_special_day_only
+        usual = Schedule::Timetable::USUAL
+        timetable = Schedule::Timetable.new(specials: { "leave" => usual })
+        assert_same usual, timetable.program_for("leave")
+        error = assert_raises(Schedule::Error) do
+            Schedule::Timetable.new(days: { 1 => usual })
+        end
+        assert_match(/usual.*special day/, error.message)
+    end
+
     def test_days_without_a_program_carry_on
         timetable = Schedule::Timetable.new(days: { 3 => @workday })
         entry = timetable.at(at("2026-11-02 12:00"))
