@@ -3,8 +3,11 @@
 ## Gates
 
 - [ ] `bundle exec rake` passes: tests, then RuboCop.
-- [ ] Does ClimatControl's gate still pass against this tree (its
-  Gemfile pointed at the local path for the run)? It is the one user.
+- [ ] `gh run list -R sdalu/thermidor-schedule -L 1` shows the pushed
+  commit's gate passed on GitHub.
+- [ ] Does ClimatControl's gate still pass against this tree (a scratch
+  clone of it, its Gemfile pointed at the local path)? It is the one
+  user, and pins a commit or a tag.
 
 ## Documents
 

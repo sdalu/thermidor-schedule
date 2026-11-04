@@ -75,6 +75,13 @@ parts); its first date is always the first occurrence, as in
 iCalendar. A home-made notation would have been shorter to parse and
 impossible to import.
 
+The expansion is where ordinals, negative month days and intervals
+meet, more cases than examples written by hand cover. So the suite
+also compares it with the rrule gem, an independent RFC 5545
+implementation, over rules generated from a fixed seed: the comparison
+found BYDAY ordinals ignored beside BYMONTHDAY, and a day named twice
+yielded twice. rrule is a development dependency only.
+
 ## Local time
 
 Times are local wall-clock times in the process's time zone, as a

@@ -14,12 +14,14 @@ module Thermidor
                     @last  = last
                 end
 
-                # Yields each date of the rule, in order, up to `last`. A
-                # period starts after every date of the one before it.
+                # Yields each date of the rule, in order and once (-1 and 30
+                # are one day in November), up to `last`. A period starts
+                # after every date of the one before it.
                 def each(&)
                     step = 0
                     while (start = period(step * @rule.interval)) <= @last
-                        dates(start).sort.take_while { it <= @last }.each(&)
+                        dates(start).uniq.sort.take_while { it <= @last }
+                                    .each(&)
                         step += 1
                     end
                 end
@@ -62,11 +64,13 @@ module Thermidor
                     picked(start)
                 end
 
-                # BYMONTHDAY narrowed by plain BYDAY weekdays, else BYDAY
-                # (ordinals included), else the first date's day.
+                # BYMONTHDAY narrowed by BYDAY (ordinals included, the
+                # month's nth such day), else BYDAY, else the first date's
+                # day.
                 def picked(start)
                     if @rule.by_month_day.any?
-                        return month_days(start).select { weekday?(it) }
+                        days = month_days(start)
+                        return @rule.by_day.any? ? days & by_day(start) : days
                     end
                     return by_day(start) if @rule.by_day.any?
                     month_days(start, [@first.day])

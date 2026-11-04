@@ -39,6 +39,27 @@ class RecurrenceTest < Minitest::Test
         end
     end
 
+    # BYDAY narrows BYMONTHDAY, ordinals included: of the last two days
+    # of October, the last Friday or Saturday.
+    def test_byday_ordinals_narrow_month_days
+        rule = Schedule::Recurrence.parse(
+            "FREQ=YEARLY;BYMONTH=10;BYDAY=-1SA,-1FR;BYMONTHDAY=-2,-1"
+        )
+        assert_equal %w[2026-10-30 2026-10-31 2027-10-30],
+                     rule.occurrences(Date.new(2026, 10, 30),
+                                      Date.new(2028, 9, 30)).map(&:to_s)
+    end
+
+    # -1 and 30 are one day in November, yielded once.
+    def test_a_day_named_twice_comes_once
+        rule = Schedule::Recurrence.parse(
+            "FREQ=YEARLY;BYMONTH=11;BYMONTHDAY=-1,30"
+        )
+        assert_equal %w[2026-11-30 2027-11-30],
+                     rule.occurrences(Date.new(2026, 11, 30),
+                                      Date.new(2027, 12, 31)).map(&:to_s)
+    end
+
     def test_prints_back_in_icalendar_form
         text = "FREQ=MONTHLY;INTERVAL=2;BYDAY=-1FR;BYMONTH=1,7;UNTIL=20271231"
         assert_equal text, Schedule::Recurrence.parse(text).to_s
