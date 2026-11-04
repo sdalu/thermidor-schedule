@@ -75,11 +75,30 @@ again.
 | zone       | `Zone`                                        | a name, an optional strategy, a timetable                  |
 | decision   | `Decision`                                    | the band, strategy, source, preset label and next change   |
 
-A band's two sides are at least `DEADBAND` (1 °C) apart, so a radiator
-and an air conditioner in the same zone never fight; `Setpoint.new`
-refuses closer ones with `Thermidor::Schedule::Error`. A decision's
-strategy is always resolved: a transition's, else the preset's, else the
-zone's, else `DEFAULT_STRATEGY` (`:comfort`).
+A band's two sides are at least the deadband (1 °C) apart, so a
+radiator and an air conditioner in the same zone never fight;
+`Setpoint.new` refuses closer ones with `Thermidor::Schedule::Error`. A
+decision's strategy is always resolved: a transition's, else the
+preset's, else the zone's, else the default strategy (`:comfort`).
+
+## Configuration
+
+The strategies, the default one and the deadband are the process's,
+set once at boot, before any value is built:
+
+```ruby
+Thermidor::Schedule.configure(strategies: %i[comfort eco boost],
+                              default_strategy: :comfort, deadband: 1.5)
+Thermidor::Schedule.config.deadband   # => 1.5
+```
+
+A setting left out keeps its value; settings that cannot hold together
+(no strategy, a default that is none of them, a negative deadband) are
+refused with `Error`, changing nothing. Without a call, they are
+`STRATEGIES`, `DEFAULT_STRATEGY` and `DEADBAND`. A value checks itself
+when built, so one built before a change keeps the old rules. The
+built-in presets (`Preset::SYSTEM`) were built with the default
+strategies: with others, give the layers presets of your own.
 
 ## The layers
 
@@ -122,11 +141,6 @@ those be changed but not deleted.
   readings since it was opened.
 
 Times are local wall-clock times, in the process's time zone.
-
-## Known shortfalls
-
-- The strategies and the deadband are constants, not parameters
-  (DESIGN.md says why).
 
 ## Development
 

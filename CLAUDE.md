@@ -18,5 +18,8 @@ Ruby style: the `ruby` skill (4-space indentation, double quotes,
 - A constant defined inside a Data.define block lands in the enclosing
   module, not the class: reopen the class for constants (Preset,
   Timetable::Entry).
+- `Schedule.configure` is process-wide: a test that calls it resets
+  it in `teardown` (config_test.rb), or every test after it runs under
+  its settings.
 - Times are local: a test about daylight saving sets TZ (support.rb's
   `in_zone`), never relies on the machine's.

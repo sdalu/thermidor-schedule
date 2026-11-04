@@ -27,8 +27,9 @@ target: heat while the room is below `heat`, cool while it is above
 
 Values are rounded to the tenth; anything that is no finite number
 (`"abc"`, infinity, NaN) raises `Error`. The two sides must be at
-least `DEADBAND` (1 °C) apart, so that a radiator and an aircon in one
-zone never fight; closer ones raise `Error`:
+least the deadband apart (`Schedule.config.deadband`, 1 °C unless
+[configured](../README.md#configuration)), so that a radiator and an
+aircon in one zone never fight; closer ones raise `Error`:
 
 ```ruby
 Setpoint.new(heat: 24, cool: 24.5)
@@ -37,11 +38,13 @@ Setpoint.new(heat: 24, cool: 24.5)
 
 ## Strategies
 
-How the devices share the work of holding a band, one of `STRATEGIES`:
+How the devices share the work of holding a band, one of
+`Schedule.config.strategies`. Unless
+[configured](../README.md#configuration) otherwise, they are:
 
 | Strategy    | Intent                                      |
 | :---------- | :------------------------------------------ |
-| `:comfort`  | steady and even; `DEFAULT_STRATEGY`         |
+| `:comfort`  | steady and even; the default                |
 | `:cheapest` | lowest running cost                         |
 | `:quiet`    | as little noise as possible (bedrooms)      |
 | `:quick`    | reach the band fast, both devices if needed |
@@ -49,7 +52,7 @@ How the devices share the work of holding a band, one of `STRATEGIES`:
 Here a strategy is a label carried through the decision; what it does
 to the devices is the planner's. `Schedule.strategy(value)` takes a
 String or a Symbol, returns nil for nil or empty (inherit) and raises
-`ParseError` for an unknown one. Every value that holds a strategy
+`ParseError` for one not configured. Every value that holds a strategy
 (`Preset`, `Transition`, `Zone`) goes through it.
 
 ## Presets
@@ -72,7 +75,9 @@ constant:
 
 Each layer takes its fallback as an argument (`fallback:`, `default:`,
 `defaults:`), so a caller keeping presets passes its own versions; a
-store should let these be changed but not deleted.
+store should let these be changed but not deleted. Their strategies are
+the default ones: a caller configuring others passes its own presets
+here.
 
 ## Programs
 

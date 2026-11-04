@@ -3,15 +3,17 @@
 module Thermidor
     module Schedule
         # A comfort band: heat below `heat`, cool above `cool`; nil on a
-        # side means never act on that side, nil on both means off.
+        # side means never act on that side, nil on both means off. The
+        # sides are at least the configured deadband apart.
         Setpoint = Data.define(:heat, :cool) do
             def initialize(heat: nil, cool: nil)
                 heat, cool = [heat, cool].map do |degrees|
                     degrees&.then { Setpoint.degrees(it) }
                 end
-                if heat && cool && (cool - heat).round(1) < DEADBAND
+                gap = Schedule.config.deadband
+                if heat && cool && (cool - heat).round(1) < gap
                     raise Error, "heat #{heat} must be at least " \
-                                 "#{DEADBAND} below cool #{cool}"
+                                 "#{gap} below cool #{cool}"
                 end
                 super
             end

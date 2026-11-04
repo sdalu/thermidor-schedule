@@ -4,7 +4,8 @@ module Thermidor
     module Schedule
         module Layers
             # The last word: keeps both setpoints within what the devices
-            # are allowed to aim for, and the deadband between them.
+            # are allowed to aim for, and the configured deadband between
+            # them.
             class Clamp
                 LIMITS = (5.0..30.0)
 
@@ -23,9 +24,10 @@ module Thermidor
 
                 # Cool gives way first, up to the upper limit; then heat.
                 def separate(heat, cool)
-                    cool = [cool, heat + DEADBAND].max
+                    gap  = Schedule.config.deadband
+                    cool = [cool, heat + gap].max
                     cool = [cool, @limits.end].min
-                    [[heat, cool - DEADBAND].min, cool]
+                    [[heat, cool - gap].min, cool]
                 end
             end
         end

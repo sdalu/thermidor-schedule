@@ -10,32 +10,36 @@ module Thermidor
         class ParseError < Error; end
 
         # Minimum gap between the heat and cool setpoints, so that a
-        # radiator and an aircon in the same zone never fight.
+        # radiator and an aircon in the same zone never fight; the
+        # default of Config#deadband.
         DEADBAND = 1.0
 
         DAY_MINUTES = 24 * 60
 
-        # How the radiator and the aircon combine to hold a band.
+        # How the radiator and the aircon combine to hold a band; the
+        # defaults of Config#strategies and Config#default_strategy.
         STRATEGIES       = %i[comfort cheapest quiet quick].freeze
         DEFAULT_STRATEGY = :comfort
 
-        # nil stays nil (inherit); anything else must be a known strategy.
+        # nil stays nil (inherit); anything else must be a configured
+        # strategy.
         def self.strategy(value)
             return if value.nil? || value.to_s.empty?
             name = value.to_sym
-            return name if STRATEGIES.include?(name)
-            raise ParseError, "unknown strategy #{value} " \
-                              "(#{STRATEGIES.join(", ")})"
+            known = config.strategies
+            return name if known.include?(name)
+            raise ParseError, "unknown strategy #{value} (#{known.join(", ")})"
         end
 
         # First strategy given, from the most specific level down.
         def self.resolve_strategy(*candidates)
-            candidates.compact.first || DEFAULT_STRATEGY
+            candidates.compact.first || config.default_strategy
         end
     end
 end
 
 require_relative "schedule/version"
+require_relative "schedule/config"
 require_relative "schedule/setpoint"
 require_relative "schedule/preset"
 require_relative "schedule/program"

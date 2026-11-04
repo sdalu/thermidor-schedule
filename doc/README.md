@@ -17,7 +17,7 @@ and what the devices are told, is the caller's.
 | Term     | Class                  | Meaning                                                  |
 | :------- | :--------------------- | :------------------------------------------------------- |
 | band     | `Setpoint`             | heat below `heat`, cool above `cool` (nil: never)        |
-| strategy | a Symbol               | how the devices combine: comfort, cheapest, quiet, quick |
+| strategy | a Symbol               | how the devices combine (configured; comfort by default) |
 | preset   | `Preset`               | a band, named or not, with an optional strategy          |
 | program  | `Program`              | one day: `Transition`s, a preset from a time of day on   |
 | week     | `Timetable`            | a program per weekday, and per special day               |
@@ -97,7 +97,7 @@ The strategy is the first one given, from the most specific level
 down:
 
 ```text
-transition (or the entry's) ─▸ preset ─▸ zone ─▸ DEFAULT_STRATEGY (comfort)
+transition (or the entry's) ─▸ preset ─▸ zone ─▸ the configured default (comfort)
 ```
 
 The house-wide level ClimatControl adds sits in that chain as the

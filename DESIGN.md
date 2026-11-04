@@ -16,8 +16,8 @@ commands that make those entries are in ClimatControl's doc/schedule/.
 
 A zone holds a band: heat below one setpoint, cool above another, do
 nothing in between. A single target would have a radiator and an air
-conditioner in the same room take turns around it; at least `DEADBAND`
-(1 °C) between the sides keeps them apart. A nil side means never act
+conditioner in the same room take turns around it; at least the
+deadband (1 °C unless configured) between the sides keeps them apart. A nil side means never act
 on that side, so frost protection is `+7..` and off is no side at all.
 
 ## Layers that pass the decision up
@@ -73,13 +73,18 @@ house's timetable is: a program's 06:30 is 06:30 on either side of a
 daylight-saving change, and a transition in the spring gap moves
 forward as clocks do (`Time.new`).
 
-## Strategies and the deadband are the family's
+## Strategies and the deadband: configured once
 
-`STRATEGIES` (comfort, cheapest, quiet, quick) are the planner's
-vocabulary, and `DEADBAND` a choice about devices sharing a room.
-They stay constants here for the first release: the planner to come is
-of the same family and shares them, and ClimatControl is the only
-user. Should another user need its own strategies, they become a
-parameter of `Schedule.strategy` and of the values that validate one
-(`Preset`, `Transition`, `Zone`), and the deadband a parameter of
-`Setpoint` and `Layers::Clamp`.
+The strategies are the planner's vocabulary, and the deadband a choice
+about the devices sharing a room: both belong to the house, not to the
+schedule. They are set once per process (`Schedule.configure`), which
+is one house, and the planner of the same family reads the same
+settings, so the two cannot disagree on a strategy's name or on how far
+apart a band's sides are.
+
+Passing them to every call was the alternative: no shared state, but
+each caller would thread a deadband through `Setpoint`, `Syntax.band`
+and the clamp, and a value built without it would silently take the
+default. Values still check themselves when built, against the
+settings of the time; so the settings are made before anything is
+built, and a refused change leaves them as they were.

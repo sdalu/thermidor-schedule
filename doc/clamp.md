@@ -12,7 +12,7 @@ Layers::Clamp.new(limits: Layers::Clamp::LIMITS)   # 5.0..30.0
 | Rule     | Value                 | Why                                         |
 | :------- | :-------------------- | :------------------------------------------ |
 | range    | `limits`, 5 to 30 °C  | both setpoints stay within what makes sense |
-| deadband | `DEADBAND`, 1 °C      | a radiator and an aircon never fight        |
+| deadband | configured, 1 °C      | a radiator and an aircon never fight        |
 
 Each setpoint is first brought within the range. When the two are then
 closer than the deadband, the cooling side gives way first, up to the
