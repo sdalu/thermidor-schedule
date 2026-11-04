@@ -90,6 +90,18 @@ class SyntaxTest < Minitest::Test
         end
     end
 
+    def test_years
+        assert_equal 2027..2027, Syntax.years("2027")
+        assert_equal 2027..2029, Syntax.years("2027..2029")
+        error = assert_raises(Schedule::ParseError) do
+            Syntax.years("2029..2027")
+        end
+        assert_match(/ends before it starts/, error.message)
+        %w[20x7 2027.. ..2027].each do |text|
+            assert_raises(Schedule::ParseError, text) { Syntax.years(text) }
+        end
+    end
+
     def test_durations
         seconds = %w[2h 90m 1h30 30 0].map { Syntax.duration(it) }
         assert_equal [7200, 5400, 5400, 1800, 0], seconds

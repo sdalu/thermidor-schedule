@@ -5,12 +5,12 @@
 The schedule was `ClimatControl::Schedule`, the part of ClimatControl
 that decides what each zone of a house should hold. It used nothing of
 the rest (no device, no database, no presence backend), so it moved
-into its own gem, unchanged but for its namespace, to be paired later
-with a planner of the same family (`thermidor-planner`). ClimatControl
-keeps what is its own: the SQLite store the entries live in, the
-command line, and the planner that turns decisions into device
-settings. Its user documentation of the layers (doc/schedule/ there)
-explains each layer's behaviour command by command.
+into its own gem, its code unchanged but for its namespace, to be
+paired later with a planner of the same family (`thermidor-planner`).
+ClimatControl keeps what is its own: the SQLite store the entries live
+in, the command line, and the planner that turns decisions into device
+settings. What each layer does with its entries is in doc/ here; the
+commands that make those entries are in ClimatControl's doc/schedule/.
 
 ## A band, not a target
 

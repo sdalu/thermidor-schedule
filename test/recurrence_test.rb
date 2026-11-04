@@ -46,14 +46,28 @@ class RecurrenceTest < Minitest::Test
                      Schedule::Recurrence.parse("freq=daily;interval=1").to_s
     end
 
+    # Each refusal for its own reason: a rule refused for another (a
+    # missing FREQ) would prove nothing about the part it is about.
+    REFUSED = {
+        "FREQ=HOURLY" => "FREQ=HOURLY is not supported",
+        "FREQ=DAILY;BYSETPOS=1" => "BYSETPOS is not supported",
+        "FREQ=WEEKLY;BYDAY=2TU" => "BYDAY ordinals need",
+        "FREQ=YEARLY;BYDAY=1MO" => "BYDAY ordinals need",
+        "FREQ=WEEKLY;BYDAY=XX" => "bad BYDAY XX",
+        "FREQ=DAILY;INTERVAL=-2" => "bad INTERVAL -2",
+        "FREQ=DAILY;COUNT=2;UNTIL=20270101" => "UNTIL and COUNT exclude",
+        "BYDAY=MO" => "FREQ is required",
+        "FREQ=MONTHLY;BYMONTHDAY=0" => "bad BYMONTHDAY 0",
+        "FREQ=WEEKLY;WKST=SU" => "WKST other than MO",
+        "FREQ=DAILY;UNTIL=x" => "bad UNTIL"
+    }.freeze
+
     def test_refuses_what_is_not_supported
-        %w[FREQ=HOURLY FREQ=DAILY;BYSETPOS=1 FREQ=WEEKLY;BYDAY=2TU
-           FREQ=DAILY;INTERVAL=-2 FREQ=DAILY;COUNT=2;UNTIL=20270101 BYDAY=MO
-           FREQ=MONTHLY;BYMONTHDAY=0 FREQ=WEEKLY;WKST=SU FREQ=DAILY;UNTIL=x
-           FREQ=YEARLY;BYDAY=1MO].each do |text|
-            assert_raises(Schedule::ParseError, text) do
+        REFUSED.each do |text, reason|
+            error = assert_raises(Schedule::ParseError, text) do
                 Schedule::Recurrence.parse(text)
             end
+            assert_includes error.message, reason, text
         end
     end
 end

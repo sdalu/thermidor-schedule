@@ -33,4 +33,13 @@ class SetpointTest < Minitest::Test
                      Schedule::Setpoint.new(heat: -2, cool: 5).to_s
         assert_equal "off", Schedule::Setpoint.new.to_s
     end
+
+    def test_refuses_a_side_that_is_no_temperature
+        [Float::INFINITY, -Float::INFINITY, Float::NAN].each do |value|
+            error = assert_raises(Schedule::Error, value.to_s) do
+                Schedule::Setpoint.new(heat: value)
+            end
+            assert_match(/is no temperature/, error.message)
+        end
+    end
 end

@@ -95,7 +95,7 @@ keeps them.
 | `Layers::Manual`     | `Manual::Entry`             | a setting made by hand, until its end      | `manual`             |
 | `Layers::Boost`      | `Manual::Entry`             | a short push, `mode` its direction         | `boost`              |
 | `Layers::OpenWindow` | `Manual::Entry`             | a window open, until its end               | `open-window`        |
-| `Layers::Clamp`      | none                        | always: both sides within `limits:`        | as below             |
+| `Layers::Clamp`      | none                        | always: both sides within `limits:`        | the decision's below |
 
 A layer is anything answering `apply(zone, now, below)` with a
 `Decision`: one of the caller's own fits in the stack as well.
@@ -122,6 +122,16 @@ those be changed but not deleted.
   readings since it was opened.
 
 Times are local wall-clock times, in the process's time zone.
+
+## Known shortfalls
+
+- A `Layers::Manual` built without `default:` fails with
+  `NoMethodError` on an entry that has no preset, instead of refusing
+  the entry.
+- `Setpoint` refuses an infinite or NaN side with `Error`, but a value
+  that is no number at all (`"abc"`) raises Ruby's `ArgumentError`.
+- The strategies and the deadband are constants, not parameters
+  (DESIGN.md says why).
 
 ## Development
 
