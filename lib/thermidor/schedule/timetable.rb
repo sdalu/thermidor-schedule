@@ -35,7 +35,7 @@ module Thermidor
             # next_change.
             def at(time, &lookup)
                 lookup ||= ->(date) { days[date.wday] }
-                (0..7).each do |back|
+                (0..Timetable::REACH).each do |back|
                     date = time.to_date - back
                     program = lookup.call(date) or next
                     transition = last_by(program, date, time) or next
@@ -47,7 +47,7 @@ module Thermidor
             # Time of the next transition after `time`, nil if none.
             def next_change(time, &lookup)
                 lookup ||= ->(date) { days[date.wday] }
-                (0..7).each do |ahead|
+                (0..Timetable::REACH).each do |ahead|
                     date = time.to_date + ahead
                     program = lookup.call(date) or next
                     later = program.transitions.find do |each|
@@ -76,9 +76,18 @@ module Thermidor
                 hour, min = minute.divmod(60)
                 time = Time.new(date.year, date.month, date.day, hour, min)
                 return jump(time) if (time.hour * 60) + time.min != minute
-                earlier = time - 3600
-                return earlier if earlier.hour == hour && earlier.min == min
-                time
+                first_of(time)
+            end
+
+            # Of a clock reading that comes twice, as clocks go back (an
+            # hour, or half an hour on Lord Howe), the first; Time.new gives
+            # the second.
+            def first_of(time)
+                shift   = (time - (3 * 3600)).utc_offset - time.utc_offset
+                earlier = time - shift
+                return time unless shift.positive?
+                same = earlier.hour == time.hour && earlier.min == time.min
+                same ? earlier : time
             end
 
             # The moment the clocks jumped forward, before `time`, which
@@ -93,6 +102,10 @@ module Thermidor
             # What is in force at a given time: which program, which of its
             # transitions, and the date that program ran on.
             Entry = Data.define(:program, :transition, :date)
+
+            # How many dates back `at` looks for what is in force, and
+            # `next_change` ahead for a change: a week.
+            REACH = 7
 
             # Bound to a special day: a calendar entry for that day applies
             # to the zone, which runs its usual weekday. Not a program: it

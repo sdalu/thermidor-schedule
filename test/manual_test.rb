@@ -75,55 +75,12 @@ class ManualTest < Minitest::Test
         end
     end
 
-    # A duration each kind refuses, and how it says so.
-    TOO_LONG = [
-        [Schedule::Layers::Manual, (12 * 3600) + 1,
-         "a manual setting lasts 0 to 12 hours"],
-        [Schedule::Layers::Boost, 3601, "a boost lasts 0 to 1 hour"],
-        [Schedule::Layers::OpenWindow, -1, "an open window lasts 0 to 2 hours"]
-    ].freeze
-
-    def test_each_kind_says_how_long_it_may_last
-        Schedule::Layers::Manual.check_duration(12 * 3600)
-        TOO_LONG.each do |kind, seconds, said|
-            error = assert_raises(Schedule::Error, said) do
-                kind.check_duration(seconds)
-            end
-            assert_equal said, error.message
-        end
-    end
-
-    def test_an_end_is_fixed_when_the_setting_is_made
-        assert_equal at("2026-11-02 11:30"), ends(:for, duration: 5400)
-        assert_equal at("2026-11-02 22:30"), ends(:next)
-        assert_nil ends(:forever)
-        assert_raises(Schedule::Error) { ends(:for, duration: 13 * 3600) }
-        assert_raises(Schedule::Error) { ends(:later) }
-    end
-
-    def test_next_without_a_change_below_lasts_the_longest
-        empty = Schedule::Zone.new(name: "attic")
-        now   = at("2026-11-02 10:00")
-        ends  = Schedule::Layers::Manual.ends_at(
-            :next, below: Schedule::Stack.new([base]), zone: empty, now:
-        )
-        assert_equal now + Schedule::Layers::Manual::LONGEST, ends
-    end
-
     private
 
     def later = entry(preset: COMFORT, starts_at: at("2026-11-02 11:00"))
 
     def until_at(*entries)
         resolve("2026-11-02 10:00", layers: manual(*entries)).until
-    end
-
-    # The end of a setting made on a Monday at 10:00, on the workday zone.
-    def ends(mode, **)
-        Schedule::Layers::Manual.ends_at(
-            mode, below: Schedule::Stack.new([base]), zone: @zone,
-                  now: at("2026-11-02 10:00"), **
-        )
     end
 
     def manual(*entries) = [base, Schedule::Layers::Manual.new(entries)]

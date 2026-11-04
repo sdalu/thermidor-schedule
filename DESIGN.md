@@ -91,8 +91,12 @@ only.
 
 Times are local wall-clock times in the process's time zone, as a
 house's timetable is: a program's 06:30 is 06:30 on either side of a
-daylight-saving change, and a transition in the spring gap moves
-forward as clocks do (`Time.new`).
+daylight-saving change. A transition in the spring gap happens when the
+clocks jump, at 03:00, not at 03:30 where `Time.new` puts it: moments
+then keep the order of clock readings, so a 03:10 transition still
+comes after it. Of a reading that comes twice in autumn, the first.
+What is in force and when it next changes are both worked out as
+moments, so a caller polling and one sleeping until `until` agree.
 
 ## Strategies and the deadband: configured once
 

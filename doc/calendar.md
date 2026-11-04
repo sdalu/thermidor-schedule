@@ -55,7 +55,11 @@ With a `work` program every day and a `holiday` program starting at
 | 2026-11-11 10:00   | holiday | `calendar:fr:holiday` | 2026-11-12 06:45 |
 
 A zone with no program on any date within the week before gets the
-decision below, unchanged.
+decision below, with `until` brought forward to the calendar's next
+change: a guest room that runs only on holidays is told, the day
+before, when its holiday starts. Such a zone carries its last special
+day on until the timetable's look back (a week) no longer sees it, at
+midnight eight dates later, and that end is announced too.
 
 ## Entries
 

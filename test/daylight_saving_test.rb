@@ -47,6 +47,18 @@ class DaylightSavingTest < Minitest::Test
         end
     end
 
+    # Lord Howe goes back half an hour, from 02:00 to 01:30, on
+    # 2026-04-05: of 01:45, which comes twice, the first.
+    def test_a_transition_in_a_repeated_half_hour_happens_the_first_time
+        @zone = zone_with("01:00" => ECO, "01:45" => COMFORT)
+        in_zone("Australia/Lord_Howe") do
+            first = Time.new(2026, 4, 5, 1, 45, 0, "+11:00")
+            assert_equal [first, "eco"],
+                         change_at(2026, 4, 5, 1, 10, "+11:00")
+            assert_equal "comfort", label_at(2026, 4, 5, 1, 50, "+11:00")
+        end
+    end
+
     private
 
     def zone_with(steps)

@@ -47,18 +47,29 @@ module Thermidor
                     @entries = entries.dup.freeze
                 end
 
+                # A calendar day still to come is a change ahead even when
+                # nothing runs through the calendar yet.
                 def apply(zone, now, below)
                     lookup = ->(date) { program_on(zone, date) }
-                    entry  = zone.timetable.at(now, &lookup) or return below
+                    change = zone.timetable.next_change(now, &lookup)
+                    entry  = zone.timetable.at(now, &lookup) or
+                        return below.sooner(change)
                     Decision.from_preset(
                         entry.transition.preset, zone,
                         override: entry.transition.strategy,
-                        source: source(zone, entry),
-                        until: zone.timetable.next_change(now, &lookup)
-                    )
+                        source: source(zone, entry), until: change
+                    ).sooner(out_of_sight(entry.date))
                 end
 
                 private
+
+                # When what ran on `date` is no longer seen: the timetable
+                # looks back REACH dates, so midnight the date after that.
+                # Only a zone with no weekday program carries a day so long.
+                def out_of_sight(date)
+                    gone = date + Schedule::Timetable::REACH + 1
+                    Time.new(gone.year, gone.month, gone.day)
+                end
 
                 def source(zone, entry)
                     found, = entry_on(zone, entry.date)

@@ -55,9 +55,12 @@ Layers::Manual.ends_at(:for, below:, zone:, now:, duration: 5400)
 | `:next`    | the next change of the layers below, at that moment |
 | `:forever` | nil                                             |
 
-`:next` is the next change of the stack below the manual layer at
-that moment, or `LONGEST` ahead when nothing below changes. Worked out
-live instead, it would never end: there is always a next change.
+`:next` is the next change of what the stack below the manual layer
+decides at that moment, or `LONGEST` ahead when that does not change:
+not the next change of a layer it hides. On the eve of a holiday whose
+program starts at 09:00, the calendar hides the timetable's 06:30, so
+the setting ends at 09:00. Worked out live instead, it would never end:
+there is always a next change.
 
 `:for` checks its duration: `check_duration(seconds)` refuses one
 outside 0 to `LONGEST` with `Error`, naming the kind (`a manual setting

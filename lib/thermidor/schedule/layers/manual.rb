@@ -34,8 +34,9 @@ module Thermidor
 
                 # The end of a setting made at `now`, fixed then: :for (or
                 # :steady, a window's limit) a checked duration; :next, the
-                # next change of `below` (a Stack of the layers under this
-                # one), or LONGEST ahead when nothing below changes;
+                # next change of what `below` (a Stack of the layers under
+                # this one) decides, not of a layer it hides, or LONGEST
+                # ahead when that does not change;
                 # :forever, nil.
                 def self.ends_at(mode, below:, zone:, now:, duration: nil)
                     case mode
@@ -43,7 +44,7 @@ module Thermidor
                         check_duration(duration)
                         now + duration
                     when :next
-                        below.wake_at(zone, now) || (now + self::LONGEST)
+                        below.resolve(zone, now).until || (now + self::LONGEST)
                     when :forever then nil
                     else raise Error, "unknown mode #{mode}"
                     end
