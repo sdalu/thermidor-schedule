@@ -9,11 +9,19 @@ module Thermidor
         # configuration of the time.
         Config = Data.define(:strategies, :default_strategy, :deadband) do
             def initialize(strategies:, default_strategy:, deadband:)
-                strategies = Array(strategies).map(&:to_sym).freeze
-                default_strategy = default_strategy.to_sym
+                strategies = Array(strategies).map { Config.name(it) }.freeze
+                default_strategy = Config.name(default_strategy)
                 deadband = Config.deadband(deadband)
                 Config.check(strategies, default_strategy)
                 super
+            end
+
+            # A strategy's name, a String or a Symbol, as a Symbol.
+            def self.name(value)
+                case value
+                when String, Symbol then return value.to_sym
+                end
+                raise Error, "#{value.inspect} is no strategy name"
             end
 
             # A finite gap, to the tenth, not below zero.

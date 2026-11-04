@@ -53,6 +53,15 @@ class LayersTest < Minitest::Test
         assert_equal [29.0, 30.0], clamp(31, 33)
     end
 
+    def test_a_layer_without_a_band_to_fall_back_on_is_refused
+        assert_raises(Schedule::Error) do
+            Schedule::Layers::Timetable.new(fallback: nil)
+        end
+        assert_raises(Schedule::Error) do
+            Schedule::Layers::Away.new([], default: nil)
+        end
+    end
+
     private
 
     def away(*entries) = [base, Schedule::Layers::Away.new(entries)]

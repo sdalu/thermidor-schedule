@@ -72,12 +72,17 @@ class ConfigTest < Minitest::Test
     def test_refuses_settings_that_cannot_hold
         [{ strategies: [] }, { default_strategy: :fast },
          { strategies: %i[eco eco], default_strategy: :eco },
-         { deadband: -1 }, { deadband: Float::NAN }, { deadband: "wide" }]
+         { deadband: -1 }, { deadband: Float::NAN }, { deadband: "wide" },
+         { default_strategy: nil }, { strategies: [:comfort, 5] }]
             .each do |changes|
                 assert_raises(Schedule::Error, changes.inspect) do
                     Schedule.configure(**changes)
                 end
             end
+    end
+
+    def test_a_strategy_is_a_name
+        assert_raises(Schedule::ParseError) { Schedule.strategy(5) }
     end
 
     def test_a_refused_setting_changes_nothing

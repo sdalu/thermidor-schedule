@@ -36,6 +36,7 @@ class SyntaxTest < Minitest::Test
         assert_raises(Schedule::ParseError) { Syntax.preset_ref("Comfort") }
         assert_raises(Schedule::ParseError) { Syntax.preset_ref("eco/loud") }
         assert_raises(Schedule::ParseError) { Syntax.preset_ref("eco/x/y") }
+        assert_raises(Schedule::ParseError) { Syntax.preset_ref("eco/") }
     end
 
     def test_transitions

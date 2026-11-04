@@ -30,13 +30,15 @@ module Thermidor
 
             # The Entry in force at `time`, nil if there is none. `lookup`
             # gives the program of a date, the weekday's by default.
+            # Transitions are compared as moments, not clock readings, so
+            # one on a night clocks change happens once, at its
+            # next_change.
             def at(time, &lookup)
                 lookup ||= ->(date) { days[date.wday] }
                 (0..7).each do |back|
                     date = time.to_date - back
                     program = lookup.call(date) or next
-                    upto = back.zero? ? minute(time) : DAY_MINUTES
-                    transition = program.at(upto) or next
+                    transition = last_by(program, date, time) or next
                     return Timetable::Entry.new(program, transition, date)
                 end
                 nil
@@ -48,21 +50,33 @@ module Thermidor
                 (0..7).each do |ahead|
                     date = time.to_date + ahead
                     program = lookup.call(date) or next
-                    from  = ahead.zero? ? minute(time) : -1
-                    later = program.after(from) or next
-                    return local(date, later.minute)
+                    later = program.transitions.find do |each|
+                        local(date, each.minute) > time
+                    end
+                    return local(date, later.minute) if later
                 end
                 nil
             end
 
             private
 
-            def minute(time) = (time.hour * 60) + time.min
+            # The last transition of `program`, run on `date`, made by
+            # `time`; nil if none.
+            def last_by(program, date, time)
+                program.transitions.reverse.find do |each|
+                    local(date, each.minute) <= time
+                end
+            end
 
-            # Local wall-clock time; Time.new moves a time that falls in
-            # a daylight-saving gap forward, as clocks do.
+            # Local wall-clock time: Time.new moves one that falls in a
+            # daylight-saving gap forward, as clocks do; of one that comes
+            # twice, when clocks go back, the first.
             def local(date, minute)
-                Time.new(date.year, date.month, date.day, *minute.divmod(60))
+                hour, min = minute.divmod(60)
+                time    = Time.new(date.year, date.month, date.day, hour, min)
+                earlier = time - 3600
+                return earlier if earlier.hour == hour && earlier.min == min
+                time
             end
         end
 

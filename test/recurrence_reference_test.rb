@@ -57,12 +57,20 @@ class RecurrenceReferenceTest < Minitest::Test
     end
 
     # BYDAY ordinals only where the parser takes them: monthly, or
-    # yearly with BYMONTH, which a yearly rule here always has.
+    # yearly with BYMONTH. No yearly BYMONTHDAY without BYMONTH: rrule
+    # at times keeps it in its first month, where python-dateutil and
+    # RFC 5545 take every month, as Recurrence does (recurrence_test.rb
+    # pins it).
     def by_parts(freq, random)
-        months = (months(random) if freq == "YEARLY" || random.rand < 0.2)
-        ordinals = %w[MONTHLY YEARLY].include?(freq)
-        [months && "BYMONTH=#{months}", by_day(ordinals, random),
-         (month_days(random) if freq != "WEEKLY" && random.rand < 0.4)]
+        months = (months(random) if random.rand < 0.4)
+        yearly = freq == "YEARLY"
+        [months && "BYMONTH=#{months}",
+         by_day(freq == "MONTHLY" || (yearly && months), random),
+         (month_days(random) if month_days?(freq, months, random))]
+    end
+
+    def month_days?(freq, months, random)
+        freq != "WEEKLY" && (freq != "YEARLY" || months) && random.rand < 0.4
     end
 
     def months(random)

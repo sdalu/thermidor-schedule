@@ -125,7 +125,9 @@ rule.to_s  # => "FREQ=MONTHLY;BYDAY=-1FR"
 
 As in iCalendar, the first date always counts as the first occurrence,
 `BYDAY` narrows `BYMONTHDAY` (ordinals included: the last Friday of
-those days), a day named twice comes once, and dates a rule cannot
+those days), a yearly rule without `BYMONTH` takes its days in every
+month (`FREQ=YEARLY;BYDAY=MO` is every Monday), a day named twice comes
+once, a part given twice is refused, and dates a rule cannot
 have (31 February) are skipped rather than moved: `FREQ=MONTHLY;BYMONTHDAY=31` from 31 January gives 31 January,
 then 31 March. Anything else, or a malformed part, raises `ParseError`
 naming it; `UNTIL` and `COUNT` exclude each other.

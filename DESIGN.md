@@ -79,8 +79,13 @@ The expansion is where ordinals, negative month days and intervals
 meet, more cases than examples written by hand cover. So the suite
 also compares it with the rrule gem, an independent RFC 5545
 implementation, over rules generated from a fixed seed: the comparison
-found BYDAY ordinals ignored beside BYMONTHDAY, and a day named twice
-yielded twice. rrule is a development dependency only.
+found BYDAY ordinals ignored beside BYMONTHDAY, a day named twice
+yielded twice, and a yearly rule without BYMONTH kept in its first
+month. rrule is not right everywhere either: it at times keeps a yearly
+BYMONTHDAY rule without BYMONTH in its first month, where
+python-dateutil and the RFC take every month, so the generator leaves
+that case to tests written by hand. rrule is a development dependency
+only.
 
 ## Local time
 

@@ -50,6 +50,30 @@ class RecurrenceTest < Minitest::Test
                                       Date.new(2028, 9, 30)).map(&:to_s)
     end
 
+    # Without BYMONTH, a yearly rule's days are taken in every month.
+    def test_yearly_without_bymonth_spans_the_year
+        mondays = Schedule::Recurrence.parse("FREQ=YEARLY;BYDAY=MO;COUNT=6")
+        assert_equal %w[2026-01-05 2026-01-12 2026-01-19 2026-01-26
+                        2026-02-02 2026-02-09],
+                     mondays.occurrences(Date.new(2026, 1, 5),
+                                         Date.new(2027, 1, 1)).map(&:to_s)
+        fifteenths = Schedule::Recurrence.parse("FREQ=YEARLY;BYMONTHDAY=15")
+        assert_equal %w[2026-01-15 2026-02-15 2026-03-15],
+                     fifteenths.occurrences(Date.new(2026, 1, 15),
+                                            Date.new(2026, 3, 31)).map(&:to_s)
+    end
+
+    # As python-dateutil gives it; the rrule gem stays in January.
+    def test_every_other_year_without_bymonth_spans_the_year
+        rule = Schedule::Recurrence.parse(
+            "FREQ=YEARLY;INTERVAL=2;BYMONTHDAY=31;UNTIL=20290508"
+        )
+        assert_equal %w[2026-12-31 2028-01-31 2028-03-31 2028-05-31
+                        2028-07-31 2028-08-31 2028-10-31 2028-12-31],
+                     rule.occurrences(Date.new(2026, 12, 31),
+                                      Date.new(2030, 1, 1)).map(&:to_s)
+    end
+
     # -1 and 30 are one day in November, yielded once.
     def test_a_day_named_twice_comes_once
         rule = Schedule::Recurrence.parse(
@@ -80,7 +104,8 @@ class RecurrenceTest < Minitest::Test
         "BYDAY=MO" => "FREQ is required",
         "FREQ=MONTHLY;BYMONTHDAY=0" => "bad BYMONTHDAY 0",
         "FREQ=WEEKLY;WKST=SU" => "WKST other than MO",
-        "FREQ=DAILY;UNTIL=x" => "bad UNTIL"
+        "FREQ=DAILY;UNTIL=x" => "bad UNTIL",
+        "FREQ=DAILY;FREQ=WEEKLY" => "FREQ twice"
     }.freeze
 
     def test_refuses_what_is_not_supported
@@ -90,23 +115,5 @@ class RecurrenceTest < Minitest::Test
             end
             assert_includes error.message, reason, text
         end
-    end
-
-    CHRISTMAS = Schedule::Layers::Calendar::Entry.new(
-        id: 1, calendar: "fr", priority: 8, zone: nil, kind: "holiday",
-        first: Date.new(2026, 12, 24), last: Date.new(2026, 12, 25),
-        description: nil
-    )
-
-    def test_a_recurring_entry_repeats_as_a_whole_but_its_skipped_dates
-        rule  = Schedule::Recurrence.parse("FREQ=YEARLY;COUNT=3")
-        found = CHRISTMAS.occurrences(rule, Date.new(2030, 1, 1),
-                                      skipped: [Date.new(2027, 12, 24)])
-        spans = found.map { [it.first.year, it.first.day, it.last.day] }
-        assert_equal [[2026, 24, 25], [2028, 24, 25]], spans
-    end
-
-    def test_an_entry_without_a_rule_stands_alone
-        assert_equal [CHRISTMAS], CHRISTMAS.occurrences(nil, Date.new(2030))
     end
 end

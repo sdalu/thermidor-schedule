@@ -26,7 +26,7 @@ module Thermidor
             def preset_ref(text)
                 body, strategy, *rest = text.split("/", -1)
                 raise ParseError, "bad preset #{text.inspect}" unless
-                    body && rest.empty?
+                    body && rest.empty? && strategy != ""
                 [preset(body), strategy && Schedule.strategy(strategy)]
             end
 

@@ -52,10 +52,18 @@ module Thermidor
                           .select { days.include?(it.wday) && in_month?(it) }
                 end
 
+                # BYMONTH's months; without it, every month when BYDAY or
+                # BYMONTHDAY picks the days, else the first date's.
                 def months(year)
                     numbers = @rule.by_month
-                    numbers = [@first.month] if numbers.empty?
+                    numbers = default_months if numbers.empty?
                     numbers.map { Date.new(year, it, 1) }
+                end
+
+                def default_months
+                    return (1..12).to_a if
+                        @rule.by_day.any? || @rule.by_month_day.any?
+                    [@first.month]
                 end
 
                 # The dates of a month the rule picks.

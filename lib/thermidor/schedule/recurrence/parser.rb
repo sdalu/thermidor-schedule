@@ -11,13 +11,16 @@ module Thermidor
                 BY_DAY = /\A(?<ordinal>[+-]?[1-5])?(?<day>[A-Z]{2})\z/
 
                 def initialize(text)
-                    @text  = text
-                    @parts = text.to_s.upcase.split(";").to_h do |part|
+                    @text = text
+                    pairs = text.to_s.upcase.split(";").map do |part|
                         key, value = part.split("=", 2)
                         refuse!("#{key} is not supported") unless
                             PARTS.include?(key) && value
                         [key, value]
                     end
+                    @parts = pairs.to_h
+                    twice = pairs.map(&:first).tally.key(2) and
+                        refuse!("#{twice} twice")
                 end
 
                 def rule

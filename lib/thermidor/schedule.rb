@@ -25,6 +25,8 @@ module Thermidor
         # strategy.
         def self.strategy(value)
             return if value.nil? || value.to_s.empty?
+            raise ParseError, "#{value.inspect} is no strategy" unless
+                value.is_a?(String) || value.is_a?(Symbol)
             name = value.to_sym
             known = config.strategies
             return name if known.include?(name)

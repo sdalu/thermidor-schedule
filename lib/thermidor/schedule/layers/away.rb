@@ -19,6 +19,7 @@ module Thermidor
 
                 def initialize(entries, default: Preset::AWAY,
                                auto_since: nil)
+                    raise Error, "an away layer needs a default" unless default
                     @entries    = entries
                     @default    = default
                     @auto_since = auto_since

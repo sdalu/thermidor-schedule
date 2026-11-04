@@ -100,9 +100,10 @@ class TimetableTest < Minitest::Test
             change = timetable.next_change(Time.new(2026, 3, 29, 1, 0))
             assert_equal Time.new(2026, 3, 29, 3, 30), change
             assert_equal 90 * 60, change - Time.new(2026, 3, 29, 1, 0)
-            # 2026-10-25: clocks go back from 03:00 to 02:00.
+            # 2026-10-25: clocks go back from 03:00 to 02:00; the first
+            # 02:30, summer time's.
             change = timetable.next_change(Time.new(2026, 10, 25, 0, 0))
-            assert_equal Time.new(2026, 10, 25, 2, 30), change
+            assert_equal Time.new(2026, 10, 25, 2, 30, 0, "+02:00"), change
         end
     end
 
