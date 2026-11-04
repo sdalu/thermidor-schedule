@@ -1,6 +1,6 @@
 # thermidor-schedule
 
-How it works: README.md. Why it is shaped so: DESIGN.md. What closes a
+How it works: README.md, and doc/ per layer. Why it is shaped so: DESIGN.md. What closes a
 round: CHECKLIST.md.
 
 Gate: `bundle exec rake`

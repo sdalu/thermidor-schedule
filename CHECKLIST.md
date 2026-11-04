@@ -10,6 +10,8 @@
 
 - [ ] `README.md`: does the example still run, and do the layers' table
   and their sources match the code?
+- [ ] `doc/`: does each page still say what its layer does, its
+  examples' outputs included (run them)?
 - [ ] `DESIGN.md`: did this round change a reason it gives, or make a
   choice it should record?
 

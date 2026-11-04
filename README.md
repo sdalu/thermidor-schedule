@@ -130,7 +130,8 @@ bundle install
 bundle exec rake     # the tests, then RuboCop
 ```
 
-Why it is shaped so: [DESIGN.md](DESIGN.md).
+Each layer, its entries and its edges: [doc/](doc/README.md). Why it
+is shaped so: [DESIGN.md](DESIGN.md).
 
 ## Licence
 
