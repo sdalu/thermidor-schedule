@@ -25,9 +25,10 @@ target: heat while the room is below `heat`, cool while it is above
 | `cool: 27`              | `..+27.0`      | cooling only        |
 | (nothing)               | `off`          | nothing at all      |
 
-Values are rounded to the tenth and must be finite. The two sides must
-be at least `DEADBAND` (1 °C) apart, so that a radiator and an aircon
-in one zone never fight; closer ones raise `Error`:
+Values are rounded to the tenth; anything that is no finite number
+(`"abc"`, infinity, NaN) raises `Error`. The two sides must be at
+least `DEADBAND` (1 °C) apart, so that a radiator and an aircon in one
+zone never fight; closer ones raise `Error`:
 
 ```ruby
 Setpoint.new(heat: 24, cool: 24.5)

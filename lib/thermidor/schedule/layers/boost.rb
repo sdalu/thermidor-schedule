@@ -21,8 +21,8 @@ module Thermidor
                 # defaults: { direction => Preset }, the built-in ones for
                 # any not given.
                 def initialize(entries, defaults: {})
-                    super(entries, source: "boost")
                     @defaults = DEFAULTS.merge(defaults)
+                    super(entries, source: "boost")
                 end
 
                 private

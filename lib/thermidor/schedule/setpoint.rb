@@ -18,9 +18,10 @@ module Thermidor
 
             # A finite temperature, to the tenth.
             def self.degrees(value)
-                value = Float(value)
-                raise Error, "#{value} is no temperature" unless value.finite?
-                value.round(1)
+                degrees = Float(value, exception: false)
+                raise Error, "#{value.inspect} is no temperature" unless
+                    degrees&.finite?
+                degrees.round(1)
             end
 
             def off? = heat.nil? && cool.nil?

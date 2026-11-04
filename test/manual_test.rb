@@ -42,6 +42,26 @@ class ManualTest < Minitest::Test
         assert_equal "comfort", resolve("2026-11-02 10:00", layers:).label
     end
 
+    def test_refuses_an_entry_with_no_band_to_hold
+        error = assert_raises(Schedule::Error) do
+            Schedule::Layers::Manual.new([entry(preset: nil)])
+        end
+        assert_match(/salon.*no preset/, error.message)
+    end
+
+    def test_an_entry_without_a_preset_holds_the_default
+        layers = [base, Schedule::Layers::Manual.new([entry(preset: nil)],
+                                                     default: COMFORT)]
+        assert_equal "comfort", resolve("2026-11-02 10:00", layers:).label
+    end
+
+    def test_boosts_and_open_windows_always_have_a_default
+        [Schedule::Layers::Boost, Schedule::Layers::OpenWindow].each do |kind|
+            layers = [base, kind.new([entry(preset: nil, mode: :heat)])]
+            refute_nil resolve("2026-11-02 10:00", layers:).label, kind
+        end
+    end
+
     private
 
     def manual(*entries) = [base, Schedule::Layers::Manual.new(entries)]

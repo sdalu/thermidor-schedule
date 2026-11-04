@@ -7,7 +7,8 @@ module Thermidor
             # (nil: until cleared), then the layers below take over again.
             # The end is fixed when the setting is made, whether a duration
             # or the next change below at that moment. An entry without a
-            # preset holds the layer's default (see Boost).
+            # preset holds the layer's default (see Boost); without one
+            # either, the entry is refused.
             class Manual
                 # The longest a manual setting may be given a duration for.
                 LONGEST = 12 * 3600
@@ -25,6 +26,7 @@ module Thermidor
                     @entries = entries
                     @source  = source
                     @default = default
+                    refuse_bare
                 end
 
                 def apply(zone, now, below)
@@ -39,6 +41,14 @@ module Thermidor
                 end
 
                 private
+
+                # An entry with no band to hold: no preset, and no default.
+                def refuse_bare
+                    bare = @entries.find { it.preset.nil? && !default_for(it) }
+                    return unless bare
+                    raise Error, "manual entry for #{bare.zone} has no " \
+                                 "preset, and the layer no default"
+                end
 
                 def default_for(_entry) = @default
             end

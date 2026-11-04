@@ -125,11 +125,6 @@ Times are local wall-clock times, in the process's time zone.
 
 ## Known shortfalls
 
-- A `Layers::Manual` built without `default:` fails with
-  `NoMethodError` on an entry that has no preset, instead of refusing
-  the entry.
-- `Setpoint` refuses an infinite or NaN side with `Error`, but a value
-  that is no number at all (`"abc"`) raises Ruby's `ArgumentError`.
 - The strategies and the deadband are constants, not parameters
   (DESIGN.md says why).
 

@@ -54,9 +54,11 @@ caller.
 ## Which band
 
 The entry's preset, else the layer's `default`. The plain manual layer
-has none, so its entries must carry a preset: an entry without one
-fails (`NoMethodError`). The strategy is the entry's, then the
-preset's, then the zone's, then `comfort`.
+has none unless given one, so an entry with no preset and no default
+to fall back on is refused when the layer is built (`Error`, naming
+the entry's zone). Boosts and open windows always have a default. The
+strategy is the entry's, then the preset's, then the zone's, then
+`comfort`.
 
 ## In a decision
 
