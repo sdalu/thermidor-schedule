@@ -66,14 +66,22 @@ module Thermidor
                 nil
             end
 
+            # The values from `start` on, the one in force then first.
+            def window(since, start)
+                held = since.reverse.find { |time, _| time <= start }
+                [held.last] + since.filter_map do |time, value|
+                    value if time > start
+                end
+            end
+
             # From `rebound_at` on, the last `span` seconds are covered and
-            # spread by no more than `tolerance`.
+            # spread by no more than `tolerance`, counting what was in force
+            # when they began: the last reading at or before their start,
+            # so a sensor read less often than `span` is held to it too.
             def settled?(since, rebound_at)
                 start = since.last.first - span
                 return false if rebound_at > start
-                values = since.filter_map do |time, value|
-                    value if time >= start
-                end
+                values = window(since, start)
                 values.max - values.min <= tolerance + Steady::MARGIN
             end
         end

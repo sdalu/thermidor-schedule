@@ -54,6 +54,9 @@ module Thermidor
             # Changes the settings given, keeping the others; refused as a
             # whole, changing nothing, when they cannot hold together.
             def configure(**changes)
+                unknown = changes.keys - Config.members
+                raise Error, "unknown setting #{unknown.join(", ")}" if
+                    unknown.any?
                 @config = config.with(**changes)
             end
         end

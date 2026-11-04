@@ -111,7 +111,12 @@ class RecurrenceTest < Minitest::Test
         "FREQ=DAILY;COUNT=2,500" => "COUNT takes one number",
         "FREQ=DAILY;UNTIL=2027063" => "bad UNTIL",
         "FREQ=DAILY;UNTIL=20270630junk" => "bad UNTIL",
-        "FREQ=WEEKLY;BYMONTHDAY=1" => "BYMONTHDAY is not for FREQ=WEEKLY"
+        "FREQ=WEEKLY;BYMONTHDAY=1" => "BYMONTHDAY is not for FREQ=WEEKLY",
+        "FREQ=DAILY;INTERVAL=" => "INTERVAL is empty",
+        "FREQ=WEEKLY;BYDAY=" => "BYDAY is empty",
+        "FREQ=DAILY;BYMONTH=" => "BYMONTH is empty",
+        "FREQ=DAILY;COUNT=1_0" => "bad COUNT 1_0",
+        "FREQ=DAILY;UNTIL=20270101T250000Z" => "bad UNTIL"
     }.freeze
 
     def test_refuses_what_is_not_supported

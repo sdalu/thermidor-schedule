@@ -84,7 +84,8 @@ a decision takes the zone's strategy or the default instead.
 A `Program` is one day: `Transition`s, each a minute after midnight
 from which a preset holds, with a strategy overriding the preset's when
 given. They are sorted by time, and two at the same minute raise
-`Error`. A program without a name is anonymous (`label` is
+`Error`, as does a minute that is not an Integer from 0 to 1439. A
+program without a name is anonymous (`label` is
 `(inline)`). `usual` is reserved and names no program.
 
 ```ruby
@@ -140,7 +141,9 @@ Monday                                             Tuesday
 Both take an optional block, the program of a date, the weekday's by
 default; that is how the calendar runs other days.
 
-Times are local wall-clock times in the process's time zone. On the
+Times are local wall-clock times in the process's time zone; a Time
+given in another offset (UTC) is taken as the same moment, its date the
+local one. On the
 night clocks go forward, a transition in the missing hour (02:30)
 happens when they jump, at 03:00, so a 03:10 transition still comes
 after it; on the night they go back, at the first 02:30, and

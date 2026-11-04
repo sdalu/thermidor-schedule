@@ -1,7 +1,7 @@
 # Text forms
 
 `Syntax` reads the notations a command line or a file writes the
-[schedule](README.md) in. Every refusal raises `ParseError` naming what
+[schedule](README.md) in. They read Strings only. Every refusal raises `ParseError` naming what
 was refused. References to named presets and programs come back as
 their name (a String) for the caller to look up; inline ones come back
 as an anonymous `Preset` or `Program`.

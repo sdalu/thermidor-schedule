@@ -22,8 +22,15 @@ module Thermidor
 
             module_function
 
+            # Refuses what is no String: a text form reads text only.
+            def text!(text)
+                return if text.is_a?(String)
+                raise ParseError, "#{text.inspect} is no text"
+            end
+
             # "comfort/quick" => ["comfort", :quick]
             def preset_ref(text)
+                text!(text)
                 body, strategy, *rest = text.split("/", -1)
                 raise ParseError, "bad preset #{text.inspect}" unless
                     body && rest.empty? && strategy != ""
@@ -32,6 +39,7 @@ module Thermidor
 
             # A name, or an anonymous Preset for "off" and band literals.
             def preset(text)
+                text!(text)
                 return Preset.new(setpoint: Setpoint.new) if text == "off"
                 return name(text) unless text.start_with?("+", "-", ".")
                 Preset.new(setpoint: band(text))
@@ -39,6 +47,7 @@ module Thermidor
 
             # "+20.5..+25" => Setpoint; at least one side is required.
             def band(text)
+                text!(text)
                 heat, cool = BAND.match(text)&.values_at(:heat, :cool)
                 raise ParseError, "bad band #{text.inspect}" unless
                     heat || cool
@@ -55,6 +64,7 @@ module Thermidor
             end
 
             def name(text)
+                text!(text)
                 return text if NAME.match?(text)
                 raise ParseError, "bad name #{text.inspect}"
             end
@@ -62,6 +72,7 @@ module Thermidor
             # A name, an anonymous Program for "06:30=x,22:30=y", or
             # Timetable::USUAL for the keyword "usual".
             def program(text)
+                text!(text)
                 return Timetable::USUAL if text == "usual"
                 return name(text) unless text.include?("=")
                 as_parsed do
@@ -72,6 +83,7 @@ module Thermidor
 
             # "06:30=comfort/quick" => Transition, preset possibly a name.
             def transition(text)
+                text!(text)
                 clock, value = text.split("=", 2)
                 raise ParseError, "bad transition #{text.inspect}" unless value
                 preset, strategy = preset_ref(value)
@@ -79,6 +91,7 @@ module Thermidor
             end
 
             def minute(text)
+                text!(text)
                 match = CLOCK.match(text)
                 hour, min = match&.values_at(:hour, :min)&.map(&:to_i)
                 raise ParseError, "bad time #{text.inspect}" unless
@@ -88,6 +101,7 @@ module Thermidor
 
             # "mon-fri" or "sat,sun" => [1, 2, 3, 4, 5] or [6, 0]
             def days(text)
+                text!(text)
                 days = text.split(",").flat_map { day_range(it) }.uniq
                 raise ParseError, "no day in #{text.inspect}" if days.empty?
                 days
@@ -110,6 +124,7 @@ module Thermidor
 
             # Weekdays as for #days, or else the name of a special day.
             def day_keys(text)
+                text!(text)
                 weekdays = text.split(/[,-]/).all? { weekday_index(it) }
                 weekdays ? days(text) : [name(text)]
             end
@@ -117,6 +132,7 @@ module Thermidor
             # A kind of day for the calendar: "sun" for any weekday
             # spelling, or the name of a special day.
             def day_kind(text)
+                text!(text)
                 index = weekday_index(text)
                 index ? WEEKDAYS[index] : name(text)
             end

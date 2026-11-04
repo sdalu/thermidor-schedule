@@ -28,12 +28,15 @@ module Thermidor
                 weekday ? days[weekday] : specials[kind]
             end
 
+            # `time` may be in any offset: dates are local ones.
+            #
             # The Entry in force at `time`, nil if there is none. `lookup`
             # gives the program of a date, the weekday's by default.
             # Transitions are compared as moments, not clock readings, so
             # one on a night clocks change happens once, at its
             # next_change.
             def at(time, &lookup)
+                time = time.getlocal
                 lookup ||= ->(date) { days[date.wday] }
                 (0..Timetable::REACH).each do |back|
                     date = time.to_date - back
@@ -46,19 +49,26 @@ module Thermidor
 
             # Time of the next transition after `time`, nil if none.
             def next_change(time, &lookup)
+                time = time.getlocal
                 lookup ||= ->(date) { days[date.wday] }
                 (0..Timetable::REACH).each do |ahead|
                     date = time.to_date + ahead
                     program = lookup.call(date) or next
-                    later = program.transitions.find do |each|
-                        local(date, each.minute) > time
-                    end
+                    later = first_after(program, date, time)
                     return local(date, later.minute) if later
                 end
                 nil
             end
 
             private
+
+            # The first transition of `program`, run on `date`, after
+            # `time`; nil if none.
+            def first_after(program, date, time)
+                program.transitions.find do |each|
+                    local(date, each.minute) > time
+                end
+            end
 
             # The last transition of `program`, run on `date`, made by
             # `time`; nil if none.

@@ -34,6 +34,15 @@ class SteadyTest < Minitest::Test
                        15.1)
     end
 
+    # A sensor read every 15 minutes: the last 10 minutes hold a single
+    # reading, but the room went from 20.0 to 21.5 across them. What was
+    # in force when they began counts, as the last reading before.
+    def test_a_slow_sensor_still_moving_is_not_settled
+        readings = [[0, 21.0], [15, 19.0], [30, 20.0], [45, 21.5]]
+                   .map { |minute, value| [OPENED + (minute * 60), value] }
+        refute Steady.new.steady?(readings, OPENED)
+    end
+
     def test_a_small_turn_back_is_not_a_rebound
         refute steady?(21.0, 20.0, 19.0, 18.8, 19.4, 19.5, 19.5, 19.6, 19.5,
                        19.5, 19.5, 19.6)

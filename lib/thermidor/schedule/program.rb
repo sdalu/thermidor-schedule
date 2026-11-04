@@ -6,6 +6,9 @@ module Thermidor
         # `strategy` overriding the preset's own when given.
         Transition = Data.define(:minute, :preset, :strategy) do
             def initialize(minute:, preset:, strategy: nil)
+                unless minute.is_a?(Integer) && minute.between?(0, 1439)
+                    raise Error, "#{minute.inspect} is no minute of the day"
+                end
                 super(minute:, preset:, strategy: Schedule.strategy(strategy))
             end
 

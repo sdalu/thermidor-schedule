@@ -134,9 +134,10 @@ month (`FREQ=YEARLY;BYDAY=MO` is every Monday), a day named twice comes
 once, and dates a rule cannot have (31 February) are skipped rather
 than moved: `FREQ=MONTHLY;BYMONTHDAY=31` from 31 January gives 31
 January, then 31 March. Anything else, or a malformed part, raises
-`ParseError` naming it: a part given more than once, a list where one
-number goes (`INTERVAL`, `COUNT`), an `UNTIL` that is not `YYYYMMDD`
-(with an optional `THHMMSS` and `Z`), `BYMONTHDAY` with
+`ParseError` naming it: a part given more than once or empty, a number
+that is not plain digits, a list where one number goes (`INTERVAL`,
+`COUNT`), an `UNTIL` that is not `YYYYMMDD` (with an optional valid
+`THHMMSS` and `Z`), `BYMONTHDAY` with
 `FREQ=WEEKLY`; `UNTIL` and `COUNT` exclude each other.
 
 The layer takes entries already expanded. `Entry#occurrences` expands

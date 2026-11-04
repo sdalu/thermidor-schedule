@@ -52,7 +52,10 @@ have gone through three phases, in order:
    `rebound` of the way it went (1 °C back after a 2 °C dip), the
    window being shut while the device still works;
 3. **settle**: from the rebound on, the readings of the last `span`
-   seconds all within `tolerance` °C of each other.
+   seconds all within `tolerance` °C of each other, counting the one in
+   force when that span began (the last reading before it): a sensor
+   read less often than `span` must hold steady across two readings,
+   not pass on one.
 
 | Parameter   | Default | Meaning                                |
 | :---------- | :------ | :------------------------------------- |

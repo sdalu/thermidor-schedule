@@ -9,6 +9,9 @@ strategy, source, label and `until` of the decision pass through.
 Layers::Clamp.new(limits: Layers::Clamp::LIMITS)   # 5.0..30.0
 ```
 
+Limits narrower than the deadband, given backwards, or not numbers
+would hold no band: the clamp refuses them when built, with `Error`.
+
 | Rule     | Value                 | Why                                         |
 | :------- | :-------------------- | :------------------------------------------ |
 | range    | `limits`, 5 to 30 °C  | both setpoints stay within what makes sense |

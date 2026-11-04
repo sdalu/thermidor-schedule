@@ -39,7 +39,9 @@ module Thermidor
                 raise Error, "region #{region}: no holiday" unless
                     rules.is_a?(Hash) && rules.any?
                 rules.each { |name, rule| check(region, name, rule) }
-                @regions[region] = rules.dup.freeze
+                @regions[region] = rules.to_h do |name, rule|
+                    [name.dup.freeze, rule.dup.freeze]
+                end.freeze
             end
 
             # Days from Easter that stay within its year, whatever its date

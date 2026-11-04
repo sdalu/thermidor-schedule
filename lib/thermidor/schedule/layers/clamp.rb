@@ -9,7 +9,14 @@ module Thermidor
             class Clamp
                 LIMITS = (5.0..30.0)
 
+                # Limits narrower than the configured deadband, backwards, or
+                # of no numbers would hold no band: refused.
                 def initialize(limits: LIMITS)
+                    gap = Schedule.config.deadband
+                    unless limits.is_a?(Range) && limits.minmax.all?(Numeric) &&
+                           limits.end - limits.begin >= gap
+                        raise Error, "limits #{limits.inspect} hold no band"
+                    end
                     @limits = limits
                 end
 

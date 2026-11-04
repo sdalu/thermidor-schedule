@@ -32,6 +32,14 @@ class ValuesTest < Minitest::Test
                                         below)
     end
 
+    def test_a_registered_region_keeps_its_own_rules
+        rule = [5, 1]
+        Schedule::Holidays.register("test-own", "x" => rule)
+        rule[1] = 40
+        assert_equal [[Date.new(2027, 5, 1), "x"]],
+                     Schedule::Holidays.for("test-own", 2027)
+    end
+
     def test_a_parsed_rule_is_frozen_through
         rule = Schedule::Recurrence.parse(
             "FREQ=MONTHLY;BYDAY=-1FR,MO;BYMONTHDAY=1;BYMONTH=3"

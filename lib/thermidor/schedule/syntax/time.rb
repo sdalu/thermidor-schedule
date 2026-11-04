@@ -16,6 +16,7 @@ module Thermidor
 
             # "2027" or "2027..2029" => 2027..2029
             def years(text)
+                text!(text)
                 first, last = text.split("..", 2)
                 range = Integer(first, 10)..Integer(last || first, 10)
                 raise ParseError, "#{text} ends before it starts" if
@@ -27,6 +28,7 @@ module Thermidor
 
             # "2h", "90m", "1h30" (minutes when no unit) => seconds
             def duration(text)
+                text!(text)
                 match = DURATION.match(text)
                 hours, minutes = match&.values_at(:h, :m)
                 raise ParseError, "bad duration #{text.inspect}" unless
@@ -36,6 +38,7 @@ module Thermidor
 
             # "2026-12-25" or "2026-12-24..2026-12-26" => [first, last]
             def dates(text)
+                text!(text)
                 first, last = text.split("..", 2).map { Date.iso8601(it) }
                 last ||= first
                 raise ParseError, "#{text} ends before it starts" if
@@ -47,8 +50,10 @@ module Thermidor
 
             # "2026-11-02 07:00" or "07:00" (on the day of `now`).
             def time(text, now = Time.now)
+                text!(text)
                 match = DATE.match(text)
-                date  = match ? Date.iso8601(match[:date]) : now.to_date
+                today = now.getlocal.to_date
+                date  = match ? Date.iso8601(match[:date]) : today
                 hour, min = minute(match ? match[:clock] : text).divmod(60)
                 Time.new(date.year, date.month, date.day, hour, min)
             rescue Date::Error

@@ -9,19 +9,24 @@ module Thermidor
                 PARTS = %w[FREQ INTERVAL BYDAY BYMONTHDAY BYMONTH UNTIL COUNT
                            WKST].freeze
                 BY_DAY = /\A(?<ordinal>[+-]?[1-5])?(?<day>[A-Z]{2})\z/
-                UNTIL  = /\A\d{8}(?:T\d{6}Z?)?\z/
+                UNTIL  = /\A\d{8}(?:T(?:[01]\d|2[0-3])[0-5]\d[0-5]\dZ?)?\z/
+                NUMBER = /\A[+-]?\d+\z/
 
                 def initialize(text)
                     @text = text
-                    pairs = text.to_s.upcase.split(";").map do |part|
-                        key, value = part.split("=", 2)
-                        refuse!("#{key} is not supported") unless
-                            PARTS.include?(key) && value
-                        [key, value]
-                    end
+                    pairs  = text.to_s.upcase.split(";").map { pair(it) }
                     @parts = pairs.to_h
                     twice = pairs.map(&:first).tally.find { |_, n| n > 1 }
                     refuse!("#{twice.first} twice") if twice
+                end
+
+                # "KEY=VALUE" => [key, value], of a part supported.
+                def pair(part)
+                    key, value = part.split("=", 2)
+                    refuse!("#{key} is not supported") unless
+                        PARTS.include?(key) && value
+                    refuse!("#{key} is empty") if value.empty?
+                    [key, value]
                 end
 
                 def rule
@@ -55,7 +60,7 @@ module Thermidor
                 # Days of the month may count from its end: -1 is the last.
                 def numbers(key, range)
                     @parts.fetch(key, "").split(",").map do |text|
-                        value = Integer(text, 10, exception: false)
+                        value = (Integer(text, 10) if NUMBER.match?(text))
                         refuse!("bad #{key} #{text}") unless
                             value&.nonzero? && range.cover?(value)
                         value
