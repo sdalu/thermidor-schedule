@@ -37,7 +37,13 @@ not to what was left of the older one.
 ## How long
 
 The end is fixed when the setting is made, and the layer only reads
-`ends_at`. `mode` records how it was asked for:
+`ends_at`. `Manual.ends_at` works it out; `mode` records how it was
+asked for:
+
+```ruby
+Layers::Manual.ends_at(:next, below: Stack.new(lower_layers), zone:, now:)
+Layers::Manual.ends_at(:for, below:, zone:, now:, duration: 5400)
+```
 
 | `mode`     | `ends_at`                                       |
 | :--------- | :---------------------------------------------- |
@@ -45,11 +51,15 @@ The end is fixed when the setting is made, and the layer only reads
 | `:next`    | the next change of the layers below, at that moment |
 | `:forever` | nil                                             |
 
-For `:next`, the caller asks the stack below the manual layer (e.g.
-`Stack.new(lower_layers).wake_at(zone, now)`) when the setting is made.
-Worked out live instead, it would never end: there is always a next
-change. `LONGEST` is not checked by the layer; it is there for the
-caller.
+`:next` is the next change of the stack below the manual layer at
+that moment, or `LONGEST` ahead when nothing below changes. Worked out
+live instead, it would never end: there is always a next change.
+
+`:for` checks its duration: `check_duration(seconds)` refuses one
+outside 0 to `LONGEST` with `Error`, naming the kind (`a manual setting
+lasts 0 to 12 hours`). Boosts and open windows answer both with their
+own `LONGEST` and name. An unknown mode raises `Error`. The layer itself
+reads only `ends_at`: entries built otherwise are not checked.
 
 ## Which band
 

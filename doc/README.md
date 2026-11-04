@@ -142,11 +142,10 @@ The layers take plain values (`Data`). They read no store, no clock
   from them for the time asked about;
 - give the calendar the entries around that time (ClimatControl gives a
   week either side, as far as the timetable looks back and ahead), with
-  recurring entries already expanded (`Recurrence#occurrences`);
+  recurring entries already expanded (`Calendar::Entry#occurrences`);
 - fix each manual, boost or open-window entry's end when the entry is
-  made, enforce the longest durations (the layers' `LONGEST` constants
-  are there for it, unchecked by the layers), and end an entry when a
-  new one replaces it;
+  made (`Manual.ends_at`, which checks its duration), and end an entry
+  when a new one replaces it;
 - turn an entry "for the whole house" into one entry per zone, where
   wanted;
 - work out when automatic away starts (`AutoAway`) and pass it to the

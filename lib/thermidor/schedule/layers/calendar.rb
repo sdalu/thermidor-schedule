@@ -31,6 +31,16 @@ module Thermidor
 
                     # Smallest first: the entry that wins.
                     def rank = [priority, zone ? 0 : 1, -id]
+
+                    # The entry repeated by `rule` (a Recurrence; nil, the
+                    # entry alone) up to `upto`, its range as a whole, but
+                    # the occurrences starting on a `skipped` date.
+                    def occurrences(rule, upto, skipped: [])
+                        return [self] unless rule
+                        span = last - first
+                        (rule.occurrences(first, upto) - skipped)
+                            .map { with(first: it, last: it + span) }
+                    end
                 end
 
                 def initialize(entries)

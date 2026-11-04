@@ -31,9 +31,13 @@ module Thermidor
             raise ParseError, "unknown strategy #{value} (#{known.join(", ")})"
         end
 
-        # First strategy given, from the most specific level down.
+        # First strategy given, from the most specific level down; one
+        # outside the configured strategies (a built-in preset's, built
+        # before them) counts as not given.
         def self.resolve_strategy(*candidates)
-            candidates.compact.first || config.default_strategy
+            known = config.strategies
+            candidates.compact.find { known.include?(it) } ||
+                config.default_strategy
         end
     end
 end

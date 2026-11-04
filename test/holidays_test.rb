@@ -16,6 +16,26 @@ class HolidaysTest < Minitest::Test
         end
     end
 
+    def test_a_region_can_be_registered
+        Holidays.register("test-be", "Nieuwjaar" => [1, 1],
+                                     "Paasmaandag" => 1)
+        assert_equal [[Date.new(2027, 1, 1), "Nieuwjaar"],
+                      [Date.new(2027, 3, 29), "Paasmaandag"]],
+                     Holidays.for("test-be", 2027)
+        assert_includes Holidays.regions, "test-be"
+    end
+
+    def test_a_registration_that_cannot_hold_is_refused
+        [["fr", { "x" => [1, 1] }], ["test-bad", { "x" => [2, 30] }],
+         ["test-bad", { "x" => "May" }], ["test-bad", {}]]
+            .each do |region, rules|
+                assert_raises(Thermidor::Schedule::Error, region) do
+                    Holidays.register(region, rules)
+                end
+            end
+        refute_includes Holidays.regions, "test-bad"
+    end
+
     def test_france_follows_easter
         days = Holidays.for("fr", 2027).to_h
         assert_equal 11, days.size

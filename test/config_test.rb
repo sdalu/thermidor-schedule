@@ -47,6 +47,21 @@ class ConfigTest < Minitest::Test
         assert_equal :eco, Schedule.resolve_strategy(nil, nil)
     end
 
+    # Built before any configure call, the built-in presets carry
+    # :cheapest and :quick; outside the vocabulary they count as unset.
+    def test_a_strategy_outside_the_vocabulary_counts_as_unset
+        Schedule.configure(strategies: %i[eco boost], default_strategy: :eco)
+        zone  = Schedule::Zone.new(name: "salon")
+        now   = Time.new(2026, 11, 2, 10)
+        stack = Schedule::Stack.new([Schedule::Layers::Timetable.new,
+                                     Schedule::Layers::Away.new(
+                                         [], auto_since: now - 60
+                                     )])
+        decision = stack.resolve(zone, now)
+        assert_equal ["away", :eco], [decision.label, decision.strategy]
+        assert_equal :boost, Schedule.resolve_strategy(:quick, :boost)
+    end
+
     def test_a_setting_left_out_is_kept
         Schedule.configure(deadband: 0.5)
         Schedule.configure(default_strategy: :quiet)

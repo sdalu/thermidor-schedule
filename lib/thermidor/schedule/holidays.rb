@@ -24,13 +24,37 @@ module Thermidor
                 )
             }.freeze
 
+            @regions = REGIONS.dup
+
             module_function
+
+            # The regions known: the built-in ones and those registered.
+            def regions = @regions.keys
+
+            # Adds a region, its holidays given as REGIONS gives them. A
+            # region already known, or a rule that is no date, is refused.
+            def register(region, rules)
+                raise Error, "region #{region} is known" if
+                    @regions.key?(region)
+                raise Error, "region #{region}: no holiday" if rules.empty?
+                rules.each { |name, rule| check(region, name, rule) }
+                @regions[region] = rules.dup.freeze
+            end
+
+            # A day offset from Easter, or a [month, day] in every year.
+            def check(region, name, rule)
+                return if rule.is_a?(Integer)
+                Date.new(2001, *rule)
+            rescue TypeError, ArgumentError
+                raise Error, "region #{region}: #{name} #{rule.inspect} " \
+                             "is no date"
+            end
 
             # [[Date, name], ...] for `year`, in date order.
             def for(region, year)
-                rules = REGIONS.fetch(region) do
+                rules = @regions.fetch(region) do
                     raise Error, "unknown region #{region} " \
-                                 "(#{REGIONS.keys.join(", ")})"
+                                 "(#{regions.join(", ")})"
                 end
                 easter = easter(year)
                 rules.map { |name, rule| [date(year, rule, easter), name] }

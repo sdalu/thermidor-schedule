@@ -96,9 +96,11 @@ A setting left out keeps its value; settings that cannot hold together
 (no strategy, a default that is none of them, a negative deadband) are
 refused with `Error`, changing nothing. Without a call, they are
 `STRATEGIES`, `DEFAULT_STRATEGY` and `DEADBAND`. A value checks itself
-when built, so one built before a change keeps the old rules. The
-built-in presets (`Preset::SYSTEM`) were built with the default
-strategies: with others, give the layers presets of your own.
+when built, so one built before a change keeps the old rules. A
+strategy outside the configured ones counts as not given when a
+decision resolves its strategy: the built-in presets (`Preset::SYSTEM`),
+built with the default strategies, then take the zone's or the
+default.
 
 ## The layers
 

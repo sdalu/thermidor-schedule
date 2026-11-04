@@ -129,10 +129,20 @@ moved: `FREQ=MONTHLY;BYMONTHDAY=31` from 31 January gives 31 January,
 then 31 March. Anything else, or a malformed part, raises `ParseError`
 naming it; `UNTIL` and `COUNT` exclude each other.
 
-The layer does not expand rules itself. The caller turns each recurring
-entry into one `Entry` per occurrence over the dates asked about, and
-leaves out any occurrence it skips (iCalendar's `EXDATE`). A range
-repeats as a whole.
+The layer takes entries already expanded. `Entry#occurrences` expands
+one: the entry repeated by its rule up to a date, its range as a
+whole, without the occurrences starting on a skipped date (iCalendar's
+`EXDATE`):
+
+```ruby
+christmas.occurrences(Recurrence.parse("FREQ=YEARLY"), Date.new(2030, 1, 1),
+                      skipped: [Date.new(2027, 12, 24)])
+# => the 24-25 December entry in 2026, 2028, 2029
+christmas.occurrences(nil, upto)   # => [christmas]
+```
+
+Occurrences keep the entry's `id`. The caller keeps those that reach
+the dates asked about.
 
 ## Public holidays
 
@@ -147,3 +157,15 @@ Butcher algorithm), for a caller to turn into entries:
 
 An unknown region raises `Error`. Holidays that follow Easter cannot be
 written as a recurrence rule, which is why they are computed.
+
+`Holidays.register(region, rules)` adds a region, its holidays given as
+the built-in ones are: a name and a fixed `[month, day]`, or days from
+Easter Sunday (Easter Monday is `1`, Good Friday `-2`).
+`Holidays.regions` lists those known. A region already known, no
+holiday, or a rule that is no date (`[2, 30]`, `"May"`) is refused with
+`Error`, registering nothing. Like the [configuration](../README.md#configuration),
+a registration is the process's.
+
+```ruby
+Holidays.register("be", "Nieuwjaar" => [1, 1], "Paasmaandag" => 1)
+```

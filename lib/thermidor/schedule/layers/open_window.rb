@@ -12,6 +12,7 @@ module Thermidor
                 # the longest a window may be held for, in seconds.
                 LIMIT   = 60 * 60
                 LONGEST = 2 * 60 * 60
+                NOUN    = "an open window"
 
                 def initialize(entries, default: Preset::OPEN_WINDOW)
                     super(entries, source: "open-window", default:)

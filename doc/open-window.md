@@ -34,7 +34,9 @@ For a steady window, `ends_at` is a safety limit, `OpenWindow::LIMIT`
 once the room's readings settle. Either way, `OpenWindow::LONGEST`
 (2 hours) is the most a caller should allow: a window left open longer
 than that was forgotten, and the room should not sit at frost
-protection by accident. Neither figure is checked by the layer.
+protection by accident. `OpenWindow.ends_at(:steady, ..., duration:)`
+checks it, as for [manual settings](manual.md#how-long); the layer
+itself reads only `ends_at`.
 
 ## Steady: shut again
 

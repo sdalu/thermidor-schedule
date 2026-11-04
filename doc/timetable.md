@@ -76,8 +76,8 @@ constant:
 Each layer takes its fallback as an argument (`fallback:`, `default:`,
 `defaults:`), so a caller keeping presets passes its own versions; a
 store should let these be changed but not deleted. Their strategies are
-the default ones: a caller configuring others passes its own presets
-here.
+the default ones; with others [configured](../README.md#configuration),
+a decision takes the zone's strategy or the default instead.
 
 ## Programs
 

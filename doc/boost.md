@@ -12,10 +12,12 @@ Layers::Boost.new(entries, defaults: {})
 
 ## How long
 
-As for manual settings, `ends_at` is fixed by the caller. The layer
-gives two figures for it, neither checked: `Boost::DEFAULT`, 30 minutes
-when no length is asked, and `Boost::LONGEST`, an hour. A boost is a
-short push; a longer one is better made a manual setting.
+As for [manual settings](manual.md#how-long), `ends_at` is fixed when
+the boost is made, and `Boost.ends_at(:for, …)` checks its duration against
+`Boost::LONGEST`, an hour (`a boost lasts 0 to 1 hour`).
+`Boost::DEFAULT`, 30 minutes, is the length to ask for when none is
+given. A boost is a short push; a longer one is better made a manual
+setting.
 
 ## Which band
 

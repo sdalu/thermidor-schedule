@@ -12,6 +12,7 @@ module Thermidor
                 # seconds.
                 DEFAULT = 30 * 60
                 LONGEST = 60 * 60
+                NOUN    = "a boost"
 
                 DIRECTIONS = %i[both heat cool].freeze
 

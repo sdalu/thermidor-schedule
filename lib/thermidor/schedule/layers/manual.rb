@@ -10,8 +10,10 @@ module Thermidor
             # preset holds the layer's default (see Boost); without one
             # either, the entry is refused.
             class Manual
-                # The longest a manual setting may be given a duration for.
+                # The longest a manual setting may be given a duration for,
+                # and what it is called when it is refused.
                 LONGEST = 12 * 3600
+                NOUN    = "a manual setting"
                 # strategy: overrides the preset's when given. mode: :for (a
                 # duration), :next (the next change below) or :forever, as
                 # the setting was asked for.
@@ -19,6 +21,31 @@ module Thermidor
                                     :ends_at, :mode) do
                     def active?(now)
                         starts_at <= now && (ends_at.nil? || now < ends_at)
+                    end
+                end
+
+                # Refuses a duration (seconds) outside 0..LONGEST.
+                def self.check_duration(seconds)
+                    return if seconds && (0..self::LONGEST).cover?(seconds)
+                    hours = self::LONGEST / 3600
+                    raise Error, "#{self::NOUN} lasts 0 to #{hours} " \
+                                 "hour#{"s" if hours > 1}"
+                end
+
+                # The end of a setting made at `now`, fixed then: :for (or
+                # :steady, a window's limit) a checked duration; :next, the
+                # next change of `below` (a Stack of the layers under this
+                # one), or LONGEST ahead when nothing below changes;
+                # :forever, nil.
+                def self.ends_at(mode, below:, zone:, now:, duration: nil)
+                    case mode
+                    when :for, :steady
+                        check_duration(duration)
+                        now + duration
+                    when :next
+                        below.wake_at(zone, now) || (now + self::LONGEST)
+                    when :forever then nil
+                    else raise Error, "unknown mode #{mode}"
                     end
                 end
 
