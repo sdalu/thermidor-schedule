@@ -27,7 +27,9 @@ An `Away::Entry` is one zone's period:
 
 An entry is active from `starts_at` until `ends_at`. When several are
 active in a zone, the one that started last wins. When none is, the
-layers below show through again:
+layers below show through again. An entry still to start is a change
+ahead: `until` comes no later than its `starts_at`, whatever holds
+now.
 
 ```text
                    09:00               12:00

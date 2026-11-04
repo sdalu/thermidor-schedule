@@ -62,6 +62,10 @@ have gone through three phases, in order:
 | `rebound`   | 0.5     | share of the move it must come back by |
 | `after`     | 900     | seconds open at the least              |
 
+A threshold met exactly counts: readings at the tenth make differences
+such as 20.6 - 20.4 = 0.20000000000000284, so each comparison allows a
+margin (`Steady::MARGIN`, 10⁻⁶ °C) far below any sensor's precision.
+
 Requiring the move keeps a room that barely reacts, on a mild day,
 from looking shut while its window is still open. Requiring the rebound
 keeps a room that has cooled as far as it will from looking shut when

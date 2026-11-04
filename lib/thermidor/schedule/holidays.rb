@@ -36,18 +36,26 @@ module Thermidor
             def register(region, rules)
                 raise Error, "region #{region} is known" if
                     @regions.key?(region)
-                raise Error, "region #{region}: no holiday" if rules.empty?
+                raise Error, "region #{region}: no holiday" unless
+                    rules.is_a?(Hash) && rules.any?
                 rules.each { |name, rule| check(region, name, rule) }
                 @regions[region] = rules.dup.freeze
             end
 
-            # A day offset from Easter, or a [month, day] in every year.
+            # Days from Easter that stay within its year, whatever its date
+            # (22 March to 25 April), or a [month, day] of every year.
+            EASTER_OFFSETS = (-80..249)
+
             def check(region, name, rule)
-                return if rule.is_a?(Integer)
-                Date.new(2001, *rule)
-            rescue TypeError, ArgumentError
+                return if date?(rule)
                 raise Error, "region #{region}: #{name} #{rule.inspect} " \
                              "is no date"
+            end
+
+            def date?(rule)
+                return EASTER_OFFSETS.cover?(rule) if rule.is_a?(Integer)
+                rule.is_a?(Array) && rule.size == 2 &&
+                    rule.all?(Integer) && Date.valid_date?(2001, *rule)
             end
 
             # [[Date, name], ...] for `year`, in date order.

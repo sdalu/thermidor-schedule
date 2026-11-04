@@ -42,7 +42,16 @@ module Thermidor
                 heat, cool = BAND.match(text)&.values_at(:heat, :cool)
                 raise ParseError, "bad band #{text.inspect}" unless
                     heat || cool
-                Setpoint.new(heat: heat&.to_f, cool: cool&.to_f)
+                as_parsed { Setpoint.new(heat: heat&.to_f, cool: cool&.to_f) }
+            end
+
+            # What the block builds; what it refuses, as ParseError.
+            def as_parsed
+                yield
+            rescue ParseError
+                raise
+            rescue Error => e
+                raise ParseError, e.message
             end
 
             def name(text)
@@ -55,7 +64,10 @@ module Thermidor
             def program(text)
                 return Timetable::USUAL if text == "usual"
                 return name(text) unless text.include?("=")
-                Program.new(transitions: text.split(",").map { transition(it) })
+                as_parsed do
+                    Program.new(transitions: text.split(",")
+                                                 .map { transition(it) })
+                end
             end
 
             # "06:30=comfort/quick" => Transition, preset possibly a name.
@@ -76,7 +88,9 @@ module Thermidor
 
             # "mon-fri" or "sat,sun" => [1, 2, 3, 4, 5] or [6, 0]
             def days(text)
-                text.split(",").flat_map { day_range(it) }.uniq
+                days = text.split(",").flat_map { day_range(it) }.uniq
+                raise ParseError, "no day in #{text.inspect}" if days.empty?
+                days
             end
 
             def day_range(text)

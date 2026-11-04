@@ -142,7 +142,8 @@ default; that is how the calendar runs other days.
 
 Times are local wall-clock times in the process's time zone. On the
 night clocks go forward, a transition in the missing hour (02:30)
-happens at 03:30; on the night they go back, at the first 02:30, and
+happens when they jump, at 03:00, so a 03:10 transition still comes
+after it; on the night they go back, at the first 02:30, and
 only then: what is in force is decided by the moment, not the clock
 reading, so `at` and `next_change` agree through the repeated hour.
 

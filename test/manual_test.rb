@@ -42,6 +42,19 @@ class ManualTest < Minitest::Test
         assert_equal "comfort", resolve("2026-11-02 10:00", layers:).label
     end
 
+    # A later entry takes over when it starts: listed after the one
+    # running, or with none running.
+    def test_a_setting_still_to_start_is_a_change_ahead
+        decision = resolve("2026-11-02 10:00", layers: manual(later))
+        assert_equal ["eco", at("2026-11-02 11:00")],
+                     decision.to_h.values_at(:label, :until)
+    end
+
+    def test_only_a_setting_listed_later_takes_over
+        assert_equal at("2026-11-02 11:00"), until_at(entry, later)
+        assert_equal at("2026-11-02 12:00"), until_at(later, entry)
+    end
+
     def test_refuses_an_entry_with_no_band_to_hold
         error = assert_raises(Schedule::Error) do
             Schedule::Layers::Manual.new([entry(preset: nil)])
@@ -98,6 +111,12 @@ class ManualTest < Minitest::Test
     end
 
     private
+
+    def later = entry(preset: COMFORT, starts_at: at("2026-11-02 11:00"))
+
+    def until_at(*entries)
+        resolve("2026-11-02 10:00", layers: manual(*entries)).until
+    end
 
     # The end of a setting made on a Monday at 10:00, on the workday zone.
     def ends(mode, **)

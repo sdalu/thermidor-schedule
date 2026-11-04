@@ -22,6 +22,9 @@ as an anonymous `Preset` or `Program`.
 | `preset("comfort")`           | a name                | `"comfort"`                      |
 | `preset_ref("comfort/quick")` | `PRESET/STRATEGY`     | `["comfort", :quick]`            |
 
+A band whose sides are closer than the deadband, or a program with two
+transitions at the same time, is refused as a `ParseError` too.
+
 Each number carries its sign, which keeps the decimal point apart from
 the `..`, and one decimal at most: `-2..+5`, `+20.5..+25`. At least one
 side is required. A name starts with a lowercase letter, then letters,
@@ -53,7 +56,8 @@ name.
 | `day_kind("Sunday")` | `"sun"`               |
 
 Weekdays are `mon`..`sun` or the full English names, in any case; a
-range wraps around the week. `days` takes weekdays only. `day_keys`
+range wraps around the week. No day at all (`""`, `","`) is refused.
+`days` takes weekdays only. `day_keys`
 gives weekdays, or else one special day's name. `day_kind` gives a
 calendar entry's day: `"sun"`..`"sat"` for any weekday spelling, or a
 special day's name.

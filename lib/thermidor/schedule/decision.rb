@@ -10,6 +10,13 @@ module Thermidor
                                :until)
 
         class Decision
+            # The decision with `until` brought forward to `time` (nil:
+            # left alone), a change ahead it does not make itself.
+            def sooner(time)
+                return self unless time
+                with(until: [self.until, time].compact.min)
+            end
+
             # Strategy: `override` (a transition's), else the preset's,
             # else the zone's, else the default.
             def self.from_preset(preset, zone, source:, until:,

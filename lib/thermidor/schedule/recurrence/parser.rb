@@ -9,6 +9,7 @@ module Thermidor
                 PARTS = %w[FREQ INTERVAL BYDAY BYMONTHDAY BYMONTH UNTIL COUNT
                            WKST].freeze
                 BY_DAY = /\A(?<ordinal>[+-]?[1-5])?(?<day>[A-Z]{2})\z/
+                UNTIL  = /\A\d{8}(?:T\d{6}Z?)?\z/
 
                 def initialize(text)
                     @text = text
@@ -19,8 +20,8 @@ module Thermidor
                         [key, value]
                     end
                     @parts = pairs.to_h
-                    twice = pairs.map(&:first).tally.key(2) and
-                        refuse!("#{twice} twice")
+                    twice = pairs.map(&:first).tally.find { |_, n| n > 1 }
+                    refuse!("#{twice.first} twice") if twice
                 end
 
                 def rule
@@ -61,10 +62,15 @@ module Thermidor
                     end
                 end
 
-                def number(key, range) = numbers(key, range).first
+                def number(key, range)
+                    found = numbers(key, range)
+                    refuse!("#{key} takes one number") if found.size > 1
+                    found.first
+                end
 
                 def until_date
                     text = @parts["UNTIL"] or return
+                    refuse!("bad UNTIL #{text}") unless UNTIL.match?(text)
                     Date.strptime(text[0, 8], "%Y%m%d")
                 rescue Date::Error
                     refuse!("bad UNTIL #{text}")
@@ -75,6 +81,13 @@ module Thermidor
                         rule.until && rule.count
                     refuse!("WKST other than MO is not supported") if
                         @parts.fetch("WKST", "MO") != "MO"
+                    check_days(rule)
+                end
+
+                # What BYMONTHDAY and BYDAY ordinals may go with.
+                def check_days(rule)
+                    refuse!("BYMONTHDAY is not for FREQ=WEEKLY") if
+                        rule.freq == :weekly && rule.by_month_day.any?
                     return unless rule.by_day.any? { |ordinal, _| ordinal }
                     return if ordinals_allowed?(rule)
                     refuse!("BYDAY ordinals need FREQ=MONTHLY, or YEARLY " \

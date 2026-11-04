@@ -96,10 +96,10 @@ class TimetableTest < Minitest::Test
             night = program("night", "02:30" => NIGHT, "07:00" => COMFORT)
             timetable = Schedule::Timetable.new(days: { 0 => night })
             # 2026-03-29: clocks go from 02:00 to 03:00, so 02:30 never
-            # comes; Time.new moves it to 03:30, 90 real minutes on.
+            # comes; it happens when they jump, 60 real minutes on.
             change = timetable.next_change(Time.new(2026, 3, 29, 1, 0))
-            assert_equal Time.new(2026, 3, 29, 3, 30), change
-            assert_equal 90 * 60, change - Time.new(2026, 3, 29, 1, 0)
+            assert_equal Time.new(2026, 3, 29, 3, 0), change
+            assert_equal 60 * 60, change - Time.new(2026, 3, 29, 1, 0)
             # 2026-10-25: clocks go back from 03:00 to 02:00; the first
             # 02:30, summer time's.
             change = timetable.next_change(Time.new(2026, 10, 25, 0, 0))

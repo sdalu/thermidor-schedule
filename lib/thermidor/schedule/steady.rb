@@ -18,6 +18,10 @@ module Thermidor
         # day, from looking shut while its window is still open; requiring
         # the rebound keeps a room that has cooled as far as it will from
         # looking shut when it merely stopped moving.
+        #
+        # Thresholds are met exactly too: readings at the tenth make
+        # differences such as 20.6 - 20.4 = 0.20000000000000284, so each
+        # comparison allows for MARGIN, far below any reading's precision.
         Steady = Data.define(:span, :tolerance, :change, :rebound,
                              :after) do
             def initialize(span: 600, tolerance: 0.2, change: 2.0,
@@ -42,7 +46,9 @@ module Thermidor
             # their extreme by `rebound` of the move; nil if not yet.
             def rebound_time(since)
                 first = since.first.last
-                moved = since.index { |_, value| (value - first).abs >= change }
+                moved = since.index do |_, value|
+                    (value - first).abs >= change - Steady::MARGIN
+                end
                 moved && turn_back(since.drop(moved), first)
             end
 
@@ -53,7 +59,8 @@ module Thermidor
                 direction = extreme <=> first
                 rest.each do |time, value|
                     back = (extreme - value) * direction
-                    return time if back >= rebound * (extreme - first).abs
+                    need = rebound * (extreme - first).abs
+                    return time if back >= need - Steady::MARGIN
                     extreme = value if back.negative?
                 end
                 nil
@@ -67,8 +74,12 @@ module Thermidor
                 values = since.filter_map do |time, value|
                     value if time >= start
                 end
-                values.max - values.min <= tolerance
+                values.max - values.min <= tolerance + Steady::MARGIN
             end
+        end
+
+        class Steady
+            MARGIN = 1e-6
         end
     end
 end

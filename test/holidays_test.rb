@@ -25,14 +25,22 @@ class HolidaysTest < Minitest::Test
         assert_includes Holidays.regions, "test-be"
     end
 
+    # A region known, no holiday, and rules that are no date of every
+    # year (400 days after Easter is in the next).
+    REFUSED = [
+        ["fr", { "x" => [1, 1] }], ["test-bad", { "x" => [2, 30] }],
+        ["test-bad", { "x" => "May" }], ["test-bad", {}], ["test-bad", nil],
+        ["test-bad", { "x" => [1] }], ["test-bad", { "x" => 1.5 }],
+        ["test-bad", { "x" => [1, 1, 1] }], ["test-bad", { "x" => 400 }],
+        ["test-bad", { "x" => -90 }]
+    ].freeze
+
     def test_a_registration_that_cannot_hold_is_refused
-        [["fr", { "x" => [1, 1] }], ["test-bad", { "x" => [2, 30] }],
-         ["test-bad", { "x" => "May" }], ["test-bad", {}]]
-            .each do |region, rules|
-                assert_raises(Thermidor::Schedule::Error, region) do
-                    Holidays.register(region, rules)
-                end
+        REFUSED.each do |region, rules|
+            assert_raises(Thermidor::Schedule::Error, region) do
+                Holidays.register(region, rules)
             end
+        end
         refute_includes Holidays.regions, "test-bad"
     end
 

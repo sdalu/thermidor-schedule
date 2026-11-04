@@ -127,10 +127,13 @@ As in iCalendar, the first date always counts as the first occurrence,
 `BYDAY` narrows `BYMONTHDAY` (ordinals included: the last Friday of
 those days), a yearly rule without `BYMONTH` takes its days in every
 month (`FREQ=YEARLY;BYDAY=MO` is every Monday), a day named twice comes
-once, a part given twice is refused, and dates a rule cannot
-have (31 February) are skipped rather than moved: `FREQ=MONTHLY;BYMONTHDAY=31` from 31 January gives 31 January,
-then 31 March. Anything else, or a malformed part, raises `ParseError`
-naming it; `UNTIL` and `COUNT` exclude each other.
+once, and dates a rule cannot have (31 February) are skipped rather
+than moved: `FREQ=MONTHLY;BYMONTHDAY=31` from 31 January gives 31
+January, then 31 March. Anything else, or a malformed part, raises
+`ParseError` naming it: a part given more than once, a list where one
+number goes (`INTERVAL`, `COUNT`), an `UNTIL` that is not `YYYYMMDD`
+(with an optional `THHMMSS` and `Z`), `BYMONTHDAY` with
+`FREQ=WEEKLY`; `UNTIL` and `COUNT` exclude each other.
 
 The layer takes entries already expanded. `Entry#occurrences` expands
 one: the entry repeated by its rule up to a date, its range as a
@@ -165,8 +168,9 @@ written as a recurrence rule, which is why they are computed.
 the built-in ones are: a name and a fixed `[month, day]`, or days from
 Easter Sunday (Easter Monday is `1`, Good Friday `-2`).
 `Holidays.regions` lists those known. A region already known, no
-holiday, or a rule that is no date (`[2, 30]`, `"May"`) is refused with
-`Error`, registering nothing. Like the [configuration](../README.md#configuration),
+holiday, or a rule that is no date of every year is refused with
+`Error`, registering nothing: `[2, 30]`, `"May"`, `[1]`, an offset
+outside -80 to 249 days, which would leave Easter's year. Like the [configuration](../README.md#configuration),
 a registration is the process's.
 
 ```ruby

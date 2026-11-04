@@ -53,6 +53,17 @@ class LayersTest < Minitest::Test
         assert_equal [29.0, 30.0], clamp(31, 33)
     end
 
+    def test_an_away_entry_still_to_start_is_a_change_ahead
+        later = Entry.new("salon", ECO, at("2026-11-02 11:00"), nil)
+        decision = resolve("2026-11-02 10:00", layers: away(later))
+        assert_equal ["eco", at("2026-11-02 11:00")],
+                     decision.to_h.values_at(:label, :until)
+        now = Entry.new("salon", nil, at("2026-11-02 09:00"),
+                        at("2026-11-02 12:00"))
+        assert_equal at("2026-11-02 11:00"),
+                     resolve("2026-11-02 10:00", layers: away(now, later)).until
+    end
+
     def test_a_layer_without_a_band_to_fall_back_on_is_refused
         assert_raises(Schedule::Error) do
             Schedule::Layers::Timetable.new(fallback: nil)

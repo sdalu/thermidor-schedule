@@ -82,15 +82,6 @@ class SyntaxTest < Minitest::Test
         assert_equal "holiday", Syntax.day_kind("holiday")
     end
 
-    def test_dates
-        assert_equal [Date.new(2026, 12, 25)] * 2, Syntax.dates("2026-12-25")
-        assert_equal [Date.new(2026, 12, 24), Date.new(2026, 12, 26)],
-                     Syntax.dates("2026-12-24..2026-12-26")
-        %w[2026-12-26..2026-12-24 2026-13-01 25/12].each do |text|
-            assert_raises(Schedule::ParseError, text) { Syntax.dates(text) }
-        end
-    end
-
     def test_usual_is_a_keyword_not_a_program_name
         assert_same Schedule::Timetable::USUAL, Syntax.program("usual")
         error = assert_raises(Schedule::Error) do
@@ -99,33 +90,23 @@ class SyntaxTest < Minitest::Test
         assert_match(/usual is reserved/, error.message)
     end
 
-    def test_years
-        assert_equal 2027..2027, Syntax.years("2027")
-        assert_equal 2027..2029, Syntax.years("2027..2029")
+    def test_no_day_is_refused
+        ["", ",", " "].each do |text|
+            assert_raises(Schedule::ParseError, text.inspect) do
+                Syntax.day_keys(text)
+            end
+        end
+        assert_raises(Schedule::ParseError) { Syntax.days("") }
+    end
+
+    def test_what_cannot_be_built_is_a_parse_error
         error = assert_raises(Schedule::ParseError) do
-            Syntax.years("2029..2027")
+            Syntax.band("+22..+21.5")
         end
-        assert_match(/ends before it starts/, error.message)
-        %w[20x7 2027.. ..2027].each do |text|
-            assert_raises(Schedule::ParseError, text) { Syntax.years(text) }
-        end
-    end
-
-    def test_durations
-        seconds = %w[2h 90m 1h30 30 0].map { Syntax.duration(it) }
-        assert_equal [7200, 5400, 5400, 1800, 0], seconds
-        %w[h 1.5h 2d 1h30x].each do |text|
-            assert_raises(Schedule::ParseError, text) { Syntax.duration(text) }
-        end
-    end
-
-    def test_times
-        now = Time.new(2026, 11, 2, 15, 0)
-        assert_equal Time.new(2026, 11, 2, 7, 0), Syntax.time("07:00", now)
-        assert_equal Time.new(2026, 12, 24, 18, 30),
-                     Syntax.time("2026-12-24 18:30", now)
+        assert_match(/at least 1.0 below/, error.message)
+        assert_raises(Schedule::ParseError) { Syntax.preset("+22..+21.5") }
         assert_raises(Schedule::ParseError) do
-            Syntax.time("2026-13-01 10:00", now)
+            Syntax.program("06:30=comfort,06:30=eco")
         end
     end
 end

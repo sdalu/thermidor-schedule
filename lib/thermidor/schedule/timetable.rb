@@ -68,14 +68,23 @@ module Thermidor
                 end
             end
 
-            # Local wall-clock time: Time.new moves one that falls in a
-            # daylight-saving gap forward, as clocks do; of one that comes
-            # twice, when clocks go back, the first.
+            # Local wall-clock time. One the clocks skip, going forward, is
+            # the moment they jump (02:30 is 03:00), so moments keep the
+            # order of clock readings; of one that comes twice, when they
+            # go back, the first.
             def local(date, minute)
                 hour, min = minute.divmod(60)
-                time    = Time.new(date.year, date.month, date.day, hour, min)
+                time = Time.new(date.year, date.month, date.day, hour, min)
+                return jump(time) if (time.hour * 60) + time.min != minute
                 earlier = time - 3600
                 return earlier if earlier.hour == hour && earlier.min == min
+                time
+            end
+
+            # The moment the clocks jumped forward, before `time`, which
+            # Time.new moved past the gap.
+            def jump(time)
+                time -= 60 while (time - 60).utc_offset == time.utc_offset
                 time
             end
         end

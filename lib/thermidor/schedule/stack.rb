@@ -8,7 +8,7 @@ module Thermidor
             attr_reader :layers
 
             def initialize(layers)
-                @layers = layers.freeze
+                @layers = layers.dup.freeze
             end
 
             def resolve(zone, now) = decisions(zone, now).last

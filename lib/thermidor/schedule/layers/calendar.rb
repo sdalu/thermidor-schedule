@@ -44,7 +44,7 @@ module Thermidor
                 end
 
                 def initialize(entries)
-                    @entries = entries
+                    @entries = entries.dup.freeze
                 end
 
                 def apply(zone, now, below)

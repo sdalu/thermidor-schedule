@@ -50,24 +50,32 @@ module Thermidor
                 end
 
                 def initialize(entries, source: "manual", default: nil)
-                    @entries = entries
+                    @entries = entries.dup.freeze
                     @source  = source
                     @default = default
                     refuse_bare
                 end
 
+                # The last entry of the zone running now holds; one listed
+                # after it, or any with none running, still to start, is a
+                # change ahead.
                 def apply(zone, now, below)
-                    entry = @entries.reverse.find do |candidate|
-                        candidate.zone == zone.name && candidate.active?(now)
-                    end
-                    return below unless entry
+                    mine  = @entries.select { it.zone == zone.name }
+                    index = mine.rindex { it.active?(now) }
+                    decision = index ? held(mine[index], zone) : below
+                    later = mine.drop(index ? index + 1 : 0)
+                                .map(&:starts_at).select { it > now }.min
+                    decision.sooner(later)
+                end
+
+                private
+
+                def held(entry, zone)
                     Decision.from_preset(entry.preset || default_for(entry),
                                          zone,
                                          override: entry.strategy,
                                          source: @source, until: entry.ends_at)
                 end
-
-                private
 
                 # An entry with no band to hold: no preset, and no default.
                 def refuse_bare

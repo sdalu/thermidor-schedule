@@ -34,6 +34,10 @@ newer one is usually ended rather than paused: the caller ends it, so
 that when the newer one ends the zone goes back to the layers below,
 not to what was left of the older one.
 
+An entry still to start is a change ahead when it will win: listed
+after the one running, or with none running. `until` then comes no
+later than its `starts_at`.
+
 ## How long
 
 The end is fixed when the setting is made, and the layer only reads

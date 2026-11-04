@@ -17,6 +17,23 @@ class SteadyTest < Minitest::Test
                        25.0, 25.0, 24.9)
     end
 
+    # Readings at the tenth meet each threshold exactly: 20.6 - 20.4 is
+    # 0.20000000000000284 in floats, 16.9 - 14.9 is 1.9999999999999982.
+    def test_a_spread_of_exactly_the_tolerance_is_settled
+        assert steady?(21.0, 20.0, 19.0, 18.8, 19.6, 20.4, 20.4, 20.5, 20.6,
+                       20.5, 20.6, 20.6)
+    end
+
+    def test_a_move_of_exactly_the_change_counts
+        assert steady?(16.9, 15.9, 14.9, 15.9, 15.9, 15.9, 15.9, 15.9, 15.9,
+                       15.9)
+    end
+
+    def test_a_rebound_of_exactly_the_fraction_counts
+        assert steady?(16.1, 15.1, 14.1, 15.1, 15.1, 15.1, 15.1, 15.1, 15.1,
+                       15.1)
+    end
+
     def test_a_small_turn_back_is_not_a_rebound
         refute steady?(21.0, 20.0, 19.0, 18.8, 19.4, 19.5, 19.5, 19.6, 19.5,
                        19.5, 19.5, 19.6)

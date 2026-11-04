@@ -13,6 +13,12 @@ module Thermidor
         # by_day holds [ordinal or nil, wday] pairs, wday as in Date#wday.
         Recurrence = Data.define(:freq, :interval, :by_day, :by_month_day,
                                  :by_month, :until, :count) do
+            def initialize(by_day:, by_month_day:, by_month:, **)
+                super(by_day: by_day.map { it.dup.freeze }.freeze,
+                      by_month_day: by_month_day.dup.freeze,
+                      by_month: by_month.dup.freeze, **)
+            end
+
             def self.parse(text) = Recurrence::Parser.new(text).rule
 
             # Starts of the occurrences from `first` (included) on, up to

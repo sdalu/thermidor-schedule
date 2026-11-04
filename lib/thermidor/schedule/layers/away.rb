@@ -20,17 +20,19 @@ module Thermidor
                 def initialize(entries, default: Preset::AWAY,
                                auto_since: nil)
                     raise Error, "an away layer needs a default" unless default
-                    @entries    = entries
+                    @entries    = entries.dup.freeze
                     @default    = default
                     @auto_since = auto_since
                 end
 
+                # An entry still to start wins when it does, as the latest
+                # started: a change ahead whatever holds now.
                 def apply(zone, now, below)
                     entry = entry_for(zone, now)
-                    return automatic(zone, now, below) unless entry
-                    Decision.from_preset(entry.preset || @default, zone,
-                                         source: "away",
-                                         until: entry.ends_at)
+                    decision = if entry then held(entry, zone)
+                               else automatic(zone, now, below)
+                               end
+                    decision.sooner(starting(zone, now))
                 end
 
                 private
@@ -39,12 +41,19 @@ module Thermidor
                 # still to start is a change ahead.
                 def automatic(zone, now, below)
                     return below unless @auto_since
-                    if @auto_since > now
-                        ahead = [below.until, @auto_since].compact.min
-                        return below.with(until: ahead)
-                    end
+                    return below.sooner(@auto_since) if @auto_since > now
                     Decision.from_preset(@default, zone, source: "away:auto",
                                                          until: nil)
+                end
+
+                def held(entry, zone)
+                    Decision.from_preset(entry.preset || @default, zone,
+                                         source: "away", until: entry.ends_at)
+                end
+
+                def starting(zone, now)
+                    @entries.select { it.zone == zone.name }
+                            .map(&:starts_at).select { it > now }.min
                 end
 
                 def entry_for(zone, now)
