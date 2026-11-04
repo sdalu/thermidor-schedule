@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+module Thermidor
+    module Schedule
+        module Layers
+            # A window is open: the zone holds the preset named open-window
+            # (frost protection by default) above everything but the clamp,
+            # for some minutes, or (mode :steady) until the temperature
+            # steadies, with an end time as a safety limit.
+            class OpenWindow < Manual
+                # The safety limit of a :steady window when not told, and
+                # the longest a window may be held for, in seconds.
+                LIMIT   = 60 * 60
+                LONGEST = 2 * 60 * 60
+
+                def initialize(entries, default: Preset::OPEN_WINDOW)
+                    super(entries, source: "open-window", default:)
+                end
+            end
+        end
+    end
+end
