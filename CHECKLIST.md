@@ -20,4 +20,4 @@
 - [ ] Does `Thermidor::Schedule::VERSION` in
   `lib/thermidor/schedule/version.rb` move with this round? It is the
   one place the release number is written. Its user (ClimatControl)
-  pins a tag.
+  pins a tag, which the owner makes: propose the number, do not tag.

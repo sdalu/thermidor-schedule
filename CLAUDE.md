@@ -10,6 +10,8 @@ Ruby style: the `ruby` skill (4-space indentation, double quotes,
 
 ## Traps
 
+- Releases are the owner's: never create or push a tag, nor move
+  `VERSION`, unasked. Say a release is due and which number.
 - ClimatControl (~/Repos/ClimatControl, its own session's repo) is
   the one user, naming `Thermidor::Schedule` directly and pinning a
   tag: a renamed constant or a changed value breaks it. Run its gate
