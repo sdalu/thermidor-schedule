@@ -8,8 +8,8 @@ decision below through or replacing it.
 
 It decides only: where the presets, programs and entries are kept, and
 what the devices are told, is the caller's. ClimatControl keeps them in
-SQLite and plans from the decisions; a planner of the same family,
-`thermidor-planner`, is to come.
+SQLite and plans from the decisions with `thermidor-planner`, the
+planner of the same family.
 
 Ruby ≥ 3.4, standard library only.
 

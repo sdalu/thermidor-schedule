@@ -12,11 +12,13 @@ Ruby style: the `ruby` skill (4-space indentation, double quotes,
 
 - Releases are the owner's: never create or push a tag, nor move
   `VERSION`, unasked. Say a release is due and which number.
-- ClimatControl (~/Repos/ClimatControl, its own session's repo) is
-  the one user, naming `Thermidor::Schedule` directly and pinning a
-  tag: a renamed constant or a changed value breaks it. Run its gate
-  against this tree before tagging; schedule changes it needs come
-  here, never as a copy in its tree.
+- ClimatControl (~/Repos/ClimatControl, the ClimatControl session's
+  repo, never edited from here: tell that session) is the one user, naming
+  `Thermidor::Schedule` directly and pinning a commit or a tag, as
+  thermidor-planner (~/Repos/thermidor-planner) does in its own
+  Gemfile: a renamed constant or a changed value breaks them. Run
+  both gates against this tree before either moves its pin; schedule
+  changes they need come here, never as a copy in their tree.
 - A constant defined inside a Data.define block lands in the enclosing
   module, not the class: reopen the class for constants (Preset,
   Timetable::Entry).
