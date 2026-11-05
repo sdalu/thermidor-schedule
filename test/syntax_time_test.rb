@@ -45,4 +45,22 @@ class SyntaxTimeTest < Minitest::Test
             Syntax.time("2026-13-01 10:00", now)
         end
     end
+
+    def test_a_time_ahead_is_never_in_the_past
+        now = Time.new(2026, 11, 2, 15, 0)
+        assert_equal Time.new(2026, 11, 3, 7, 0),
+                     Syntax.time("07:00", now, ahead: true)
+        assert_equal Time.new(2026, 11, 3, 15, 0),
+                     Syntax.time("15:00", now, ahead: true)
+        assert_equal Time.new(2026, 11, 2, 15, 1),
+                     Syntax.time("15:01", now, ahead: true)
+    end
+
+    def test_ahead_leaves_a_dated_time_alone
+        now = Time.new(2026, 11, 2, 15, 0)
+        assert_equal Time.new(2026, 11, 1, 7, 0),
+                     Syntax.time("2026-11-01 07:00", now, ahead: true)
+        assert_equal Time.new(2026, 11, 2, 7, 0),
+                     Syntax.time("2026-11-02 07:00", now, ahead: true)
+    end
 end

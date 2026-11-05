@@ -71,6 +71,7 @@ special day's name.
 | `dates("2026-12-25")`                | the same date twice           |
 | `time("2026-11-02 07:00")`           | a local Time; on the nights clocks change, a skipped time is the moment they jump, a repeated one the first |
 | `time("07:00", now)`                 | 07:00 on `now`'s date         |
+| `time("07:00", now, ahead: true)`    | the same, or the next day's when that is not after `now`; a dated time is left as it is |
 | `duration("1h30")`                   | 5400 (seconds)                |
 | `duration("90m")`, `duration("45")`  | 5400, 2700: minutes without a unit |
 
