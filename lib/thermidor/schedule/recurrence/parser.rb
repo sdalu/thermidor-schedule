@@ -4,7 +4,8 @@ module Thermidor
     module Schedule
         class Recurrence
             # Reads "FREQ=WEEKLY;BYDAY=WE;UNTIL=20270630" into a Recurrence,
-            # refusing the parts of RFC 5545 that are not supported.
+            # refusing the parts of RFC 5545 that are not supported. A
+            # leading "RRULE:", as a calendar file writes it, is dropped.
             class Parser
                 PARTS = %w[FREQ INTERVAL BYDAY BYMONTHDAY BYMONTH UNTIL COUNT
                            WKST].freeze
@@ -14,7 +15,8 @@ module Thermidor
 
                 def initialize(text)
                     @text = text
-                    pairs  = text.to_s.upcase.split(";").map { pair(it) }
+                    body   = text.to_s.upcase.delete_prefix("RRULE:")
+                    pairs  = body.split(";").map { pair(it) }
                     @parts = pairs.to_h
                     twice = pairs.map(&:first).tally.find { |_, n| n > 1 }
                     refuse!("#{twice.first} twice") if twice
@@ -73,12 +75,22 @@ module Thermidor
                     found.first
                 end
 
+                # The last date: a time in UTC (ending in Z) is taken on its
+                # local date; any other, on its own.
                 def until_date
                     text = @parts["UNTIL"] or return
                     refuse!("bad UNTIL #{text}") unless UNTIL.match?(text)
-                    Date.strptime(text[0, 8], "%Y%m%d")
+                    date = Date.strptime(text[0, 8], "%Y%m%d")
+                    text.end_with?("Z") ? local_date(date, text) : date
                 rescue Date::Error
                     refuse!("bad UNTIL #{text}")
+                end
+
+                # The local date of "YYYYMMDDTHHMMSSZ", on `date`.
+                def local_date(date, text)
+                    hour, min, sec = text[9, 6].scan(/\d\d/).map(&:to_i)
+                    Time.utc(date.year, date.month, date.day, hour, min, sec)
+                        .getlocal.to_date
                 end
 
                 def check(rule)

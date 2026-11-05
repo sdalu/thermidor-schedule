@@ -129,7 +129,7 @@ calendars use), for whole days:
 | `BYDAY`      | `MO`..`SU`; `2TU`, `-1FR` monthly, or yearly with `BYMONTH` |
 | `BYMONTHDAY` | 1 to 31, or -1 for the last day                |
 | `BYMONTH`    | 1 to 12                                        |
-| `UNTIL`      | the last date, `YYYYMMDD`                      |
+| `UNTIL`      | the last date, `YYYYMMDD`; with a time in UTC (`T230000Z`), its local date |
 | `COUNT`      | the number of occurrences                      |
 | `WKST`       | `MO` only                                      |
 
@@ -151,7 +151,11 @@ January, then 31 March. Anything else, or a malformed part, raises
 that is not plain digits, a list where one number goes (`INTERVAL`,
 `COUNT`), an `UNTIL` that is not `YYYYMMDD` (with an optional valid
 `THHMMSS` and `Z`), `BYMONTHDAY` with
-`FREQ=WEEKLY`; `UNTIL` and `COUNT` exclude each other.
+`FREQ=WEEKLY`; `UNTIL` and `COUNT` exclude each other. A leading
+`RRULE:`, as a calendar file writes the rule, is dropped. An `UNTIL`
+with a time ending in `Z` is a moment in UTC, kept as its date in the
+process's time zone: `20270630T230000Z` is 1 July in Paris; one
+without `Z` is local, kept as its own date.
 
 The layer takes entries already expanded. `Entry#occurrences` expands
 one: the entry repeated by its rule up to a date, its range as a
