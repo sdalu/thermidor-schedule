@@ -48,11 +48,12 @@ module Thermidor
                 raise ParseError, "bad date #{text.inspect}"
             end
 
-            # "2026-11-02 07:00" or "07:00" (on the day of `now`; with
-            # `ahead`, the next day when that is not after `now`), read as
+            # "2026-11-02 07:00" or "07:00" (on the day of `now`), read as
             # the timetable reads a transition (LocalTime): a time the
             # clocks skip is the moment they jump, one they repeat the
-            # first.
+            # first. With `ahead`, a bare time not after `now` is the next
+            # moment the clock reads it: a repeated hour's second pass,
+            # else the next day's (a skipped time still the jump).
             def time(text, now = Time.now, ahead: false)
                 text!(text)
                 match = DATE.match(text)
@@ -62,12 +63,15 @@ module Thermidor
                 raise ParseError, "bad date #{text.inspect}"
             end
 
-            # A bare "07:00": on `now`'s date, or the next one.
+            # A bare "07:00": on `now`'s date, or the next moment after it.
             def clock_time(text, now, ahead)
-                today = now.getlocal.to_date
-                time  = LocalTime.at(today, minute(text))
-                return time unless ahead && time <= now
-                LocalTime.at(today + 1, minute(text))
+                minute = minute(text)
+                today  = now.getlocal.to_date
+                first  = LocalTime.at(today, minute)
+                return first unless ahead && first <= now
+                second = LocalTime.second_of(first)
+                return second if second && second > now
+                LocalTime.at(today + 1, minute)
             end
         end
     end

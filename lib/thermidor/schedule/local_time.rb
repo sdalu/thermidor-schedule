@@ -29,6 +29,15 @@ module Thermidor
                 same ? earlier : time
             end
 
+            # Of a clock reading that comes twice (time, its first pass),
+            # the second; nil for one that comes once.
+            def second_of(time)
+                shift = time.utc_offset - (time + (3 * 3600)).utc_offset
+                return unless shift.positive?
+                later = time + shift
+                later if later.hour == time.hour && later.min == time.min
+            end
+
             # The moment the clocks jumped forward, before `time`, which
             # Time.new moved past the gap.
             def jump(time)

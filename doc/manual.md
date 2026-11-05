@@ -52,6 +52,7 @@ Layers::Manual.ends_at(:for, below:, zone:, now:, duration: 5400)
 | `mode`     | `ends_at`                                       |
 | :--------- | :---------------------------------------------- |
 | `:for`     | the end of a duration, up to `Manual::LONGEST` (12 h) |
+| `:steady`  | the same as `:for`: an open window's limit, its duration the longest the window may wait to settle |
 | `:next`    | the next change of the layers below, at that moment |
 | `:forever` | nil                                             |
 
