@@ -21,8 +21,11 @@ setting.
 
 ## Which band
 
-An entry with a preset holds it. Without one, its `mode` says which
-push was asked for (one of `Boost::DIRECTIONS`), and so which default:
+On a boost entry, `mode` is the direction, not how the end was asked
+for as on a [manual entry](manual.md#entries): the end is passed to
+`Boost.ends_at` as its own mode and only `ends_at` is kept. An entry
+with a preset holds it. Without one, its `mode` says which push was
+asked for (one of `Boost::DIRECTIONS`), and so which default:
 
 | `mode`  | Default             | Band             | Pushes       |
 | :------ | :------------------ | :--------------- | :----------- |

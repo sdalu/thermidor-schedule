@@ -26,7 +26,7 @@ A `Manual::Entry`:
 | `strategy`  | overrides the preset's when given                    |
 | `starts_at` | a Time, included                                     |
 | `ends_at`   | a Time, excluded; nil until cleared                  |
-| `mode`      | how its end was asked for (below); kept, not read    |
+| `mode`      | how its end was asked for (below); on a boost entry, its direction instead |
 
 When several entries are active in a zone, the **last in the list**
 wins, so the caller lists them oldest first. A setting replaced by a
@@ -41,8 +41,8 @@ later than its `starts_at`.
 ## How long
 
 The end is fixed when the setting is made, and the layer only reads
-`ends_at`. `Manual.ends_at` works it out; `mode` records how it was
-asked for:
+`ends_at`. `Manual.ends_at` works it out; on a manual entry, `mode`
+records how it was asked for:
 
 ```ruby
 Layers::Manual.ends_at(:next, below: Stack.new(lower_layers), zone:, now:)
@@ -67,6 +67,11 @@ outside 0 to `LONGEST` with `Error`, naming the kind (`a manual setting
 lasts 0 to 12 hours`). Boosts and open windows answer both with their
 own `LONGEST` and name. An unknown mode raises `Error`. The layer itself
 reads only `ends_at`: entries built otherwise are not checked.
+
+The same field means something else on a [boost](boost.md#which-band)
+entry: there `mode` is the direction pushed (`:both`, `:heat`,
+`:cool`), and picks the default preset; how the boost's end was asked
+for is not on the entry.
 
 ## Which band
 
