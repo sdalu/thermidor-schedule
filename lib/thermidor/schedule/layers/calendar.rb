@@ -17,7 +17,13 @@ module Thermidor
             # The timetable below does not know these dates, so this layer
             # decides afresh from the dates' programs, even when what is in
             # force comes from an ordinary day (the early hours of a holiday
-            # carry on from the evening before it).
+            # carry on from the evening before it). When the calendar
+            # changes nothing, now or next (what is in force comes from a
+            # date with no entry, and both it and the next change are the
+            # weekday timetable's), it passes the decision below through,
+            # a layer of the caller's own between them kept. On the eve of
+            # a calendar day it decides, the timetable's next change below
+            # not being the one that comes.
             class Calendar
                 # `first` and `last` are Dates, both included; `kind` is
                 # already resolved from the entry's calendar when the entry
@@ -73,8 +79,15 @@ module Thermidor
                 def apply(zone, now, below)
                     lookup = ->(date) { program_on(zone, date) }
                     change = zone.timetable.next_change(now, &lookup)
-                    entry  = zone.timetable.at(now, &lookup) or
-                        return below.sooner(change)
+                    entry  = zone.timetable.at(now, &lookup)
+                    return below.sooner(change) if
+                        entry.nil? || unchanged?(zone, now, entry, change)
+                    decided(zone, entry, change)
+                end
+
+                private
+
+                def decided(zone, entry, change)
                     Decision.from_preset(
                         entry.transition.preset, zone,
                         override: entry.transition.strategy,
@@ -82,7 +95,14 @@ module Thermidor
                     ).sooner(out_of_sight(entry.date))
                 end
 
-                private
+                # What is in force comes from a date with no entry, and it
+                # and the next change are what the weekday timetable alone
+                # gives.
+                def unchanged?(zone, now, entry, change)
+                    entry_on(zone, entry.date).nil? &&
+                        zone.timetable.at(now) == entry &&
+                        zone.timetable.next_change(now) == change
+                end
 
                 # When what ran on `date` is no longer seen: the timetable
                 # looks back REACH dates, so midnight the date after that.

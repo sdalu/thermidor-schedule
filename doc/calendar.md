@@ -62,6 +62,12 @@ With a `work` program every day and a `holiday` program starting at
 | 2026-11-11 07:00   | night   | `timetable:work`      | 2026-11-11 09:00 |
 | 2026-11-11 10:00   | holiday | `calendar:fr:holiday` | 2026-11-12 06:45 |
 
+On an ordinary day, with no calendar date in force and none next, the
+calendar changes nothing and passes the decision below through, so a
+layer of the caller's own between the timetable and the calendar keeps
+its effect. On a calendar day, and on its eve (the next change is the
+calendar's), the calendar decides from the dates' programs, as above.
+
 A zone with no program on any date within the week before gets the
 decision below, with `until` brought forward to the calendar's next
 change: a guest room that runs only on holidays is told, the day
