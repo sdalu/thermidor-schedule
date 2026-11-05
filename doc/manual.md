@@ -83,7 +83,7 @@ has none unless given one, so an entry with no preset and no default
 to fall back on is refused when the layer is built (`Error`, naming
 the entry's zone). Boosts and open windows always have a default. The
 strategy is the entry's, then the preset's, then the zone's, then
-`comfort`.
+the configured default (`comfort`).
 
 ## In a decision
 

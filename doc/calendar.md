@@ -133,7 +133,7 @@ calendars use), for whole days:
 | `FREQ`       | `DAILY`, `WEEKLY`, `MONTHLY`, `YEARLY`         |
 | `INTERVAL`   | every n periods (weeks start on Monday)        |
 | `BYDAY`      | `MO`..`SU`; `2TU`, `-1FR` monthly, or yearly with `BYMONTH` |
-| `BYMONTHDAY` | 1 to 31, or -1 for the last day                |
+| `BYMONTHDAY` | 1 to 31, or -1 to -31 from the end (-1 the last day) |
 | `BYMONTH`    | 1 to 12                                        |
 | `UNTIL`      | the last date, `YYYYMMDD`; with a time in UTC (`T230000Z`), its local date |
 | `COUNT`      | the number of occurrences                      |
@@ -147,8 +147,9 @@ rule.to_s  # => "FREQ=MONTHLY;BYDAY=-1FR"
 ```
 
 As in iCalendar, the first date always counts as the first occurrence,
-`BYDAY` narrows `BYMONTHDAY` (ordinals included: the last Friday of
-those days), a yearly rule without `BYMONTH` takes its days in every
+`BYDAY` narrows `BYMONTHDAY` (ordinals included: the month's last
+Friday, when it is one of those days), a yearly rule without
+`BYMONTH` takes its days in every
 month (`FREQ=YEARLY;BYDAY=MO` is every Monday), a day named twice comes
 once, and dates a rule cannot have (31 February) are skipped rather
 than moved: `FREQ=MONTHLY;BYMONTHDAY=31` from 31 January gives 31

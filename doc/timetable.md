@@ -64,14 +64,14 @@ belonging to the one place that uses it (`label` is then its band).
 `Preset::SYSTEM` holds the presets the layers fall back on, each also a
 constant:
 
-| Constant      | Name          | Band               | Held by                    |
-| :------------ | :------------ | :----------------- | :------------------------- |
-| `FROST`       | `frost`       | `+7..`             | a zone without a timetable |
-| `AWAY`        | `away`        | `+16..+30/cheapest`| an away period             |
-| `BOOST`       | `boost`       | `+23..+24/quick`   | a boost                    |
-| `BOOST_HEAT`  | `boost-heat`  | `+24../quick`      | a heating boost            |
-| `BOOST_COOL`  | `boost-cool`  | `..+22/quick`      | a cooling boost            |
-| `OPEN_WINDOW` | `open-window` | `+7..`             | an open window             |
+| Constant      | Name          | Band                | Held by                      |
+| :------------ | :------------ | :------------------ | :--------------------------- |
+| `FROST`       | `frost`       | `+7..`              | a zone with nothing in force |
+| `AWAY`        | `away`        | `+16..+30/cheapest` | an away period               |
+| `BOOST`       | `boost`       | `+23..+24/quick`    | a boost                      |
+| `BOOST_HEAT`  | `boost-heat`  | `+24../quick`       | a heating boost              |
+| `BOOST_COOL`  | `boost-cool`  | `..+22/quick`       | a cooling boost              |
+| `OPEN_WINDOW` | `open-window` | `+7..`              | an open window               |
 
 Each layer takes its fallback as an argument (`fallback:`, `default:`,
 `defaults:`), so a caller keeping presets passes its own versions; a
@@ -147,9 +147,11 @@ given in another offset (UTC) is taken as the same moment, its date the
 local one. On the
 night clocks go forward, a transition in the missing hour (02:30)
 happens when they jump, at 03:00, so a 03:10 transition still comes
-after it; on the night they go back, at the first 02:30, and
-only then: what is in force is decided by the moment, not the clock
-reading, so `at` and `next_change` agree through the repeated hour.
+after it; on a date they skip altogether, its transitions happen
+when they jump, the last one holding; on the night they go back, at
+the first 02:30, and only then: what is in force is decided by the
+moment, not the clock reading, so `at` and `next_change` agree
+through the repeated hour.
 
 ## The layer
 

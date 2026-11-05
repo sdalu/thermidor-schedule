@@ -46,7 +46,8 @@ empty office) win over the house's for as long as both run.
 
 The entry's preset, else `default` (`Preset::AWAY`, `+16..+30/cheapest`,
 unless the caller passes its own). The strategy follows the usual
-order: the preset's, then the zone's, then `comfort`.
+order: the preset's, then the zone's, then the configured default
+(`comfort`).
 
 ## Automatic away
 
@@ -74,6 +75,7 @@ in time.
 ## In a decision
 
 The source is `away` for an entry and `away:auto` for automatic away.
-`until` is the entry's end, nil when it has none, and always nil for
+`until` is the entry's end, nil when it has none, and nil for
 automatic away, which ends when presence changes, something no layer
-can foresee.
+can foresee; an entry of the zone still to start brings either forward
+to its `starts_at`.

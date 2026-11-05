@@ -93,8 +93,9 @@ Thermidor::Schedule.config.deadband   # => 1.5
 ```
 
 A setting left out keeps its value; settings that cannot hold together
-(no strategy, a default that is none of them, a negative deadband) are
-refused with `Error`, changing nothing. Without a call, they are
+(no strategy, one named twice, a default that is none of them, a
+negative deadband), or one that does not exist, are refused with
+`Error`, changing nothing. Without a call, they are
 `STRATEGIES`, `DEFAULT_STRATEGY` and `DEADBAND`. A value checks itself
 when built, so one built before a change keeps the old rules. A
 strategy outside the configured ones counts as not given when a
@@ -108,15 +109,15 @@ Bottom first, as they are usually stacked; each takes the entries it
 holds as plain values (`Data`), built by the caller from wherever it
 keeps them.
 
-| Layer                | Entries                     | Active                                     | Source               |
-| :------------------- | :-------------------------- | :----------------------------------------- | :------------------- |
-| `Layers::Timetable`  | none (the zone's timetable) | always; `fallback:` (frost) without one    | `timetable:PROGRAM`  |
-| `Layers::Calendar`   | `Calendar::Entry`           | on dates that run another kind of day      | `calendar:NAME:KIND` |
-| `Layers::Away`       | `Away::Entry`, `auto_since:`| an away period, by hand or from presence   | `away`, `away:auto`  |
-| `Layers::Manual`     | `Manual::Entry`             | a setting made by hand, until its end      | `manual`             |
-| `Layers::Boost`      | `Manual::Entry`             | a short push, `mode` its direction         | `boost`              |
-| `Layers::OpenWindow` | `Manual::Entry`             | a window open, until its end               | `open-window`        |
-| `Layers::Clamp`      | none                        | always: both sides within `limits:`        | the decision's below |
+| Layer                | Entries                      | Active                                         | Source                          |
+| :------------------- | :--------------------------- | :--------------------------------------------- | :------------------------------ |
+| `Layers::Timetable`  | none (the zone's timetable)  | always; `fallback:` (frost) with none in force | `timetable:PROGRAM`, `fallback` |
+| `Layers::Calendar`   | `Calendar::Entry`            | on dates that run another kind of day          | `calendar:NAME:KIND`            |
+| `Layers::Away`       | `Away::Entry`, `auto_since:` | an away period, by hand or from presence       | `away`, `away:auto`             |
+| `Layers::Manual`     | `Manual::Entry`              | a setting made by hand, until its end          | `manual`                        |
+| `Layers::Boost`      | `Manual::Entry`              | a short push, `mode` its direction             | `boost`                         |
+| `Layers::OpenWindow` | `Manual::Entry`              | a window open, until its end                   | `open-window`                   |
+| `Layers::Clamp`      | none                         | always: both sides within `limits:`            | the decision's below            |
 
 A layer is anything answering `apply(zone, now, below)` with a
 `Decision`: one of the caller's own fits in the stack as well.
@@ -127,16 +128,17 @@ those be changed but not deleted.
 
 ## Around the layers
 
-- `Syntax`: the text forms of bands (`+20.5..+25`, `+7..`, `..+26`,
-  `off`), preset references (`comfort/quick`), programs
+- `Syntax`: the text forms of bands (`+20.5..+25`, `+7..`, `..+26`),
+  preset references (`comfort/quick`, or `off` for no band), programs
   (`06:30=comfort,22:30=+17..+27/quiet`), days (`mon-fri`, `sat,sun`, a
   special day's name), and in `syntax/time.rb` years, dates, times and
   durations (`2h`, `90m`, `1h30`). Refusals raise `ParseError`.
 - `Recurrence`: an iCalendar (RFC 5545) rule for whole days,
   `Recurrence.parse("FREQ=YEARLY;BYMONTH=5;BYDAY=-1MO")`, expanded by
-  `#occurrences(first, upto)`.
+  `#occurrences(first, upto, from: nil)`.
 - `Holidays.for(region, year)`: public holidays, `[[Date, name], ...]`,
-  for `"fr"` and `"fr-alsace-moselle"`, Easter computed.
+  for `"fr"`, `"fr-alsace-moselle"` and the regions `Holidays.register`
+  adds, Easter computed.
 - `AutoAway`: when an automatic away period starts, from statuses
   answering `since` and `close?`, after a `leave:` delay.
 - `Steady`: whether an open window has been shut again, from the room's

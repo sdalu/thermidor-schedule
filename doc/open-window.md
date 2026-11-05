@@ -47,8 +47,8 @@ an end of its own.
 readings (in any order; those at one moment, from two sensors, count as
 their mean). Of those before `opened`, only the last
 counts, as the baseline. It must have been open at least `after`
-seconds, and the readings since must have gone through three phases,
-in order:
+seconds by its last reading, and the readings since must have gone
+through three phases, in order:
 
 1. **move**: at least `change` °C away from the baseline (down while
    heating, up while cooling), and on as far as it goes. The baseline
@@ -59,8 +59,8 @@ in order:
    window being shut while the device still works;
 3. **settle**: from the rebound on, the readings of the last `span`
    seconds all within `tolerance` °C of each other, counting the one in
-   force when that span began (the last reading before it): a sensor
-   read less often than `span` must hold steady across two readings,
+   force when that span began (the last reading at or before it): a
+   sensor read less often than `span` must hold steady across two readings,
    not pass on one.
 
 | Parameter   | Default | Meaning                                |

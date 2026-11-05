@@ -107,7 +107,7 @@ zone's: the caller gives each `Zone` its own strategy or the house's.
 | Source              | Decided by                                          |
 | :------------------ | :-------------------------------------------------- |
 | `timetable:PROGRAM` | the zone's week (the program's name, or `(inline)`) |
-| `fallback`          | nothing: the zone has no timetable                  |
+| `fallback`          | nothing: no transition within the week before       |
 | `calendar:NAME:DAY` | an entry of calendar NAME, running DAY              |
 | `away`              | an away entry                                       |
 | `away:auto`         | automatic away                                      |
@@ -141,8 +141,9 @@ The layers take plain values (`Data`). They read no store, no clock
 
 - keep presets, programs, timetables and entries, and build the values
   from them for the time asked about;
-- give the calendar the entries around that time (ClimatControl gives a
-  week either side, as far as the timetable looks back and ahead), with
+- give the calendar the entries around that time (ClimatControl gives
+  eight days either side, as far as the timetable looks back and
+  ahead), with
   recurring entries already expanded (`Calendar::Entry#occurrences`);
 - fix each manual, boost or open-window entry's end when the entry is
   made (`Manual.ends_at`, which checks its duration), and end an entry
