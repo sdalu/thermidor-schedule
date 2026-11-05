@@ -16,11 +16,17 @@ module Thermidor
                 NOUN    = "a manual setting"
                 # The modes its end may not be asked by.
                 REFUSED_MODES = [].freeze
-                # strategy: overrides the preset's when given. mode: :for (a
-                # duration), :next (the next change below) or :forever, as
-                # the setting was asked for.
+                # strategy: overrides the preset's when given, through
+                # Schedule.strategy (nil stays nil; a configured one, by
+                # String or Symbol, its Symbol; else ParseError). mode: :for
+                # (a duration), :next (the next change below) or :forever,
+                # as the setting was asked for.
                 Entry = Data.define(:zone, :preset, :strategy, :starts_at,
                                     :ends_at, :mode) do
+                    def initialize(strategy:, **)
+                        super(strategy: Schedule.strategy(strategy), **)
+                    end
+
                     def active?(now)
                         starts_at <= now && (ends_at.nil? || now < ends_at)
                     end

@@ -23,7 +23,7 @@ A `Manual::Entry`:
 | :---------- | :--------------------------------------------------- |
 | `zone`      | the zone's name                                      |
 | `preset`    | the band to hold; nil for the layer's default        |
-| `strategy`  | overrides the preset's when given                    |
+| `strategy`  | overrides the preset's when given; nil, or a configured strategy by String or Symbol (kept as its Symbol), else `ParseError` |
 | `starts_at` | a Time, included                                     |
 | `ends_at`   | a Time, excluded; nil until cleared                  |
 | `mode`      | how its end was asked for (below); on a boost entry, its direction instead |

@@ -27,6 +27,18 @@ class ManualTest < Minitest::Test
         assert_equal :quick, resolve("2026-11-02 10:00", layers:).strategy
     end
 
+    def test_an_entry_strategy_is_a_configured_one
+        given = [nil, "quick", :quiet].map { entry(strategy: it).strategy }
+        assert_equal [nil, :quick, :quiet], given
+        boost = Schedule::Layers::Boost::Entry
+        assert_equal :quick, boost.new(**entry.to_h, strategy: "quick").strategy
+        ["bogus", :bogus, 3].each do |bad|
+            assert_raises(Schedule::ParseError, bad.inspect) do
+                entry(strategy: bad)
+            end
+        end
+    end
+
     def test_forever_and_other_zones
         layers = manual(entry(zone: "office"), entry(ends_at: nil))
         decision = resolve("2026-12-25 10:00", layers:)
