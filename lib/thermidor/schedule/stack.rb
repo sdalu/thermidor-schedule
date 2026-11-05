@@ -7,7 +7,10 @@ module Thermidor
         class Stack
             attr_reader :layers
 
+            # At least one layer (ArgumentError otherwise): the bottom one
+            # always decides.
             def initialize(layers)
+                raise ArgumentError, "a stack needs a layer" if layers.empty?
                 @layers = layers.dup.freeze
             end
 

@@ -69,7 +69,7 @@ midnight eight dates later, and that end is announced too.
 | :------------ | :-------------------------------------------------------- |
 | `id`          | an Integer; the highest is the latest added               |
 | `calendar`    | the calendar's name, in the source                        |
-| `priority`    | 1 or more; the lowest wins                                |
+| `priority`    | 1 or more; the lowest wins; required                      |
 | `zone`        | a zone's name, or nil for every zone                      |
 | `kind`        | the day it runs: a special day or `"sun"`..`"sat"`        |
 | `first`, `last` | Dates, both included                                    |
@@ -78,6 +78,11 @@ midnight eight dates later, and that end is announced too.
 `kind` is already resolved: an entry that takes its calendar's day is
 given that day by the caller. So is everything else about a calendar
 (switched off, renamed): the layer sees only the entries in force.
+
+`kind` is a kind as `Syntax.day_kind` gives it, `"sun"`..`"sat"` or a
+special day's name (not `"sunday"` nor `"Holiday"`); an entry with
+another kind, or with no `priority`, raises `ArgumentError` when
+built.
 
 ## Overlaps and priority
 

@@ -11,9 +11,7 @@ module Thermidor
         # A special day bound to USUAL runs the zone's usual weekday.
         Timetable = Data.define(:days, :specials) do
             def initialize(days: {}, specials: {})
-                if days.value?(Timetable::USUAL)
-                    raise Error, "usual binds a special day, not a weekday"
-                end
+                Timetable.check_days(days)
                 super(days: days.compact.freeze,
                       specials: specials.compact.freeze)
             end
@@ -89,6 +87,17 @@ module Thermidor
             # How many dates back `at` looks for what is in force, and
             # `next_change` ahead for a change: a week.
             REACH = 7
+
+            # Weekdays are keyed 0 to 6 (ArgumentError otherwise) and run
+            # programs, never USUAL.
+            def self.check_days(days)
+                days.each_key do |key|
+                    next if key.is_a?(Integer) && key.between?(0, 6)
+                    raise ArgumentError, "#{key.inspect} is no weekday (0 to 6)"
+                end
+                return unless days.value?(USUAL)
+                raise Error, "usual binds a special day, not a weekday"
+            end
 
             # Bound to a special day: a calendar entry for that day applies
             # to the zone, which runs its usual weekday. Not a program: it

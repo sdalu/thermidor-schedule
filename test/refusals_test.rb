@@ -37,6 +37,33 @@ class RefusalsTest < Minitest::Test
                                                .minute
     end
 
+    def test_weekdays_are_zero_to_six
+        program = Schedule::Program.new(transitions: [])
+        [7, -1, "mon", 1.0, nil].each do |key|
+            assert_raises(ArgumentError, key.inspect) do
+                Schedule::Timetable.new(days: { key => program })
+            end
+        end
+        assert Schedule::Timetable.new(days: { 0 => program, 6 => program })
+    end
+
+    def test_a_calendar_entry_needs_a_priority_and_a_kind_of_day
+        entry = Schedule::Layers::Calendar::Entry.new(
+            id: 1, calendar: "fr", priority: 8, zone: nil, kind: "holiday",
+            first: Date.new(2026, 12, 25), last: Date.new(2026, 12, 25),
+            description: nil
+        )
+        assert_equal %w[sun holiday], [entry.with(kind: "sun").kind, entry.kind]
+        assert_raises(ArgumentError) { entry.with(priority: nil) }
+        ["sunday", "Holiday", "", nil, :holiday].each do |kind|
+            assert_raises(ArgumentError, kind.inspect) { entry.with(kind:) }
+        end
+    end
+
+    def test_a_stack_needs_a_layer
+        assert_raises(ArgumentError) { Schedule::Stack.new([]) }
+    end
+
     # Narrower than the deadband, backwards, or no numbers.
     def test_a_clamp_whose_limits_hold_no_band_is_refused
         [18.5..19.0, 30.0..5.0, "a".."z", nil].each do |limits|

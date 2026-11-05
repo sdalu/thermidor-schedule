@@ -30,7 +30,8 @@ the caller's business.
 
 ## The layer stack
 
-`Stack.new(layers)` takes the layers bottom first. Each one receives
+`Stack.new(layers)` takes the layers bottom first, at least one
+(`ArgumentError` for none). Each one receives
 the decision of the layers below it and either passes it through
 unchanged (it is inactive) or returns its own. The topmost active layer
 therefore wins, and when it ends, whatever is below shows through

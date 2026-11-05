@@ -24,6 +24,14 @@ module Thermidor
                 # names none.
                 Entry = Data.define(:id, :calendar, :priority, :zone, :kind,
                                     :first, :last, :description) do
+                    # A priority, and a kind as Syntax.day_kind gives it
+                    # ("sun".."sat" or a special day's name), or
+                    # ArgumentError.
+                    def initialize(priority:, kind:, **)
+                        Calendar.check_entry(priority, kind)
+                        super
+                    end
+
                     def covers?(date, zone_name)
                         (first..last).cover?(date) &&
                             (zone.nil? || zone == zone_name)
@@ -41,6 +49,19 @@ module Thermidor
                         (rule.occurrences(first, upto) - skipped)
                             .map { with(first: it, last: it + span) }
                     end
+                end
+
+                def self.check_entry(priority, kind)
+                    raise ArgumentError, "a calendar entry needs a priority" if
+                        priority.nil?
+                    return if kind?(kind)
+                    raise ArgumentError, "#{kind.inspect} is no kind of day"
+                end
+
+                def self.kind?(kind)
+                    kind.is_a?(String) && Syntax.day_kind(kind) == kind
+                rescue ParseError
+                    false
                 end
 
                 def initialize(entries)
