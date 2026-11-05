@@ -13,6 +13,8 @@ module Thermidor
                 DEFAULT = 30 * 60
                 LONGEST = 60 * 60
                 NOUN    = "a boost"
+                # A boost is short: it always has an end of its own.
+                REFUSED_MODES = %i[forever next].freeze
 
                 DIRECTIONS = %i[both heat cool].freeze
 

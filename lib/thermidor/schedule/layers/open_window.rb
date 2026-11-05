@@ -13,6 +13,9 @@ module Thermidor
                 LIMIT   = 60 * 60
                 LONGEST = 2 * 60 * 60
                 NOUN    = "an open window"
+                # A window is held for a while, or until the room steadies,
+                # with a limit: never until cleared, nor to a change below.
+                REFUSED_MODES = %i[forever next].freeze
 
                 def initialize(entries, default: Preset::OPEN_WINDOW)
                     super(entries, source: "open-window", default:)

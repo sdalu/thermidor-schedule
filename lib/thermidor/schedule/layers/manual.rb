@@ -14,6 +14,8 @@ module Thermidor
                 # and what it is called when it is refused.
                 LONGEST = 12 * 3600
                 NOUN    = "a manual setting"
+                # The modes its end may not be asked by.
+                REFUSED_MODES = [].freeze
                 # strategy: overrides the preset's when given. mode: :for (a
                 # duration), :next (the next change below) or :forever, as
                 # the setting was asked for.
@@ -32,13 +34,22 @@ module Thermidor
                                  "hour#{"s" if hours > 1}"
                 end
 
+                # Refuses, with ArgumentError, a mode in REFUSED_MODES.
+                def self.check_mode(mode)
+                    return unless self::REFUSED_MODES.include?(mode)
+                    raise ArgumentError,
+                          "#{self::NOUN} takes no #{mode.inspect} end"
+                end
+
                 # The end of a setting made at `now`, fixed then: :for (or
                 # :steady, a window's limit) a checked duration; :next, the
                 # next change of what `below` (a Stack of the layers under
                 # this one) decides, not of a layer it hides, or LONGEST
                 # ahead when that does not change;
-                # :forever, nil.
+                # :forever, nil. A mode in REFUSED_MODES raises
+                # ArgumentError.
                 def self.ends_at(mode, below:, zone:, now:, duration: nil)
+                    check_mode(mode)
                     case mode
                     when :for, :steady
                         check_duration(duration)

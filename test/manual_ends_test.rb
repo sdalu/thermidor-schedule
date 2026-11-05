@@ -44,6 +44,27 @@ class ManualEndsTest < Minitest::Test
         assert_raises(Schedule::Error) { ends(:later) }
     end
 
+    def test_boosts_and_open_windows_always_end_on_their_own
+        [Schedule::Layers::Boost, Schedule::Layers::OpenWindow].each do |kind|
+            %i[forever next].each do |mode|
+                error = assert_raises(ArgumentError, "#{kind} #{mode}") do
+                    kind.ends_at(mode, below: stack, zone: @zone,
+                                       now: at("2026-11-02 10:00"))
+                end
+                assert_match(/\b#{mode}\b/, error.message)
+            end
+        end
+    end
+
+    def test_boosts_and_open_windows_still_take_a_duration
+        [Schedule::Layers::Boost, Schedule::Layers::OpenWindow].each do |kind|
+            assert_equal at("2026-11-02 10:30"),
+                         kind.ends_at(:for, below: stack, zone: @zone,
+                                            now: at("2026-11-02 10:00"),
+                                            duration: 1800)
+        end
+    end
+
     # The eve of a holiday whose program starts at 09:00: the calendar
     # hides the timetable's 06:30, so :next ends at 09:00.
     def test_next_on_a_holiday_eve_ends_at_the_holiday_change
@@ -69,6 +90,8 @@ class ManualEndsTest < Minitest::Test
     end
 
     private
+
+    def stack = Schedule::Stack.new([base])
 
     # The end of a setting made on a Monday at 10:00, on the workday zone.
     def ends(mode, **)
