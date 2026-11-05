@@ -95,6 +95,9 @@ daylight-saving change. A transition in the spring gap happens when the
 clocks jump, at 03:00, not at 03:30 where `Time.new` puts it: moments
 then keep the order of clock readings, so a 03:10 transition still
 comes after it. Of a reading that comes twice in autumn, the first.
+A time typed (`Syntax.time`) is read the same way (`LocalTime`), so
+asking about 02:15 on the autumn night means the transition's first
+02:15, not an hour later.
 What is in force and when it next changes are both worked out as
 moments, so a caller polling and one sleeping until `until` agree.
 

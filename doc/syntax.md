@@ -69,7 +69,7 @@ special day's name.
 | `years("2027..2029")`                | `2027..2029`                  |
 | `dates("2026-12-24..2026-12-26")`    | `[first, last]`, Dates        |
 | `dates("2026-12-25")`                | the same date twice           |
-| `time("2026-11-02 07:00")`           | a local Time                  |
+| `time("2026-11-02 07:00")`           | a local Time; on the nights clocks change, a skipped time is the moment they jump, a repeated one the first |
 | `time("07:00", now)`                 | 07:00 on `now`'s date         |
 | `duration("1h30")`                   | 5400 (seconds)                |
 | `duration("90m")`, `duration("45")`  | 5400, 2700: minutes without a unit |

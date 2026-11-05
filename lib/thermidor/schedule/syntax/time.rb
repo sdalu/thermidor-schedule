@@ -48,14 +48,16 @@ module Thermidor
                 raise ParseError, "bad date #{text.inspect}"
             end
 
-            # "2026-11-02 07:00" or "07:00" (on the day of `now`).
+            # "2026-11-02 07:00" or "07:00" (on the day of `now`), read as
+            # the timetable reads a transition (LocalTime): a time the
+            # clocks skip is the moment they jump, one they repeat the
+            # first.
             def time(text, now = Time.now)
                 text!(text)
                 match = DATE.match(text)
                 today = now.getlocal.to_date
                 date  = match ? Date.iso8601(match[:date]) : today
-                hour, min = minute(match ? match[:clock] : text).divmod(60)
-                Time.new(date.year, date.month, date.day, hour, min)
+                LocalTime.at(date, minute(match ? match[:clock] : text))
             rescue Date::Error
                 raise ParseError, "bad date #{text.inspect}"
             end
