@@ -95,8 +95,8 @@ given that day by the caller. So is everything else about a calendar
 
 `kind` is a kind as `Syntax.day_kind` gives it, `"sun"`..`"sat"` or a
 special day's name (not `"sunday"` nor `"Holiday"`); an entry with
-another kind, or with no `priority`, raises `ArgumentError` when
-built.
+another kind, or with a `priority` that is not a whole number of 1 or
+more, raises `ArgumentError` when built.
 
 ## Overlaps and priority
 

@@ -36,8 +36,9 @@ once the room's readings settle. Either way, `OpenWindow::LONGEST`
 than that was forgotten, and the room should not sit at frost
 protection by accident. `OpenWindow.ends_at(:steady, ..., duration:)`
 checks it, as for [manual settings](manual.md#how-long); the layer
-itself reads only `ends_at`. `OpenWindow.ends_at` refuses `:forever`
-and `:next` with `ArgumentError`, naming the mode: a window always has
+itself reads only `ends_at`. `OpenWindow.ends_at` takes `:for` and
+`:steady` and refuses `:forever` and `:next` with `ArgumentError`,
+naming the mode: a window always has
 an end of its own.
 
 ## Steady: shut again

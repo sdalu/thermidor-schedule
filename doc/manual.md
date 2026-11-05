@@ -52,9 +52,13 @@ Layers::Manual.ends_at(:for, below:, zone:, now:, duration: 5400)
 | `mode`     | `ends_at`                                       |
 | :--------- | :---------------------------------------------- |
 | `:for`     | the end of a duration, up to `Manual::LONGEST` (12 h) |
-| `:steady`  | the same as `:for`: an open window's limit, its duration the longest the window may wait to settle |
 | `:next`    | the next change of the layers below, at that moment |
 | `:forever` | nil                                             |
+
+Each kind ends in its own modes (its `MODES`): a manual setting in the
+three above, a boost in `:for` only, an open window in `:for` and
+`:steady` (see [open window](open-window.md), where `ends_at` of a
+`:steady` window is its limit, worked out as for `:for`).
 
 `:next` is the next change of what the stack below the manual layer
 decides at that moment, or `LONGEST` ahead when that does not change:
@@ -66,9 +70,9 @@ there is always a next change.
 `:for` checks its duration: `check_duration(seconds)` refuses one
 outside 0 to `LONGEST` with `Error`, naming the kind (`a manual setting
 lasts 0 to 12 hours`). Boosts and open windows answer both with their
-own `LONGEST` and name. An unknown mode raises `Error`. A mode in a
-kind's `REFUSED_MODES` raises `ArgumentError`, naming it: none for
-manual settings, `:forever` and `:next` for boosts and open windows.
+own `LONGEST` and name. A mode no kind has raises `Error`; another
+kind's mode raises `ArgumentError`, naming the kind and the mode (`a
+manual setting takes no :steady end`).
 The layer itself reads only `ends_at`: entries built otherwise are not checked.
 
 The same field means something else on a [boost](boost.md#which-band)

@@ -62,8 +62,10 @@ module Thermidor
                 end
 
                 def self.check_entry(priority, kind)
-                    raise ArgumentError, "a calendar entry needs a priority" if
-                        priority.nil?
+                    unless priority.is_a?(Integer) && priority.positive?
+                        raise ArgumentError, "a calendar entry's priority " \
+                                             "is a whole number, 1 or more"
+                    end
                     return if kind?(kind)
                     raise ArgumentError, "#{kind.inspect} is no kind of day"
                 end

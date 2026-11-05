@@ -14,9 +14,10 @@ Layers::Boost.new(entries, defaults: {})
 
 As for [manual settings](manual.md#how-long), `ends_at` is fixed when
 the boost is made, and `Boost.ends_at(:for, …)` checks its duration against
-`Boost::LONGEST`, an hour (`a boost lasts 0 to 1 hour`). It refuses
-`:forever` and `:next` with `ArgumentError`, naming the mode (`a boost
-takes no :forever end`): a boost always has an end of its own.
+`Boost::LONGEST`, an hour (`a boost lasts 0 to 1 hour`). `:for` is
+its only mode: it refuses `:steady`, `:next` and `:forever` with
+`ArgumentError`, naming the mode (`a boost takes no :forever end`): a
+boost always has an end of its own, a duration.
 `Boost::DEFAULT`, 30 minutes, is the length to ask for when none is
 given. A boost is a short push; a longer one is better made a manual
 setting.

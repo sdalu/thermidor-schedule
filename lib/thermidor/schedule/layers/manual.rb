@@ -14,8 +14,13 @@ module Thermidor
                 # and what it is called when it is refused.
                 LONGEST = 12 * 3600
                 NOUN    = "a manual setting"
-                # The modes its end may not be asked by.
-                REFUSED_MODES = [].freeze
+                # The modes its end may be asked by: for a while, to the
+                # next change below, or until cleared. :steady, a window's,
+                # is not a manual setting's.
+                MODES = %i[for next forever].freeze
+
+                # Every kind's modes: one outside them is no mode at all.
+                ALL_MODES = %i[for steady next forever].freeze
                 # strategy: overrides the preset's when given, through
                 # Schedule.strategy (nil stays nil; a configured one, by
                 # String or Symbol, its Symbol; else ParseError). mode: :for
@@ -40,9 +45,12 @@ module Thermidor
                                  "hour#{"s" if hours > 1}"
                 end
 
-                # Refuses, with ArgumentError, a mode in REFUSED_MODES.
+                # Refuses a mode no kind has with Error, another kind's
+                # with ArgumentError naming this one.
                 def self.check_mode(mode)
-                    return unless self::REFUSED_MODES.include?(mode)
+                    raise Error, "unknown mode #{mode}" unless
+                        Manual::ALL_MODES.include?(mode)
+                    return if self::MODES.include?(mode)
                     raise ArgumentError,
                           "#{self::NOUN} takes no #{mode.inspect} end"
                 end
@@ -52,8 +60,8 @@ module Thermidor
                 # next change of what `below` (a Stack of the layers under
                 # this one) decides, not of a layer it hides, or LONGEST
                 # ahead when that does not change;
-                # :forever, nil. A mode in REFUSED_MODES raises
-                # ArgumentError.
+                # :forever, nil. A mode not in the kind's MODES raises
+                # ArgumentError (Error if no kind has it).
                 def self.ends_at(mode, below:, zone:, now:, duration: nil)
                     check_mode(mode)
                     case mode
