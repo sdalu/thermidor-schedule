@@ -72,11 +72,34 @@ class SteadyTest < Minitest::Test
         assert steady?(*early, 20.0)
     end
 
-    def test_readings_before_opening_do_not_count
+    # Readings before opening are no part of the move: from the last of
+    # them, 21.0, a flat 20.0 is a 1 °C move, not enough. (Nor would it
+    # be from 22.0: there is no rebound either.)
+    def test_a_fall_before_opening_is_no_move
         before = [[OPENED - 600, 22.0], [OPENED - 300, 21.0]]
         readings = before + readings(20.0, 20.0, 20.0, 20.0, 20.0, 20.0,
                                      20.0, 20.0, 20.0)
         refute Steady.new.steady?(readings, OPENED)
+    end
+
+    # A sensor read just before the window opened, then two minutes
+    # after: the move counts from 21.0, not from the first 19.0.
+    def test_the_baseline_is_the_last_reading_before_opening
+        assert steady_after?([[-60, 21.0]],
+                             19.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0)
+    end
+
+    # Only the last reading before opening counts: from 23.0 the dip to
+    # 19.0 would be 4 °C, and 20.0 too small a rebound.
+    def test_only_the_last_reading_before_opening_is_the_baseline
+        assert steady_after?([[-600, 23.0], [-60, 21.0]],
+                             19.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0)
+    end
+
+    # With none before, the first since opening.
+    def test_without_one_before_the_first_since_opening
+        refute steady_after?([], 19.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0,
+                             20.0)
     end
 
     def test_the_move_and_rebound_are_tunable
@@ -94,6 +117,16 @@ class SteadyTest < Minitest::Test
     private
 
     def steady?(*values) = Steady.new.steady?(readings(*values), OPENED)
+
+    # `before`: [[seconds from opening, °C], ...]; `values` read every two
+    # minutes from two minutes after opening.
+    def steady_after?(before, *values)
+        earlier = before.map { |offset, value| [OPENED + offset, value] }
+        later = values.each_with_index.map do |value, i|
+            [OPENED + (120 * (i + 1)), value]
+        end
+        Steady.new.steady?(earlier + later, OPENED)
+    end
 
     def readings(*values)
         values.each_with_index.map { |value, i| [OPENED + (120 * i), value] }

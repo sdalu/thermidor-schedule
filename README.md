@@ -140,7 +140,7 @@ those be changed but not deleted.
 - `AutoAway`: when an automatic away period starts, from statuses
   answering `since` and `close?`, after a `leave:` delay.
 - `Steady`: whether an open window has been shut again, from the room's
-  readings since it was opened.
+  readings since it was opened and the last one before.
 
 Times are local wall-clock times, in the process's time zone.
 

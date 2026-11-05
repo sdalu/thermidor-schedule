@@ -5,8 +5,10 @@ module Thermidor
         # Whether an open window has been shut again, from the readings of
         # the room since it was opened, which must go through, in order:
         #
-        # - a move: `change` °C away from the first reading (down while
-        #   heating, up while cooling), as far as it goes;
+        # - a move: `change` °C away from the baseline (down while
+        #   heating, up while cooling), as far as it goes; the baseline is
+        #   the last reading at or before the opening, else the first
+        #   after;
         # - a rebound: back from that extreme by the fraction `rebound` of
         #   the move (a half: 1 °C back after a 2 °C dip), the window being
         #   shut while the device still works;
@@ -32,20 +34,27 @@ module Thermidor
             # readings: [[Time, °C], ...] in any order; opened: the Time the
             # window was opened.
             def steady?(readings, opened)
-                since = readings.select { |time, _| time >= opened }
-                                .sort_by(&:first)
+                sorted = readings.sort_by(&:first)
+                since  = sorted.select { |time, _| time >= opened }
                 return false if since.empty?
                 return false if since.last.first - opened < after
-                rebound_at = rebound_time(since) or return false
+                first = baseline(sorted, opened) || since.first.last
+                rebound_at = rebound_time(since, first) or return false
                 settled?(since, rebound_at)
             end
 
             private
 
-            # When the readings, having moved by `change`, came back from
-            # their extreme by `rebound` of the move; nil if not yet.
-            def rebound_time(since)
-                first = since.first.last
+            # The room as the window opened: the last reading at or before
+            # `opened`, nil if none.
+            def baseline(sorted, opened)
+                sorted.reverse.find { |time, _| time <= opened }&.last
+            end
+
+            # When the readings, having moved by `change` from `first`, came
+            # back from their extreme by `rebound` of the move; nil if not
+            # yet.
+            def rebound_time(since, first)
                 moved = since.index do |_, value|
                     (value - first).abs >= change - Steady::MARGIN
                 end

@@ -42,12 +42,15 @@ itself reads only `ends_at`.
 
 `Steady#steady?(readings, opened)` tells whether a window opened at
 `opened` has been shut again, from the room's `[[Time, °C], ...]`
-readings (in any order; those before `opened` are ignored). It must
-have been open at least `after` seconds, and the readings since must
-have gone through three phases, in order:
+readings (in any order). Of those before `opened`, only the last
+counts, as the baseline. It must have been open at least `after`
+seconds, and the readings since must have gone through three phases,
+in order:
 
-1. **move**: at least `change` °C away from the first reading (down
-   while heating, up while cooling), and on as far as it goes;
+1. **move**: at least `change` °C away from the baseline (down while
+   heating, up while cooling), and on as far as it goes. The baseline
+   is the last reading at or before `opened`, the room as it was when
+   the window opened; with none, the first reading after;
 2. **rebound**: back from that extreme by at least the fraction
    `rebound` of the way it went (1 °C back after a 2 °C dip), the
    window being shut while the device still works;
