@@ -34,6 +34,14 @@ day to `Timetable::USUAL` (`usual` in the [text forms](syntax.md#programs))
 says the entry applies, and the zone runs its usual weekday. That
 matters when calendars overlap, below.
 
+Bound to an empty `Program` (no transitions), a day also takes the
+entry, and the zone holds what was in force when the day began, but
+only within the timetable's reach: what is in force is looked for at
+most a week back (`Timetable::REACH`). Through a longer run of such
+days, eight dates after the last transition the timetable ran, at
+midnight, the zone no longer holds it and gets the decision below
+instead, as a zone with no program does (below).
+
 The timetable below knows nothing of these dates. So the calendar does
 not patch its decision: it resolves the zone's timetable again, with
 each date's program looked up through the calendar. That gets the edges
