@@ -22,16 +22,16 @@ module Thermidor
             def self.parse(text) = Recurrence::Parser.new(text).rule
 
             # Starts of the occurrences from `first` (included) on, up to
-            # `upto`.
-            def occurrences(first, upto)
+            # `upto`; with `from`, only those from it on, the expansion
+            # starting at its period instead of first's (a rule with COUNT
+            # still counted from first).
+            def occurrences(first, upto, from: nil)
                 return [] if upto < first
-                last  = [upto, self.until].compact.min
-                found = [first]
-                Recurrence::Expansion.new(self, first, last).each do |date|
-                    break if count && found.size >= count
-                    found << date if date > first
-                end
-                found
+                last = [upto, self.until].compact.min
+                return all(first, last) if from.nil? || from <= first
+                return all(first, last).select { it >= from } if count
+                Recurrence::Expansion.new(self, first, last, from:)
+                                     .select { it > first && it >= from }
             end
 
             def to_s
@@ -45,6 +45,15 @@ module Thermidor
             end
 
             private
+
+            def all(first, last)
+                found = [first]
+                Recurrence::Expansion.new(self, first, last).each do |date|
+                    break if count && found.size >= count
+                    found << date if date > first
+                end
+                found
+            end
 
             def list(values) = (values.join(",") if values.any?)
 

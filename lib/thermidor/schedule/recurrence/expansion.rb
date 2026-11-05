@@ -6,19 +6,23 @@ module Thermidor
             # The dates a rule yields, period after period (a day, a week
             # starting on Monday, a month or a year, every INTERVAL of
             # them), from the period of `first` until periods start after
-            # `last`.
+            # `last`; with `from`, from the period of the rule's that holds
+            # it, those before it skipped.
             class Expansion
-                def initialize(rule, first, last)
+                include Enumerable
+
+                def initialize(rule, first, last, from: nil)
                     @rule  = rule
                     @first = first
                     @last  = last
+                    @from  = from
                 end
 
                 # Yields each date of the rule, in order and once (-1 and 30
                 # are one day in November), up to `last`. A period starts
                 # after every date of the one before it.
                 def each(&)
-                    step = 0
+                    step = first_step
                     while (start = period(step * @rule.interval)) <= @last
                         dates(start).uniq.sort.take_while { it <= @last }
                                     .each(&)
@@ -27,6 +31,27 @@ module Thermidor
                 end
 
                 private
+
+                # The step of the rule's period holding `from`, 0 without.
+                def first_step
+                    return 0 unless @from && @from > @first
+                    [periods_to(@from) / @rule.interval, 0].max
+                end
+
+                # How many of the rule's periods (days, weeks, months,
+                # years) from first's to date's.
+                def periods_to(date)
+                    case @rule.freq
+                    when :daily   then (date - @first).to_i
+                    when :weekly  then (monday(date) - monday(@first)).to_i / 7
+                    when :monthly then months_between(@first, date)
+                    when :yearly  then date.year - @first.year
+                    end
+                end
+
+                def months_between(from, to)
+                    ((to.year - from.year) * 12) + to.month - from.month
+                end
 
                 def period(offset)
                     case @rule.freq

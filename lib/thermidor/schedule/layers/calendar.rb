@@ -48,11 +48,15 @@ module Thermidor
 
                     # The entry repeated by `rule` (a Recurrence; nil, the
                     # entry alone) up to `upto`, its range as a whole, but
-                    # the occurrences starting on a `skipped` date.
-                    def occurrences(rule, upto, skipped: [])
+                    # the occurrences starting on a `skipped` date; with
+                    # `from`, those that reach it (start no earlier than
+                    # its length before it).
+                    def occurrences(rule, upto, skipped: [], from: nil)
                         return [self] unless rule
                         span = last - first
-                        (rule.occurrences(first, upto) - skipped)
+                        starts = rule.occurrences(first, upto,
+                                                  from: from && (from - span))
+                        (starts - skipped)
                             .map { with(first: it, last: it + span) }
                     end
                 end

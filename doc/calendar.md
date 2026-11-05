@@ -176,7 +176,12 @@ christmas.occurrences(nil, upto)   # => [christmas]
 ```
 
 Occurrences keep the entry's `id`. The caller keeps those that reach
-the dates asked about.
+the dates asked about. Both take `from:`, the first of those dates:
+only the occurrences that reach it are given, and the rule is expanded
+from its period instead of from its first date, so a series years old
+costs no more than a new one (a rule with `COUNT` is still counted from
+its first date). `Entry#occurrences(rule, upto, from:)` keeps an
+occurrence that started before `from` within the entry's length.
 
 ## Public holidays
 
