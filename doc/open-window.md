@@ -44,7 +44,8 @@ an end of its own.
 
 `Steady#steady?(readings, opened)` tells whether a window opened at
 `opened` has been shut again, from the room's `[[Time, °C], ...]`
-readings (in any order). Of those before `opened`, only the last
+readings (in any order; those at one moment, from two sensors, count as
+their mean). Of those before `opened`, only the last
 counts, as the baseline. It must have been open at least `after`
 seconds, and the readings since must have gone through three phases,
 in order:

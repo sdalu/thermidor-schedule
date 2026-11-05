@@ -94,7 +94,9 @@ house's timetable is: a program's 06:30 is 06:30 on either side of a
 daylight-saving change. A transition in the spring gap happens when the
 clocks jump, at 03:00, not at 03:30 where `Time.new` puts it: moments
 then keep the order of clock readings, so a 03:10 transition still
-comes after it. Of a reading that comes twice in autumn, the first.
+comes after it. A whole day a zone skipped (Samoa's 30 December 2011)
+is read the same way: its readings are the moment the clocks jumped.
+Of a reading that comes twice in autumn, the first.
 A time typed (`Syntax.time`) is read the same way (`LocalTime`), so
 asking about 02:15 on the autumn night means the transition's first
 02:15, not an hour later. With `ahead` (a time meant as the next one to

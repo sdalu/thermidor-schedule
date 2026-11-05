@@ -14,7 +14,8 @@ module Thermidor
             def at(date, minute)
                 hour, min = minute.divmod(60)
                 time = Time.new(date.year, date.month, date.day, hour, min)
-                return jump(time) if (time.hour * 60) + time.min != minute
+                return jump(time) if time.to_date != date ||
+                                     (time.hour * 60) + time.min != minute
                 first_of(time)
             end
 

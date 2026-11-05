@@ -31,16 +31,24 @@ module Thermidor
                 super
             end
 
-            # readings: [[Time, °C], ...] in any order; opened: the Time the
-            # window was opened.
+            # readings: [[Time, °C], ...] in any order, those at one moment
+            # (two sensors) taken as their mean; opened: the Time the window
+            # was opened.
             def steady?(readings, opened)
-                sorted = readings.sort_by(&:first)
+                sorted = Steady.merged(readings)
                 since  = sorted.select { |time, _| time >= opened }
                 return false if since.empty?
                 return false if since.last.first - opened < after
                 first = baseline(sorted, opened) || since.first.last
                 rebound_at = rebound_time(since, first) or return false
                 settled?(since, rebound_at)
+            end
+
+            # The readings in time order, one per moment, the mean of those
+            # sharing it.
+            def self.merged(readings)
+                readings.group_by(&:first).sort_by(&:first)
+                        .map { |time, at| [time, at.sum(&:last) / at.size] }
             end
 
             private
