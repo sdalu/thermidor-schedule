@@ -10,6 +10,7 @@ module Thermidor
         #   duration  2h  90m  1h30 (minutes when no unit)
         module Syntax
             DATE     = /\A(?<date>\d{4}-\d{2}-\d{2})[ T](?<clock>\S+)\z/
+            DAY      = /\A\d{4}-\d{2}-\d{2}\z/
             DURATION = /\A(?:(?<h>\d+)h)?(?:(?<m>\d+)m?)?\z/
 
             module_function
@@ -39,13 +40,20 @@ module Thermidor
             # "2026-12-25" or "2026-12-24..2026-12-26" => [first, last]
             def dates(text)
                 text!(text)
-                first, last = text.split("..", 2).map { Date.iso8601(it) }
+                first, last = text.split("..", 2).map { date(it) }
                 last ||= first
                 raise ParseError, "#{text} ends before it starts" if
                     last < first
                 [first, last]
             rescue Date::Error
-                raise ParseError, "bad date #{text.inspect}"
+                raise ParseError, "bad date #{text.inspect}: YYYY-MM-DD"
+            end
+
+            # "2026-12-25" => Date, the whole form only: Date.iso8601 alone
+            # reads "2026-11" or "2026" as the first day.
+            def date(text)
+                raise Date::Error, "not YYYY-MM-DD" unless DAY.match?(text)
+                Date.iso8601(text)
             end
 
             # "2026-11-02 07:00" or "07:00" (on the day of `now`), read as
@@ -58,9 +66,9 @@ module Thermidor
                 text!(text)
                 match = DATE.match(text)
                 return clock_time(text, now, ahead) unless match
-                LocalTime.at(Date.iso8601(match[:date]), minute(match[:clock]))
+                LocalTime.at(date(match[:date]), minute(match[:clock]))
             rescue Date::Error
-                raise ParseError, "bad date #{text.inspect}"
+                raise ParseError, "bad date #{text.inspect}: YYYY-MM-DD"
             end
 
             # A bare "07:00": on `now`'s date, or the next moment after it.

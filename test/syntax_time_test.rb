@@ -16,6 +16,20 @@ class SyntaxTimeTest < Minitest::Test
         end
     end
 
+    # Date.iso8601 reads "2026-11" and "2026" as the first day: a date is
+    # YYYY-MM-DD and nothing shorter or otherwise shaped.
+    def test_dates_whole_form_only
+        %w[2026-11 2026 20261105 2026-W45-4 2026-309 2026-11-05..2026-12
+           2026-11-5].each do |text|
+            error = assert_raises(Schedule::ParseError, text) do
+                Syntax.dates(text)
+            end
+            assert_match(/: YYYY-MM-DD\z/, error.message)
+        end
+        error = assert_raises(Schedule::ParseError) { Syntax.dates("2026-11") }
+        assert_equal 'bad date "2026-11": YYYY-MM-DD', error.message
+    end
+
     def test_years
         assert_equal 2027..2027, Syntax.years("2027")
         assert_equal 2027..2029, Syntax.years("2027..2029")

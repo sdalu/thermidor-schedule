@@ -69,10 +69,14 @@ special day's name.
 | `years("2027..2029")`                | `2027..2029`                  |
 | `dates("2026-12-24..2026-12-26")`    | `[first, last]`, Dates        |
 | `dates("2026-12-25")`                | the same date twice           |
+| `date("2026-12-25")`                 | a Date                        |
 | `time("2026-11-02 07:00")`           | a local Time; on the nights clocks change, a skipped time (or a time on a skipped date) is the moment they jump, a repeated one the first |
 | `time("07:00", now)`                 | 07:00 on `now`'s date         |
 | `time("07:00", now, ahead: true)`    | the same, or the next moment the clock reads that time when that is not after `now` (the second pass of a repeated hour, else the next day's, a skipped time still the jump); a dated time is left as it is |
 | `duration("1h30")`                   | 5400 (seconds)                |
 | `duration("90m")`, `duration("45")`  | 5400, 2700: minutes without a unit |
 
-A range that ends before it starts is refused.
+A range that ends before it starts is refused. A date is the whole
+`YYYY-MM-DD`: a reduced form (`2026-11`, `2026`), the basic form
+(`20261225`), a week or an ordinal date is refused, where `Date.iso8601`
+alone would read the first two as the first day.
