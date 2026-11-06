@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "support"
 
 # What is not text, a time of day or a range of limits is refused with
 # the gem's own errors, not a Ruby error from deeper down.
@@ -48,11 +49,7 @@ class RefusalsTest < Minitest::Test
     end
 
     def test_a_calendar_entry_needs_a_priority_and_a_kind_of_day
-        entry = Schedule::Layers::Calendar::Entry.new(
-            id: 1, calendar: "fr", priority: 8, zone: nil, kind: "holiday",
-            first: Date.new(2026, 12, 25), last: Date.new(2026, 12, 25),
-            description: nil
-        )
+        entry = ScheduleSupport.holiday(Date.new(2026, 12, 25))
         assert_equal %w[sun holiday], [entry.with(kind: "sun").kind, entry.kind]
         assert_raises(ArgumentError) { entry.with(priority: nil) }
         ["sunday", "Holiday", "", nil, :holiday].each do |kind|

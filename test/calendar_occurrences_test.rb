@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "support"
 
 # A calendar entry repeated by its rule.
 class CalendarOccurrencesTest < Minitest::Test
     Schedule = Thermidor::Schedule
 
-    CHRISTMAS = Schedule::Layers::Calendar::Entry.new(
-        id: 1, calendar: "fr", priority: 8, zone: nil, kind: "holiday",
-        first: Date.new(2026, 12, 24), last: Date.new(2026, 12, 25),
-        description: nil
-    )
+    CHRISTMAS = ScheduleSupport.holiday(Date.new(2026, 12, 24),
+                                        Date.new(2026, 12, 25))
 
     def test_a_recurring_entry_repeats_as_a_whole_but_its_skipped_dates
         rule  = Schedule::Recurrence.parse("FREQ=YEARLY;COUNT=3")

@@ -8,11 +8,8 @@ require "support"
 class CalendarTest < Minitest::Test
     include ScheduleSupport
 
-    Entry = Schedule::Layers::Calendar::Entry
-
-    CHRISTMAS = Entry.new(id: 1, calendar: "fr", priority: 8, zone: nil,
-                          kind: "holiday", first: Date.new(2026, 12, 24),
-                          last: Date.new(2026, 12, 25), description: nil)
+    CHRISTMAS = ScheduleSupport.holiday(Date.new(2026, 12, 24),
+                                        Date.new(2026, 12, 25))
     LEAVE = CHRISTMAS.with(id: 2, calendar: "leave", priority: 5,
                            kind: "leave", first: Date.new(2026, 12, 21))
 

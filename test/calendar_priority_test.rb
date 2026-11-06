@@ -24,8 +24,7 @@ class CalendarPriorityTest < Minitest::Test
     private
 
     def entry(priority)
-        Entry.new(id: 1, calendar: "c", priority:, zone: nil,
-                  kind: "holiday", first: Date.new(2026, 12, 24),
-                  last: Date.new(2026, 12, 24), description: nil)
+        ScheduleSupport.holiday(Date.new(2026, 12, 24),
+                                calendar: "c", priority:)
     end
 end

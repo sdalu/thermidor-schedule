@@ -16,6 +16,14 @@ module ScheduleSupport
         setpoint: Schedule::Setpoint.new(heat: 17, cool: 27)
     )
 
+    # A calendar entry: holidays from `first` to `last`, whole days.
+    def self.holiday(first, last = first, calendar: "fr", priority: 8)
+        Schedule::Layers::Calendar::Entry.new(
+            id: 1, calendar:, priority:, zone: nil, kind: "holiday",
+            first:, last:, description: nil
+        )
+    end
+
     # program("workday", "06:30" => COMFORT, "08:30" => [ECO, :quick])
     def program(name, steps)
         transitions = steps.map do |clock, (preset, strategy)|

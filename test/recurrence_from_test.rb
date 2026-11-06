@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "support"
 
 # Recurrence#occurrences(from:) starts the expansion at from's period, not
 # at the rule's first date, and gives what the whole expansion gives from
@@ -35,11 +36,8 @@ class RecurrenceFromTest < Minitest::Test
     # An entry of three days whose occurrence began before the window
     # still meets it.
     def test_an_entry_s_span_reaches_back_before_from
-        entry = Thermidor::Schedule::Layers::Calendar::Entry.new(
-            id: 1, calendar: "c", priority: 8, zone: nil, kind: "holiday",
-            first: Date.new(2020, 1, 6), last: Date.new(2020, 1, 8),
-            description: nil
-        )
+        entry = ScheduleSupport.holiday(Date.new(2020, 1, 6),
+                                        Date.new(2020, 1, 8), calendar: "c")
         rule = Recurrence.parse("FREQ=WEEKLY")
         found = entry.occurrences(rule, Date.new(2026, 11, 20),
                                   from: Date.new(2026, 11, 11))

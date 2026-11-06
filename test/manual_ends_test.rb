@@ -12,11 +12,7 @@ class ManualEndsTest < Minitest::Test
         @zone = workday_zone
     end
 
-    HOLIDAY = Schedule::Layers::Calendar::Entry.new(
-        id: 1, calendar: "fr", priority: 8, zone: nil, kind: "holiday",
-        first: Date.new(2026, 11, 11), last: Date.new(2026, 11, 11),
-        description: nil
-    )
+    HOLIDAY = ScheduleSupport.holiday(Date.new(2026, 11, 11))
 
     # A duration each kind refuses, and how it says so.
     TOO_LONG = [
