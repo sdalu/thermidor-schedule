@@ -40,6 +40,7 @@ module Thermidor
             # "2026-12-25" or "2026-12-24..2026-12-26" => [first, last]
             def dates(text)
                 text!(text)
+                raise Date::Error, "no date" if text.empty?
                 first, last = text.split("..", 2).map { date(it) }
                 last ||= first
                 raise ParseError, "#{text} ends before it starts" if

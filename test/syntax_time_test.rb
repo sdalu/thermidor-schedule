@@ -11,7 +11,7 @@ class SyntaxTimeTest < Minitest::Test
         assert_equal [Date.new(2026, 12, 25)] * 2, Syntax.dates("2026-12-25")
         assert_equal [Date.new(2026, 12, 24), Date.new(2026, 12, 26)],
                      Syntax.dates("2026-12-24..2026-12-26")
-        %w[2026-12-26..2026-12-24 2026-13-01 25/12].each do |text|
+        ["2026-12-26..2026-12-24", "2026-13-01", "25/12", ""].each do |text|
             assert_raises(Schedule::ParseError, text) { Syntax.dates(text) }
         end
     end
