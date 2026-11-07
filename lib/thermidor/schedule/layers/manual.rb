@@ -101,6 +101,7 @@ module Thermidor
                                          zone,
                                          override: entry.strategy,
                                          source: @source, until: entry.ends_at)
+                            .with(ends: entry.ends_at)
                 end
 
                 # An entry with no band to hold: no preset, and no default.

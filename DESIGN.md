@@ -40,7 +40,7 @@ bamboo floor that must not go above 25 °C nor dry out under 40 %, a
 room that must not freeze. Written as a band, it is read as bounds, and
 applied above every layer that decides, a manual setting and an open
 window included: someone turning a bamboo room off has not meant to let
-it freeze, nor a boost to cook its floor. That is the clamp's place,
+it freeze, nor to leave its floor cooking for good. That is the clamp's place,
 and the clamp stays: the guard every zone has and none names, its
 deadband rule shared. Guards are a layer of their own rather than the
 clamp generalised, so a stack without them is unchanged.
@@ -55,6 +55,18 @@ decision names the guard that bound each side it moved, for
 the caller to say why. Which guards a zone holds and when they apply
 (always, away, occupied) are the caller's, as presence is: the layer
 gets the guards in force.
+
+Damage to a house is mostly slow: mould takes days of damp, wood
+moves over weeks, a room at 27 °C for an hour harms no floor; frost is
+the exception. The layer still holds its bounds at every moment: it is
+a function of the moment, and how long a room has been out of bounds
+is a reading, the caller's. What it does allow is a guard set aside
+for a while: suspended by the layers it names (a boost, a manual
+setting) while what they decide has an end. A deliberate push of a
+bounded length wins over a slow limit; a setting with no end never
+does, since that is how a floor gets cooked. Which guards a zone holds
+at all, and from when (a ceiling armed only after days above it), stay
+the caller's.
 
 ## Layers that pass the decision up
 

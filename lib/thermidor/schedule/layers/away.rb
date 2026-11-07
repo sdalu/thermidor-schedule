@@ -49,6 +49,7 @@ module Thermidor
                 def held(entry, zone)
                     Decision.from_preset(entry.preset || @default, zone,
                                          source: "away", until: entry.ends_at)
+                            .with(ends: entry.ends_at)
                 end
 
                 def starting(zone, now)

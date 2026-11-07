@@ -5,18 +5,24 @@ module Thermidor
         # What the layer stack settled on for a zone: the band to hold,
         # how to hold it, which layer said so (`source`, `label` naming
         # the preset, nil if inline) and the next time it may change (nil:
-        # nothing planned). The band's humidity bounds are those in force,
-        # perhaps kept from a layer below: `humidity_source` names the
-        # layer that gave them (nil: none did). `guards` names, per side
-        # a guard moved (:heat, :cool, :humidity_low, :humidity_high), the
-        # guard that bound it.
+        # nothing planned); `ends`, when the setting that decided ends of
+        # itself (nil: it has no end, or is no setting: a program), which
+        # a change ahead brings no nearer. The band's humidity bounds are
+        # those in force, perhaps kept from a layer below:
+        # `humidity_source` names the layer that gave them (nil: none
+        # did). `guards` names, per side a guard moved (:heat, :cool,
+        # :humidity_low, :humidity_high), the guard that bound it;
+        # `suspended`, per guard set aside for a while, the source it was
+        # suspended by.
         Decision = Data.define(:setpoint, :strategy, :source, :label,
-                               :until, :humidity_source, :guards)
+                               :until, :humidity_source, :guards, :suspended,
+                               :ends)
 
         class Decision
             NO_GUARDS = {}.freeze
 
-            def initialize(humidity_source: nil, guards: NO_GUARDS, **)
+            def initialize(humidity_source: nil, guards: NO_GUARDS,
+                           suspended: NO_GUARDS, ends: nil, **)
                 super
             end
 

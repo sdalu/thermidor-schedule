@@ -93,8 +93,10 @@ needs nothing below (the timetable) can go first.
 | `source`   | `"calendar:fr:holiday"`       | which layer decided, and on what grounds      |
 | `label`    | `"comfort"`                   | the preset's name; nil for an inline band     |
 | `until`    | `2026-11-24 08:15`            | when the deciding layer next changes; nil: no change planned |
+| `ends`     | `2026-11-24 08:00`            | when the deciding setting (manual, boost, window, dated away) ends of itself; nil: no end, or a program |
 | `humidity_source` | `"timetable:work"`     | which layer gave the band's humidity bounds (`"guard"`: the guards, none being in force); nil: none did |
 | `guards`   | `{ heat: "frost" }`           | the guard that bound each side it moved; `{}`: none |
+| `suspended` | `{ "bamboo-ceiling" => "boost" }` | each guard set aside for a while, and by which source; `{}`: none |
 
 A band's humidity bounds (`setpoint.humidity`) are not replaced as its
 sides are. A manual setting, a boost, an open window or away whose

@@ -9,41 +9,18 @@ module Thermidor
             # heat) and the ceiling (the lowest cool) of the zone's guards,
             # an open side taking the bound; the humidity bounds likewise.
             # The caller hands over the guards in force, in a stable order
-            # (the first named on a tie); which apply when is its own.
+            # (the first named on a tie); which apply when is its own. A
+            # guard may be suspended by some layers: while the decision
+            # below comes from one of them and has an end, it is set aside.
             class Guard
                 # The humidity_source of bounds the guards gave where none
                 # were in force.
                 SOURCE = "guard"
 
-                # A guard held by a zone: its band's sides, humidity
-                # included, are bounds. One bounding nothing is refused.
-                Entry = Data.define(:zone, :name, :bounds) do
-                    def initialize(zone:, name:, bounds:)
-                        Guard.check(name, bounds)
-                        super
-                    end
-                end
-
                 # Which side of a guard's band each axis's Span reads.
                 TEMPERATURE = [:heat.to_proc, :cool.to_proc].freeze
                 HUMIDITY = [-> { it.humidity&.low },
                             -> { it.humidity&.high }].freeze
-
-                # A guard's bounds: a Setpoint, bounding something.
-                def self.check(name, bounds)
-                    unless bounds.is_a?(Setpoint)
-                        raise Error, "guard #{name}: #{bounds.inspect} " \
-                                     "is no band"
-                    end
-                    return unless bare?(bounds)
-                    raise Error, "guard #{name} bounds nothing"
-                end
-
-                # No temperature side and no humidity bound.
-                def self.bare?(setpoint)
-                    setpoint.off? && (setpoint.humidity.nil? ||
-                                      setpoint.humidity.none?)
-                end
 
                 # Guards of a zone that leave no band between them (a floor
                 # and a ceiling less than the deadband apart, a humidity
@@ -54,17 +31,21 @@ module Thermidor
                     @entries.group_by(&:zone).each { spans(*it) }
                 end
 
+                # The zone's guards not suspended bound the band below; the
+                # suspended are named, with what suspended them.
                 def apply(zone, _now, below)
                     mine = @entries.select { it.zone == zone.name }
-                    return below if mine.empty?
-                    temperature, humidity = spans(zone.name, mine)
-                    after = Guard.bounded(below.setpoint, temperature, humidity)
-                    moved = Guard.sources(below.setpoint, after,
-                                          temperature, humidity)
-                    below.with(setpoint: after,
-                               humidity_source: Guard.humidity_source(below,
-                                                                      after),
-                               guards: below.guards.merge(moved).freeze)
+                    held = mine.reject { it.suspended?(below) }
+                    below = Guard.suspending(below, mine - held)
+                    return below if held.empty?
+                    bound(zone, held, below)
+                end
+
+                def self.suspending(below, entries)
+                    return below if entries.empty?
+                    set_aside = entries.to_h { [it.name, below.source] }
+                    below.with(suspended: below.suspended.merge(set_aside)
+                                               .freeze)
                 end
 
                 # SOURCE when the guards gave humidity bounds where none
@@ -147,6 +128,17 @@ module Thermidor
                 end
 
                 private
+
+                def bound(zone, mine, below)
+                    temperature, humidity = spans(zone.name, mine)
+                    after = Guard.bounded(below.setpoint, temperature, humidity)
+                    moved = Guard.sources(below.setpoint, after,
+                                          temperature, humidity)
+                    below.with(setpoint: after,
+                               humidity_source: Guard.humidity_source(below,
+                                                                      after),
+                               guards: below.guards.merge(moved).freeze)
+                end
 
                 # [temperature, humidity] Spans of a zone's guards.
                 def spans(zone, entries)
