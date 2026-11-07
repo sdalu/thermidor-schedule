@@ -20,6 +20,19 @@ conditioner in the same room take turns around it; at least the
 deadband (1 °C unless configured) between the sides keeps them apart. A nil side means never act
 on that side, so frost protection is `+7..` and off is no side at all.
 
+## Humidity kept from below
+
+A band may bound the relative humidity too, and those bounds are not
+replaced as its sides are. A ceiling is a guard for the house (against
+damp) more than a choice of the moment: someone raising the heat by
+hand has not meant to lift it, so a layer whose preset says nothing of
+humidity keeps the bounds below, and `@` is how a preset lifts them on
+purpose. The timetable and the calendar are the program itself, not a
+layer over it: a holiday's program keeping a weekday's bounds would
+depend on the hour, so the calendar decides them afresh. Nothing acts
+on humidity here; the decision carries the bounds in force and who gave
+them, for the caller and, later, the planner.
+
 ## Layers that pass the decision up
 
 Decisions come from a stack of layers, each receiving the decision of

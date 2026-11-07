@@ -17,6 +17,12 @@ as an anonymous `Preset` or `Program`.
 | :---------------------------- | :-------------------- | :------------------------------- |
 | `band("+20.5..+25")`          | `HEAT..COOL`          | `Setpoint(heat: 20.5, cool: 25.0)` |
 | `band("+7..")`, `band("..+26")` | one side open       | a one-sided `Setpoint`           |
+| `band("+20..+26@30..60")`     | `BAND@LOW..HIGH`      | with `Humidity(low: 30, high: 60)` |
+| `band("+20..+26@..60")`, `band("+20..+26@60")` | a ceiling | `Humidity(high: 60)`      |
+| `band("+20..+26@30..")`       | a floor               | `Humidity(low: 30)`              |
+| `band("+22..@")`              | `@` alone             | `Humidity::NONE`, the bounds below cleared |
+| `band("off@..65")`, `band("off")` | no side           | an off `Setpoint`, bounds or not |
+| `humidity("..60")`            | what follows `@`      | a `Humidity`                     |
 | `preset("off")`               | `off`                 | an anonymous preset, no side     |
 | `preset("+20..+25")`          | a band                | an anonymous preset              |
 | `preset("comfort")`           | a name                | `"comfort"`                      |
@@ -27,7 +33,10 @@ transitions at the same time, is refused as a `ParseError` too.
 
 Each number carries its sign, which keeps the decimal point apart from
 the `..`, and one decimal at most: `-2..+5`, `+20.5..+25`. At least one
-side is required. A name starts with a lowercase letter, then letters,
+side is required, or `off`. Humidity bounds carry no sign, one
+decimal at most, 0 to 100, the floor below the ceiling; a single number
+is a ceiling (`@60` is `@..60`, and prints as `@..60`). The strategy
+comes last: `+20..+26@..60/quiet`. A name starts with a lowercase letter, then letters,
 digits, `_` or `-`. The strategy after `/` goes through
 `Schedule.strategy`.
 

@@ -66,7 +66,9 @@ On an ordinary day, with no calendar date in force and none next, the
 calendar changes nothing and passes the decision below through, so a
 layer of the caller's own between the timetable and the calendar keeps
 its effect. On a calendar day, and on its eve (the next change is the
-calendar's), the calendar decides from the dates' programs, as above.
+calendar's), the calendar decides from the dates' programs, as above,
+humidity bounds included: a holiday's preset without any does not keep
+those of the weekday's below.
 
 A zone with no program on any date within the week before gets the
 decision below, with `until` brought forward to the calendar's next

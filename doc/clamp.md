@@ -3,7 +3,8 @@
 The last layer of the [schedule](README.md), `Layers::Clamp`, always
 active: whatever the layers below decided, it keeps the band within
 what the devices may aim for. It changes the setpoints only. The
-strategy, source, label and `until` of the decision pass through.
+humidity bounds, strategy, source, label and `until` of the decision
+pass through.
 
 ```ruby
 Layers::Clamp.new(limits: Layers::Clamp::LIMITS)   # 5.0..30.0

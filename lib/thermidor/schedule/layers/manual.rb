@@ -91,7 +91,7 @@ module Thermidor
                     decision = index ? held(mine[index], zone) : below
                     later = mine.drop(index ? index + 1 : 0)
                                 .map(&:starts_at).select { it > now }.min
-                    decision.sooner(later)
+                    decision.keeping(below).sooner(later)
                 end
 
                 private

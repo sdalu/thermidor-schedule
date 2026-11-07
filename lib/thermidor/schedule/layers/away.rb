@@ -32,7 +32,7 @@ module Thermidor
                     decision = if entry then held(entry, zone)
                                else automatic(zone, now, below)
                                end
-                    decision.sooner(starting(zone, now))
+                    decision.keeping(below).sooner(starting(zone, now))
                 end
 
                 private

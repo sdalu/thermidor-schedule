@@ -39,6 +39,15 @@ class SyntaxTest < Minitest::Test
         assert_raises(Schedule::ParseError) { Syntax.preset_ref("eco/") }
     end
 
+    # No preset at all, or only a strategy, is refused, not a crash.
+    def test_rejects_an_empty_preset
+        assert_raises(Schedule::ParseError) { Syntax.preset("") }
+        assert_raises(Schedule::ParseError) { Syntax.preset_ref("/quick") }
+        assert_raises(Schedule::ParseError) do
+            Syntax.transition("06:30=/quick")
+        end
+    end
+
     def test_transitions
         transition = Syntax.transition("06:30=comfort/quick")
         assert_equal [390, "comfort", :quick],

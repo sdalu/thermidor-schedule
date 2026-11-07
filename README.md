@@ -68,12 +68,13 @@ again.
 | Term       | Value                                         | Meaning                                                    |
 | :--------- | :-------------------------------------------- | :--------------------------------------------------------- |
 | band       | `Setpoint`                                    | heat below `heat`, cool above `cool`; nil for never        |
+| humidity   | `Humidity`                                    | a band's optional floor and ceiling, in % (no action yet)  |
 | strategy   | `:comfort`, `:cheapest`, `:quiet`, `:quick`   | how the devices combine to hold a band                     |
 | preset     | `Preset`                                      | a band, optionally named, with an optional strategy        |
 | program    | `Program` of `Transition`s                    | one day: minutes after midnight at which a preset starts   |
 | timetable  | `Timetable`                                   | a program per weekday (0 is Sunday) and per special day    |
 | zone       | `Zone`                                        | a name, an optional strategy, a timetable                  |
-| decision   | `Decision`                                    | the band, strategy, source, preset label and next change   |
+| decision   | `Decision`                                    | the band, strategy, source, preset label and next change, and who gave the humidity bounds |
 
 A band's two sides are at least the deadband (1 °C) apart, so a
 radiator and an air conditioner in the same zone never fight;
@@ -128,8 +129,8 @@ those be changed but not deleted.
 
 ## Around the layers
 
-- `Syntax`: the text forms of bands (`+20.5..+25`, `+7..`, `..+26`),
-  preset references (`comfort/quick`, or `off` for no band), programs
+- `Syntax`: the text forms of bands (`+20.5..+25`, `+7..`, `..+26`,
+  with humidity bounds `+20..+26@..60`), preset references (`comfort/quick`, or `off` for no band), programs
   (`06:30=comfort,22:30=+17..+27/quiet`), days (`mon-fri`, `sat,sun`, a
   special day's name), and in `syntax/time.rb` years, dates, times and
   durations (`2h`, `90m`, `1h30`). Refusals raise `ParseError`.

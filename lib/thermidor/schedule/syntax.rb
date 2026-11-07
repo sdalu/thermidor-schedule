@@ -7,13 +7,13 @@ module Thermidor
         # ones as an anonymous Preset or Program.
         #
         #   preset    comfort  +20.5..+25  +5..  ..+26  off  (then /quick)
+        #   humidity  +20..+26@30..60  @..60  @30..  @60 (..60)  @ (none)
         #   program   workday  06:30=comfort,22:30=+17..+27/quiet  usual
         #   days      mon  mon-fri  sat,sun   (or a special day: holiday)
         #
-        # Dates, times and durations are in syntax/time.rb.
+        # Bands are in syntax/band.rb; dates, times and durations in
+        # syntax/time.rb.
         module Syntax
-            NUMBER   = /[+-]\d+(?:\.\d)?/
-            BAND     = /\A(?<heat>#{NUMBER})?\.\.(?<cool>#{NUMBER})?\z/
             NAME     = /\A[a-z][\w-]*\z/
             CLOCK    = /\A(?<hour>\d{1,2}):(?<min>\d{2})\z/
             WEEKDAYS = %w[sun mon tue wed thu fri sat].freeze
@@ -40,18 +40,10 @@ module Thermidor
             # A name, or an anonymous Preset for "off" and band literals.
             def preset(text)
                 text!(text)
-                return Preset.new(setpoint: Setpoint.new) if text == "off"
-                return name(text) unless text.start_with?("+", "-", ".")
+                sides = text.partition("@").first
+                return name(text) unless
+                    sides == "off" || sides.start_with?("+", "-", ".")
                 Preset.new(setpoint: band(text))
-            end
-
-            # "+20.5..+25" => Setpoint; at least one side is required.
-            def band(text)
-                text!(text)
-                heat, cool = BAND.match(text)&.values_at(:heat, :cool)
-                raise ParseError, "bad band #{text.inspect}" unless
-                    heat || cool
-                as_parsed { Setpoint.new(heat: heat&.to_f, cool: cool&.to_f) }
             end
 
             # What the block builds; what it refuses, as ParseError.

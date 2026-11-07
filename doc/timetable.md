@@ -36,6 +36,20 @@ Setpoint.new(heat: 24, cool: 24.5)
 # Error: heat 24.0 must be at least 1.0 below cool 24.5
 ```
 
+A band may also bound the relative humidity, in % (`Humidity`, 0 to
+100, to the tenth, the floor below the ceiling). `humidity: nil`, the
+default, gives none of its own; `Humidity::NONE` clears those below
+([A decision](README.md#a-decision)):
+
+| `Setpoint.new`                                         | `to_s`              |
+| :----------------------------------------------------- | :------------------ |
+| `heat: 20, cool: 26, humidity: Humidity.new(high: 60)` | `+20.0..+26.0@..60` |
+| `humidity: Humidity.new(low: 30, high: 60)`            | `off@30..60`        |
+| `heat: 22, humidity: Humidity::NONE`                   | `+22.0..@`          |
+
+`off?` speaks of the temperature sides only: `off@..65` is off, with a
+ceiling.
+
 ## Strategies
 
 How the devices share the work of holding a band, one of

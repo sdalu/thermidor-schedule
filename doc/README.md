@@ -17,6 +17,7 @@ and what the devices are told, is the caller's.
 | Term     | Class                  | Meaning                                                  |
 | :------- | :--------------------- | :------------------------------------------------------- |
 | band     | `Setpoint`             | heat below `heat`, cool above `cool` (nil: never)        |
+| humidity | `Humidity`             | a band's optional floor and ceiling, % relative humidity |
 | strategy | a Symbol               | how the devices combine (configured; comfort by default) |
 | preset   | `Preset`               | a band, named or not, with an optional strategy          |
 | program  | `Program`              | one day: `Transition`s, a preset from a time of day on   |
@@ -89,6 +90,16 @@ needs nothing below (the timetable) can go first.
 | `source`   | `"calendar:fr:holiday"`       | which layer decided, and on what grounds      |
 | `label`    | `"comfort"`                   | the preset's name; nil for an inline band     |
 | `until`    | `2026-11-24 08:15`            | when the deciding layer next changes; nil: no change planned |
+| `humidity_source` | `"timetable:work"`     | which layer gave the band's humidity bounds; nil: none did |
+
+A band's humidity bounds (`setpoint.humidity`) are not replaced as its
+sides are. A manual setting, a boost, an open window or away whose
+preset gives none keeps the bounds of the decision below, and
+`humidity_source` still names the layer that gave them; a preset
+giving `@` (`Humidity::NONE`) clears them. The timetable and the
+calendar decide afresh: a holiday's program does not keep a weekday's
+bounds. Nothing acts on them yet: they are for the caller and, later,
+the planner.
 
 `Stack#wake_at` is the earliest `until` of all the layers, not only the
 deciding one's. A change underneath can show through a layer that
