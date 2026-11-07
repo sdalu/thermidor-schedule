@@ -7,6 +7,7 @@ module Thermidor
         #
         #   sides     +20.5..+25  +5..  ..+26  off
         #   humidity  @30..60  @..60  @30..  @60 (a ceiling)  @ (cleared)
+        #   guard     +15..+25@40..65  +7..  @..65 (no sides)
         module Syntax
             NUMBER   = /[+-]\d+(?:\.\d)?/
             BAND     = /\A(?<heat>#{NUMBER})?\.\.(?<cool>#{NUMBER})?\z/
@@ -27,6 +28,16 @@ module Thermidor
                     Setpoint.new(heat:, cool:,
                                  humidity: bounds&.then { humidity(it) })
                 end
+            end
+
+            # A guard's bounds: a band whose sides may be left out before
+            # its humidity, "+15..+25@40..65", "+7..", "@..65" => Setpoint.
+            # One bounding nothing ("off", "@") is refused.
+            def guard(text)
+                text!(text)
+                setpoint = band(text.start_with?("@") ? "off#{text}" : text)
+                return setpoint unless Layers::Guard.bare?(setpoint)
+                raise ParseError, "guard #{text.inspect} bounds nothing"
             end
 
             # [heat, cool] for "+20.5..+25" or "off"; nil if neither.

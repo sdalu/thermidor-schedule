@@ -23,17 +23,18 @@ module Thermidor
                 def apply(_zone, _now, below)
                     heat = below.setpoint.heat&.clamp(@limits)
                     cool = below.setpoint.cool&.clamp(@limits)
-                    heat, cool = separate(heat, cool) if heat && cool
+                    heat, cool = Clamp.separate(heat, cool, @limits.end) if
+                        heat && cool
                     below.with(setpoint: below.setpoint.with(heat:, cool:))
                 end
 
-                private
-
-                # Cool gives way first, up to the upper limit; then heat.
-                def separate(heat, cool)
-                    gap  = Schedule.config.deadband
+                # Sides closer than the deadband: cool gives way first, up
+                # to `ceiling` (nil: none), then heat. The guards' too.
+                def self.separate(heat, cool, ceiling)
+                    gap = Schedule.config.deadband
+                    return [heat, cool] if (cool - heat).round(1) >= gap
                     cool = [cool, heat + gap].max
-                    cool = [cool, @limits.end].min
+                    cool = [cool, ceiling].min if ceiling
                     [[heat, cool - gap].min, cool]
                 end
             end

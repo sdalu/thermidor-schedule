@@ -23,6 +23,7 @@ as an anonymous `Preset` or `Program`.
 | `band("+22..@")`              | `@` alone             | `Humidity::NONE`, the bounds below cleared |
 | `band("off@..65")`, `band("off")` | no side           | an off `Setpoint`, bounds or not |
 | `humidity("..60")`            | what follows `@`      | a `Humidity`                     |
+| `guard("+15..+25@40..65")`, `guard("@..65")` | a band, its sides optional before `@` | a `Setpoint` read as [guard](guard.md) bounds; refused bounding nothing |
 | `preset("off")`               | `off`                 | an anonymous preset, no side     |
 | `preset("+20..+25")`          | a band                | an anonymous preset              |
 | `preset("comfort")`           | a name                | `"comfort"`                      |

@@ -33,6 +33,29 @@ depend on the hour, so the calendar decides them afresh. Nothing acts
 on humidity here; the decision carries the bounds in force and who gave
 them, for the caller and, later, the planner.
 
+## Guards: limits, not targets
+
+A guard is a limit a zone must stay within whatever was decided: a
+bamboo floor that must not go above 25 °C nor dry out under 40 %, a
+room that must not freeze. Written as a band, it is read as bounds, and
+applied above every layer that decides, a manual setting and an open
+window included: someone turning a bamboo room off has not meant to let
+it freeze, nor a boost to cook its floor. That is the clamp's place,
+and the clamp stays: the guard every zone has and none names, its
+deadband rule shared. Guards are a layer of their own rather than the
+clamp generalised, so a stack without them is unchanged.
+
+A zone's guards intersect, the tightest bound on each side winning;
+guards leaving less than the deadband between them are refused, as
+the clamp's limits are, so every side stays within every guard and
+neither a floor nor a ceiling has to give way to the other. Each side
+is held within both bounds, not only raised to the floor and lowered
+to the ceiling: heat above a bamboo floor's ceiling would cook it. The
+decision names the guard that bound each side it moved, for
+the caller to say why. Which guards a zone holds and when they apply
+(always, away, occupied) are the caller's, as presence is: the layer
+gets the guards in force.
+
 ## Layers that pass the decision up
 
 Decisions come from a stack of layers, each receiving the decision of

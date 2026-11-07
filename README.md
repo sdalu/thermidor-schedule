@@ -3,7 +3,7 @@
 What each zone of a house should hold, over time: heat below one
 setpoint, cool above another, and how the devices should share the
 work. Decisions come from a stack of layers (a weekly timetable, a
-calendar, away, manual, boost, open window, a clamp), each passing the
+calendar, away, manual, boost, open window, guards, a clamp), each passing the
 decision below through or replacing it.
 
 It decides only: where the presets, programs and entries are kept, and
@@ -74,7 +74,8 @@ again.
 | program    | `Program` of `Transition`s                    | one day: minutes after midnight at which a preset starts   |
 | timetable  | `Timetable`                                   | a program per weekday (0 is Sunday) and per special day    |
 | zone       | `Zone`                                        | a name, an optional strategy, a timetable                  |
-| decision   | `Decision`                                    | the band, strategy, source, preset label and next change, and who gave the humidity bounds |
+| guard      | `Layers::Guard::Entry`                        | a named band read as limits, not a target                  |
+| decision   | `Decision`                                    | the band, strategy, source, preset label and next change, who gave the humidity bounds, and which guard bound which side |
 
 A band's two sides are at least the deadband (1 °C) apart, so a
 radiator and an air conditioner in the same zone never fight;
@@ -118,6 +119,7 @@ keeps them.
 | `Layers::Manual`     | `Manual::Entry`              | a setting made by hand, until its end          | `manual`                        |
 | `Layers::Boost`      | `Manual::Entry`              | a short push, `mode` its direction             | `boost`                         |
 | `Layers::OpenWindow` | `Manual::Entry`              | a window open, until its end                   | `open-window`                   |
+| `Layers::Guard`      | `Guard::Entry`               | always: within the zone's guards               | the decision's below            |
 | `Layers::Clamp`      | none                         | always: both sides within `limits:`            | the decision's below            |
 
 A layer is anything answering `apply(zone, now, below)` with a
@@ -130,7 +132,7 @@ those be changed but not deleted.
 ## Around the layers
 
 - `Syntax`: the text forms of bands (`+20.5..+25`, `+7..`, `..+26`,
-  with humidity bounds `+20..+26@..60`), preset references (`comfort/quick`, or `off` for no band), programs
+  with humidity bounds `+20..+26@..60`; a guard's, `@..65` too), preset references (`comfort/quick`, or `off` for no band), programs
   (`06:30=comfort,22:30=+17..+27/quiet`), days (`mon-fri`, `sat,sun`, a
   special day's name), and in `syntax/time.rb` years, dates, times and
   durations (`2h`, `90m`, `1h30`). Refusals raise `ParseError`.

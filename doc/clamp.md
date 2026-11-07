@@ -30,4 +30,5 @@ top of the range, then the heating side:
 
 `Setpoint` already refuses bands whose sides are closer than the
 deadband. The clamp matters for bands the layers compute, and as a last
-guard.
+guard: it is the one limit every zone has and none names, above the
+named [guards](guard.md).

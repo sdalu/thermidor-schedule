@@ -7,12 +7,16 @@ module Thermidor
         # the preset, nil if inline) and the next time it may change (nil:
         # nothing planned). The band's humidity bounds are those in force,
         # perhaps kept from a layer below: `humidity_source` names the
-        # layer that gave them (nil: none did).
+        # layer that gave them (nil: none did). `guards` names, per side
+        # a guard moved (:heat, :cool, :humidity_low, :humidity_high), the
+        # guard that bound it.
         Decision = Data.define(:setpoint, :strategy, :source, :label,
-                               :until, :humidity_source)
+                               :until, :humidity_source, :guards)
 
         class Decision
-            def initialize(humidity_source: nil, **)
+            NO_GUARDS = {}.freeze
+
+            def initialize(humidity_source: nil, guards: NO_GUARDS, **)
                 super
             end
 

@@ -4,7 +4,7 @@ module Thermidor
     module Schedule
         module Layers
             # A window is open: the zone holds the preset named open-window
-            # (frost protection by default) above everything but the clamp,
+            # (frost protection by default) above all but guards and clamp,
             # for some minutes, or (mode :steady) until the temperature
             # steadies, with an end time as a safety limit.
             class OpenWindow < Manual

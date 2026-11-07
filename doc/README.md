@@ -44,6 +44,8 @@ again. No layer needs to remember what to restore.
 ┌───────────────┴────────┐
 │ Clamp                  │  always: both setpoints within limits
 ├────────────────────────┤
+│ Guard                  │  always: within the zone's guards
+├────────────────────────┤
 │ OpenWindow             │  a window open
 ├────────────────────────┤
 │ Boost                  │  a short push
@@ -66,7 +68,8 @@ stack = Thermidor::Schedule::Stack.new([
     Layers::Timetable.new, Layers::Calendar.new(calendar_entries),
     Layers::Away.new(away_entries), Layers::Manual.new(manual_entries),
     Layers::Boost.new(boost_entries),
-    Layers::OpenWindow.new(window_entries), Layers::Clamp.new
+    Layers::OpenWindow.new(window_entries),
+    Layers::Guard.new(guard_entries), Layers::Clamp.new
 ])
 stack.resolve(zone, now)    # the decision
 stack.decisions(zone, now)  # the decision after each layer, bottom first
@@ -74,8 +77,8 @@ stack.wake_at(zone, now)    # the earliest change anywhere in the stack
 ```
 
 Because each layer sees the decision below it, a layer can adjust it
-rather than replace it: the clamp changes only the band, and automatic
-away, before it starts, only brings `until` forward.
+rather than replace it: the guards and the clamp change only the band,
+and automatic away, before it starts, only brings `until` forward.
 
 A layer is anything answering `apply(zone, now, below)` with a
 `Decision`. `below` is nil for the bottom layer, so only a layer that
@@ -90,7 +93,8 @@ needs nothing below (the timetable) can go first.
 | `source`   | `"calendar:fr:holiday"`       | which layer decided, and on what grounds      |
 | `label`    | `"comfort"`                   | the preset's name; nil for an inline band     |
 | `until`    | `2026-11-24 08:15`            | when the deciding layer next changes; nil: no change planned |
-| `humidity_source` | `"timetable:work"`     | which layer gave the band's humidity bounds; nil: none did |
+| `humidity_source` | `"timetable:work"`     | which layer gave the band's humidity bounds (`"guard"`: the guards, none being in force); nil: none did |
+| `guards`   | `{ heat: "frost" }`           | the guard that bound each side it moved; `{}`: none |
 
 A band's humidity bounds (`setpoint.humidity`) are not replaced as its
 sides are. A manual setting, a boost, an open window or away whose
@@ -126,7 +130,7 @@ zone's: the caller gives each `Zone` its own strategy or the house's.
 | `boost`             | a boost entry                                       |
 | `open-window`       | an open-window entry                                |
 
-The clamp keeps the source of the decision it clamps.
+The guards and the clamp keep the source of the decision they bound.
 
 ## The layers
 
@@ -140,6 +144,7 @@ Each has a page, from the bottom of the stack up:
 | [Manual](manual.md)           | an entry                     | the entry's preset            |
 | [Boost](boost.md)             | an entry                     | a `boost` preset              |
 | [OpenWindow](open-window.md)  | an entry                     | `open-window`                 |
+| [Guard](guard.md)             | always                       | the band, within the zone's guards |
 | [Clamp](clamp.md)             | always                       | the band, within limits       |
 
 The text forms of bands, presets, programs, days, dates and durations
@@ -163,5 +168,7 @@ The layers take plain values (`Data`). They read no store, no clock
   wanted;
 - work out when automatic away starts (`AutoAway`) and pass it to the
   away layer;
+- work out which guards each zone holds, and which of them apply
+  (always, away, occupied), and hand over those in force;
 - keep the system presets (`Preset::SYSTEM`), which the layers fall
   back on, from being deleted.

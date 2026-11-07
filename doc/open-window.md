@@ -3,7 +3,8 @@
 The layer of the [schedule](README.md) for an open window,
 `Layers::OpenWindow`: the zone stops heating and cooling, frost
 protection aside, until the window is shut again. It sits above
-everything but the [clamp](clamp.md). It is a manual layer and takes
+everything but the [guards](guard.md), which still hold the zone
+within its limits, and the [clamp](clamp.md). It is a manual layer and takes
 the same `Manual::Entry` values; `Steady` tells when a window has been
 shut.
 
