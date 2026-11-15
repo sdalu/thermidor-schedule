@@ -8,7 +8,9 @@ module Thermidor
         # as Time#wday), and per special day ("holiday") for the calendar
         # to call on. A day without a program, or before its first
         # transition, carries on from the last transition of an earlier day.
-        # A special day bound to USUAL runs the zone's usual weekday.
+        # A special day bound to USUAL runs the zone's usual weekday. What
+        # is in force is resolved by a Resolver, over the weekday programs
+        # alone or a stack of programs per date.
         Timetable = Data.define(:days, :specials) do
             def initialize(days: {}, specials: {})
                 Timetable.check_days(days)
@@ -26,63 +28,76 @@ module Thermidor
                 weekday ? days[weekday] : specials[kind]
             end
 
+            # The weekday level of `date`: its program, nil if none.
+            def weekday(date) = Timetable::Level.weekday(days[date.wday])
+
+            # A Resolver whose levels are given by the block (a date's
+            # Levels, the weekday one last), the weekday's alone by default.
+            # Its keywords that reach the fallback give `fallback`.
+            def resolver(fallback: Preset::FROST, &levels)
+                levels ||= ->(date) { [weekday(date)] }
+                Timetable::Resolver.new(fallback, &levels)
+            end
+
             # `time` may be in any offset: dates are local ones.
             #
-            # The Entry in force at `time`, nil if there is none. `lookup`
-            # gives the program of a date, the weekday's by default.
-            # Transitions are compared as moments, not clock readings, so
-            # one on a night clocks change happens once, at its
-            # next_change.
-            def at(time, &lookup)
-                time = time.getlocal
-                lookup ||= ->(date) { days[date.wday] }
-                (0..Timetable::REACH).each do |back|
-                    date = time.to_date - back
-                    program = lookup.call(date) or next
-                    transition = last_by(program, date, time) or next
-                    return Timetable::Entry.new(program, transition, date)
-                end
-                nil
+            # The Resolution in force at `time`. Transitions are compared
+            # as moments, not clock readings, so one on a night clocks
+            # change happens once, at its next_change.
+            def at(time, fallback: Preset::FROST, &)
+                resolver(fallback:, &).at(time)
             end
 
-            # Time of the next transition after `time`, nil if none.
-            def next_change(time, &lookup)
-                time = time.getlocal
-                lookup ||= ->(date) { days[date.wday] }
-                (0..Timetable::REACH).each do |ahead|
-                    date = time.to_date + ahead
-                    program = lookup.call(date) or next
-                    later = first_after(program, date, time)
-                    return local(date, later.minute) if later
-                end
-                nil
+            # When what is in force next changes after `time`, nil if
+            # nothing does within REACH dates.
+            def next_change(time, fallback: Preset::FROST, &)
+                resolver(fallback:, &).next_change(time)
             end
-
-            private
-
-            # The first transition of `program`, run on `date`, after
-            # `time`; nil if none.
-            def first_after(program, date, time)
-                program.transitions.find do |each|
-                    local(date, each.minute) > time
-                end
-            end
-
-            # The last transition of `program`, run on `date`, made by
-            # `time`; nil if none.
-            def last_by(program, date, time)
-                program.transitions.reverse.find do |each|
-                    local(date, each.minute) <= time
-                end
-            end
-
-            def local(date, minute) = LocalTime.at(date, minute)
         end
 
         class Timetable
-            # What is in force at a given time: which program, which of its
-            # transitions, and the date that program ran on.
-            Entry = Data.define(:program, :transition, :date)
+            # One program of a date's stack: a calendar entry's (`entry`),
+            # or the weekday's (`weekday` true; `entry` then the one bound
+            # to USUAL that runs it, if any). `program` is nil for a
+            # weekday without one.
+            Level = Data.define(:program, :entry, :weekday) do
+                def initialize(program:, entry: nil, weekday: false)
+                    super
+                end
+
+                # The same level on another date: the weekday's, or the
+                # same entry's.
+                def same?(other)
+                    return other.weekday if weekday
+                    !other.weekday && other.entry == entry
+                end
+            end
+
+            def Level.weekday(program, entry: nil)
+                new(program:, entry:, weekday: true)
+            end
+
+            # A transition of `level`'s program, run on `date`.
+            Said = Data.define(:level, :date, :transition)
+
+            # What is in force: a preset and the strategy overriding its
+            # own (nil: none), and the chain of transitions that led to
+            # it, top first; the last holds the preset, or a keyword when
+            # it is the fallback's, and the chain is empty when nothing is
+            # in force at all.
+            Resolution = Data.define(:preset, :strategy, :chain) do
+                def fallback? = said.nil?
+                def date      = said&.date
+                def level     = said&.level
+                def program   = level&.program
+                def transition = said&.transition
+
+                # The transition holding the preset; nil for the fallback.
+                def said
+                    last = chain.last
+                    last if last&.transition&.preset
+                end
+            end
 
             # How many dates back `at` looks for what is in force, and
             # `next_change` ahead for a change: a week.

@@ -3,18 +3,45 @@
 module Thermidor
     module Schedule
         # From `minute` (after midnight) on, `preset` is in force, with
-        # `strategy` overriding the preset's own when given.
-        Transition = Data.define(:minute, :preset, :strategy) do
-            def initialize(minute:, preset:, strategy: nil)
+        # `strategy` overriding the preset's own when given; or, holding
+        # no preset, `through` (one of THROUGH) lets another program
+        # decide, with no strategy of its own.
+        Transition = Data.define(:minute, :preset, :strategy, :through) do
+            def initialize(minute:, preset: nil, strategy: nil, through: nil)
                 unless minute.is_a?(Integer) && minute.between?(0, 1439)
                     raise Error, "#{minute.inspect} is no minute of the day"
                 end
-                super(minute:, preset:, strategy: Schedule.strategy(strategy))
+                through = Transition.through(through, preset, strategy)
+                super(minute:, preset:, through:,
+                      strategy: Schedule.strategy(strategy))
             end
 
             def clock
                 hour, min = minute.divmod(60)
                 format("%<hour>02d:%<min>02d", hour:, min:)
+            end
+        end
+
+        class Transition
+            # `through` as a Symbol of THROUGH, nil for none; exactly one of
+            # it and `preset` is given, and a strategy only with a preset.
+            def self.through(through, preset, strategy)
+                return check_preset(preset) if through.nil?
+                word = through.to_s.to_sym if through.is_a?(String) ||
+                                              through.is_a?(Symbol)
+                unless THROUGH.include?(word)
+                    raise Error, "#{through.inspect} is none of " \
+                                 "#{THROUGH.join(", ")}"
+                end
+                raise Error, "#{word} holds no preset" if preset
+                raise Error, "#{word} takes no strategy" if strategy
+                word
+            end
+
+            def self.check_preset(preset)
+                raise Error, "a transition holds a preset or a keyword" unless
+                    preset
+                nil
             end
         end
 

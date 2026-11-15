@@ -103,8 +103,11 @@ a weekday. The timetable below does not know these dates, and what is
 in force early on a holiday may come from the evening before it, so
 the calendar layer re-resolves the zone's timetable with its own
 lookup rather than patching the decision below. When entries overlap,
-the calendar of highest priority wins, then a zone's own entry over a
-house-wide one, then the latest added.
+they stack: the calendar of highest priority on top, then a zone's own
+entry over a house-wide one, then the latest added, the weekday
+program under them all. The top one decides unless its program lets
+another through (next section); a calendar that does not want to stack
+uses no keyword, and the best entry wins as before.
 
 An entry for a day the zone has no program for does not apply to it,
 like an entry for another zone, so it takes no part in that ranking.
@@ -113,7 +116,52 @@ a calendar says nothing about: a leave calendar raised above public
 holidays for the living room turned an office kept cold on holidays
 back to a workday. A zone that does want such an entry to win while
 running its usual day binds the day to `usual`; that is a keyword, not
-a program, so it cannot be confused with one named alike.
+a program, so it cannot be confused with one named alike. The binding
+makes the whole day the weekday's and ends the stack there; the `usual`
+a transition may hold (next section) hands one stretch over.
+
+## Programs that let another through
+
+A program may hand a stretch of its day to another: a transition holds
+a keyword instead of a preset, `pass` (the next program of the date's
+stack), `usual` (the weekday program) or `fallback` (the fallback
+preset, the house's frost). A guest day can then say only its evening and let
+whatever runs below have the rest, rather than copying the weekday's
+transitions, which would drift apart. The keywords are allowed in every
+program, weekday ones included, where `pass` and `usual` have nothing
+below but the fallback and mean it: refusing them there would make a
+program unusable as both a weekday's and a calendar day's. A keyword
+takes no strategy, the program it lets through having its own.
+
+Carry-over past midnight stays as it was: the last transition of the
+day before holds until the date's first. A carried preset holds as
+ever, which keeps every timetable without keywords exactly as it was.
+A carried keyword is resolved against the new date's stack, not the
+old one's, entering it from above, and a program reached through a
+keyword answers as it would alone, with its own carry-over (the weekday
+program from the evening before). Resolving it against the carrying
+program's level instead was the first reading, and gave frost: a
+holiday ending `23:30=pass` before an ordinary day put the keyword on
+that day's weekday program, where it means the fallback, until the
+morning; what the holiday said was "the usual night".
+
+A change is where the chain of transitions in force changes, not where
+the preset does. Every transition that comes to decide is a change as
+it always was (a timetable repeating `12:00=eco` a week apart changes
+at noon); one hidden under another program is not, nor is midnight
+when the same transitions still decide. A change measured by the
+preset alone would have dropped those repeated transitions, and a
+chain measured level by level would have made every keyword carried
+past midnight a change at midnight. `until`, `Stack#wake_at` and a hand
+setting held to the next change follow the chain.
+
+The merge is a resolver over a stack of programs per date, owned by the
+timetable, rather than a merged `Program` per date: carry-over needs
+dates, which a program does not have, and a merged program would have
+to make up a midnight transition whenever a carried keyword lands
+differently. The merged day is still there to show (`Calendar#day`),
+derived from the same resolver, so a view and a decision cannot
+disagree.
 
 ## Recurrence: iCalendar's, for whole days
 

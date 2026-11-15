@@ -21,6 +21,11 @@ module Thermidor
         STRATEGIES       = %i[comfort cheapest quiet quick].freeze
         DEFAULT_STRATEGY = :comfort
 
+        # What a program transition may hold instead of a preset, letting
+        # another program decide: the next one in the day's stack (pass), the
+        # zone's weekday one (usual), or the fallback preset (fallback).
+        THROUGH = %i[pass usual fallback].freeze
+
         # nil stays nil (inherit); anything else must be a configured
         # strategy.
         def self.strategy(value)
@@ -52,6 +57,7 @@ require_relative "schedule/preset"
 require_relative "schedule/program"
 require_relative "schedule/local_time"
 require_relative "schedule/timetable"
+require_relative "schedule/timetable/resolver"
 require_relative "schedule/decision"
 require_relative "schedule/stack"
 require_relative "schedule/syntax"
@@ -63,6 +69,8 @@ require_relative "schedule/recurrence/parser"
 require_relative "schedule/recurrence/expansion"
 require_relative "schedule/layers/timetable"
 require_relative "schedule/layers/calendar"
+require_relative "schedule/layers/calendar/stretch"
+require_relative "schedule/layers/calendar/seen"
 require_relative "schedule/layers/away"
 require_relative "schedule/layers/manual"
 require_relative "schedule/layers/boost"

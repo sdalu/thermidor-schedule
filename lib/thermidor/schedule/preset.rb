@@ -8,6 +8,8 @@ module Thermidor
         Preset = Data.define(:name, :setpoint, :strategy, :description) do
             def initialize(setpoint:, name: nil, strategy: nil,
                            description: nil)
+                raise Error, "#{name} is reserved, not a preset name" if
+                    THROUGH.map(&:to_s).include?(name)
                 super(name:, setpoint:, strategy: Schedule.strategy(strategy),
                       description:)
             end

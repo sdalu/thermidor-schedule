@@ -7,6 +7,7 @@ program on a bridge day. `Recurrence` and `Holidays` help fill it.
 - [How a day is mapped](#how-a-day-is-mapped)
 - [Entries](#entries)
 - [Overlaps and priority](#overlaps-and-priority)
+- [Letting another program through](#letting-another-program-through)
 - [Recurring entries](#recurring-entries)
 - [Public holidays](#public-holidays)
 
@@ -79,7 +80,10 @@ midnight eight dates later, and that end is announced too.
 
 ## Entries
 
-`Layers::Calendar.new(entries)` takes `Calendar::Entry` values:
+`Layers::Calendar.new(entries, fallback: Preset::FROST)` takes
+`Calendar::Entry` values, and the preset a program's keyword lets
+through to ([below](#letting-another-program-through)), the same as
+the timetable layer's:
 
 | Field         | Meaning                                                   |
 | :------------ | :-------------------------------------------------------- |
@@ -104,8 +108,10 @@ more, raises `ArgumentError` when built.
 
 When several entries cover a date for a zone, only those that apply
 to it count: for the zone or every zone, and naming a day the zone has
-a program for (or `usual`). Of these, the one with the smallest `rank`
-wins:
+a program for (or `usual`). These stack, the smallest `rank` on top,
+the zone's weekday program under them all; the top one decides, unless
+its program lets the next through ([below](#letting-another-program-through)),
+so without keywords the smallest `rank` wins:
 
 1. the lowest `priority`;
 2. an entry for the zone itself over one for every zone;
@@ -123,7 +129,70 @@ With a `leave` calendar (priority 5) over 21 to 25 December and `fr`
 The office has no program for `leave`, so leave does not apply to it
 and the holiday does. The study takes leave as a usual day, which wins
 over the holiday by priority: on leave, its owner works there even on
-a public holiday.
+a public holiday. An entry bound to `usual` ends the stack there: the
+weekday runs, and the entries ranked below it are left out.
+
+## Letting another program through
+
+A program's transition may hold a keyword instead of a preset
+([timetable.md](timetable.md#programs)): from then on, another program
+of the date's stack decides. `pass` lets the next one decide, `usual`
+the weekday program, skipping the calendars between, and `fallback` the
+fallback preset. A level reached so answers as it would alone, with its own
+carry-over: the weekday program from the evening before, a calendar
+entry from the dates it covered before; one with nothing yet in force
+lets the next one answer. The source is that of the program that
+decides (`timetable:PROGRAM` when the weekday's does, `fallback` for the
+fallback).
+
+With `work` (06:45 comfort, 08:30 eco, 23:00 night) every day, and the
+24th of December a holiday whose program is
+`08:15=comfort,12:00=pass`:
+
+| At          | Holds   | Source                | Until       |
+| :---------- | :------ | :-------------------- | :---------- |
+| 24th 07:00  | night   | `timetable:work`      | 24th 08:15  |
+| 24th 09:00  | comfort | `calendar:fr:holiday` | 24th 12:00  |
+| 24th 13:00  | eco     | `timetable:work`      | 24th 23:00  |
+
+Past midnight, the last transition of the day carries on, as ever. A
+keyword carried so falls into the next date's stack from above: a
+holiday ending `23:30=pass` before an ordinary day gives that day's
+early hours to its weekday program as it would run alone, which
+carries its own `23:00=night` on until 06:45, not to the fallback.
+And a weekday's `22:00=pass` (the fallback, at that level) carried into
+a holiday whose program starts at 08:00 reaches the holiday first:
+it has nothing yet, so the weekday program answers, its `22:00=pass`
+holding (frost) until its 06:30 comfort, then the holiday's at 08:00.
+
+Stacked entries let each other through the same way: with leave
+(priority 3) running `07:00=pass`, a guest day (5) running
+`07:00=pass,18:00=comfort` and the holiday (8) `07:00=night`, the
+holiday decides at noon and the guest day from 18:00.
+
+`until` ends where the chain of transitions in force changes: a
+transition that comes to decide (even one holding the same preset as
+the one before it), a keyword taking effect; never a transition hidden
+under another program, nor midnight with nothing new in force.
+
+`Layers::Calendar#at(zone, time)` gives the `Timetable::Resolution` the
+layer decides from (its `transition` the one in force), and
+`Calendar#source(resolution)` its source. Where nothing is in force
+through the calendar and the layer passes the decision below, both give
+the weekday timetable's, as the timetable layer decides it; a layer of
+the caller's own between the two is not seen there.
+
+`Layers::Calendar#day(zone, date)` gives the day as the stack runs it,
+from midnight to midnight, read the same way: `Calendar::Stretch`es
+(`from`, `to`, `preset`, `strategy`, `source`), consecutive ones holding
+the same joined. The holiday above:
+
+| From  | To          | Preset  | Source                |
+| :---- | :---------- | :------ | :-------------------- |
+| 00:00 | 08:15       | night   | `timetable:work`      |
+| 08:15 | 12:00       | comfort | `calendar:fr:holiday` |
+| 12:00 | 23:00       | eco     | `timetable:work`      |
+| 23:00 | 00:00 (25th) | night  | `timetable:work`      |
 
 ## Recurring entries
 

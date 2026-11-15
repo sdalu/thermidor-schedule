@@ -9,6 +9,7 @@ module Thermidor
         #   preset    comfort  +20.5..+25  +5..  ..+26  off  (then /quick)
         #   humidity  +20..+26@30..60  @..60  @30..  @60 (..60)  @ (none)
         #   program   workday  06:30=comfort,22:30=+17..+27/quiet  usual
+        #             (a transition may hold pass, usual or fallback)
         #   days      mon  mon-fri  sat,sun   (or a special day: holiday)
         #
         # Bands are in syntax/band.rb; dates, times and durations in
@@ -73,13 +74,21 @@ module Thermidor
                 end
             end
 
-            # "06:30=comfort/quick" => Transition, preset possibly a name.
+            # "06:30=comfort/quick" => Transition, preset possibly a name;
+            # "22:00=pass" one holding a keyword of THROUGH instead.
             def transition(text)
                 text!(text)
                 clock, value = text.split("=", 2)
                 raise ParseError, "bad transition #{text.inspect}" unless value
                 preset, strategy = preset_ref(value)
-                Transition.new(minute: minute(clock), preset:, strategy:)
+                minute = minute(clock)
+                as_parsed { built_transition(minute, preset, strategy) }
+            end
+
+            def built_transition(minute, preset, strategy)
+                return Transition.new(minute:, preset:, strategy:) unless
+                    THROUGH.map(&:to_s).include?(preset)
+                Transition.new(minute:, through: preset, strategy:)
             end
 
             def minute(text)

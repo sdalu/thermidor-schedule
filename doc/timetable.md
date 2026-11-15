@@ -114,6 +114,24 @@ work = Program.new(name: "work", transitions: [
 `06:45=comfort,08:30=eco,23:00=night/quiet`, preset names coming back as
 Strings for the caller to look up.
 
+A transition may hold a keyword (`through:`) instead of a preset,
+letting another program decide from then on:
+
+| Keyword    | Who decides                                              |
+| :--------- | :------------------------------------------------------- |
+| `pass`     | the next program in the date's stack                     |
+| `usual`    | the zone's weekday program, skipping the calendars below |
+| `fallback` | the fallback preset (the house's: frost)                 |
+
+A keyword holds no preset and takes no strategy (`Error`); the three
+words are refused as preset names. In a weekday program, with nothing
+below it, `pass` and `usual` mean the fallback too, so one program can
+be both a weekday's and a calendar day's. The `usual` keyword is not
+the `usual` binding of the next section: the binding makes a whole
+special day the weekday's, the keyword hands one stretch of a program
+over to it. How a calendar stacks programs is in
+[calendar.md](calendar.md#letting-another-program-through).
+
 ## The week
 
 A `Timetable` maps weekdays (`days:`, 0 is Sunday as in `Time#wday`)
@@ -131,8 +149,12 @@ on a weekday it raises `Error`.
 
 ## How a time is resolved
 
-`Timetable#at(time)` gives the `Timetable::Entry` in force (the program,
-its transition, and the date the program ran on):
+`Timetable#at(time)` gives the `Timetable::Resolution` in force: the
+`preset`, the `strategy` overriding its own (nil if none), and the
+`chain` of transitions that led there (`Timetable::Said`: the level,
+the date its program ran on, the transition). `transition`, `program`,
+`level` and `date` read the one holding the preset; `fallback?` is
+true when none does and `preset` is the fallback:
 
 1. Take the program of the time's date.
 2. Take its last transition at or before the time of day.
@@ -140,9 +162,14 @@ its transition, and the date the program ran on):
    earlier day that has one, looking back up to a week. So
    `23:00=night` lasts until the next morning's first transition, and a
    day without a program carries on from the day before.
+4. If that transition holds a keyword, follow it (above); with nothing
+   in force at all, the chain is empty and the fallback holds.
 
-`Timetable#next_change(time)` is the first transition after the time,
-looking ahead up to a week; nil if there is none.
+`Timetable#next_change(time)` is the first time after the time,
+looking ahead up to a week, when the chain changes: every transition
+that comes to decide is a change, even one holding the same preset as
+before; one that stays hidden (under a calendar day's program) is not;
+nil if there is none.
 
 With `work` every day:
 
@@ -153,8 +180,12 @@ With `work` every day:
 Monday                                             Tuesday
 ```
 
-Both take an optional block, the program of a date, the weekday's by
-default; that is how the calendar runs other days.
+Both take `fallback:` (`Preset::FROST`) and an optional block giving
+the stack of a date: its `Timetable::Level`s, best first, the weekday's
+last (`Timetable#weekday(date)`, the only one by default); that is how
+the calendar runs other days. `Timetable#resolver(fallback:, &levels)`
+gives the `Timetable::Resolver` both use, to ask several times about
+the same stacks.
 
 Times are local wall-clock times in the process's time zone; a Time
 given in another offset (UTC) is taken as the same moment, its date the
@@ -172,5 +203,6 @@ through the repeated hour.
 `Layers::Timetable.new(fallback: Preset::FROST)` decides from the
 zone's timetable: the transition's preset, the transition's strategy
 over the preset's, source `timetable:PROGRAM`, `until` the next change.
-A zone with no transition within the week before holds the fallback,
-source `fallback`, with no `until`.
+A zone with no transition within the week before, or whose program's
+keyword lets the fallback through, holds the fallback, source
+`fallback`, `until` the next change (none for the first).

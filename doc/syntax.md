@@ -49,11 +49,14 @@ digits, `_` or `-`. The strategy after `/` goes through
 | `program("usual")`                              | `Timetable::USUAL`            |
 | `program("06:30=comfort,22:30=+17..+27/quiet")` | an anonymous `Program`        |
 | `transition("06:30=comfort/quick")`             | a `Transition`, preset `"comfort"` |
+| `transition("22:00=pass")`                      | a `Transition`, `through: :pass` |
 | `minute("06:30")`                               | 390                           |
 
 Times are `H:MM` or `HH:MM`, 00:00 to 23:59. `usual` is a keyword, a
 special day's binding to the zone's usual weekday, never a program's
-name.
+name. After `=`, `pass`, `usual` and `fallback` are keywords letting
+another program decide ([timetable.md](timetable.md#programs)), never
+a preset's name, and take no `/STRATEGY`.
 
 ## Days
 

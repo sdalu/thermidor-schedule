@@ -114,7 +114,7 @@ keeps them.
 | Layer                | Entries                      | Active                                         | Source                          |
 | :------------------- | :--------------------------- | :--------------------------------------------- | :------------------------------ |
 | `Layers::Timetable`  | none (the zone's timetable)  | always; `fallback:` (frost) with none in force | `timetable:PROGRAM`, `fallback` |
-| `Layers::Calendar`   | `Calendar::Entry`            | on dates that run another kind of day          | `calendar:NAME:KIND`            |
+| `Layers::Calendar`   | `Calendar::Entry`, `fallback:` | on dates that run another kind of day        | `calendar:NAME:KIND`, `timetable:PROGRAM`, `fallback` |
 | `Layers::Away`       | `Away::Entry`, `auto_since:` | an away period, by hand or from presence       | `away`, `away:auto`             |
 | `Layers::Manual`     | `Manual::Entry`              | a setting made by hand, until its end          | `manual`                        |
 | `Layers::Boost`      | `Manual::Entry`              | a short push, `mode` its direction             | `boost`                         |
