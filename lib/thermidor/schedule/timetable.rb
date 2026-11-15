@@ -64,13 +64,6 @@ module Thermidor
                 def initialize(program:, entry: nil, weekday: false)
                     super
                 end
-
-                # The same level on another date: the weekday's, or the
-                # same entry's.
-                def same?(other)
-                    return other.weekday if weekday
-                    !other.weekday && other.entry == entry
-                end
             end
 
             def Level.weekday(program, entry: nil)
