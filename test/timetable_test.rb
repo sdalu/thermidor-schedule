@@ -115,4 +115,16 @@ class TimetableTest < Minitest::Test
             end
         end
     end
+
+    # A special day is a name no weekday spelling and not usual: a key no
+    # calendar entry could reach is refused.
+    def test_a_special_day_is_a_name_an_entry_can_reach
+        ["Holiday", "mon", "sunday", "mon-fri", "bad name", :holiday,
+         "usual"].each do |key|
+            assert_raises(ArgumentError, key.inspect) do
+                Schedule::Timetable.new(specials: { key => @weekend })
+            end
+        end
+        assert Schedule::Timetable.new(specials: { "holiday" => @weekend })
+    end
 end

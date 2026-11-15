@@ -163,7 +163,10 @@ over to it. How a calendar stacks programs is in
 A `Timetable` maps weekdays (`days:`, 0 is Sunday as in `Time#wday`)
 and special days (`specials:`, by name, such as `"holiday"`) to
 programs. A weekday may have none. A weekday key other than an Integer
-from 0 to 6 raises `ArgumentError`. Special days only run when a
+from 0 to 6 raises `ArgumentError`, and so does a special-day key no
+calendar entry could reach: one that is not a name (`Schedule.name?`),
+a weekday spelling (`"mon"`, `"mon-fri"`), or `"usual"`. Special days
+only run when a
 [calendar](calendar.md) gives a date that day. `program_for(kind)` gives
 the program of `"sun"`..`"sat"` or of a special day.
 

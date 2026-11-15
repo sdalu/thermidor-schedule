@@ -246,7 +246,9 @@ that is not plain digits, a list where one number goes (`INTERVAL`,
 `COUNT`), an `UNTIL` that is not `YYYYMMDD` (with an optional valid
 `THHMMSS` and `Z`), `BYMONTHDAY` with
 `FREQ=WEEKLY`; `UNTIL` and `COUNT` exclude each other. A leading
-`RRULE:`, as a calendar file writes the rule, is dropped. An `UNTIL`
+`RRULE:`, as a calendar file writes the rule, is dropped. A
+`Recurrence` built directly, not parsed, checks its `freq` and
+`interval` (1 or more) the same way, with `Error`. An `UNTIL`
 with a time ending in `Z` is a moment in UTC, kept as its date in the
 process's time zone: `20270630T230000Z` is 1 July in Paris; one
 without `Z` is local, kept as its own date.

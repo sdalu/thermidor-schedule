@@ -12,19 +12,20 @@ module Thermidor
             DATE     = /\A(?<date>\d{4}-\d{2}-\d{2})[ T](?<clock>\S+)\z/
             DAY      = /\A\d{4}-\d{2}-\d{2}\z/
             DURATION = /\A(?:(?<h>\d+)h)?(?:(?<m>\d+)m?)?\z/
+            YEARS    = /\A(?<first>[1-9]\d{3})(?:\.\.(?<last>[1-9]\d{3}))?\z/
 
             module_function
 
-            # "2027" or "2027..2029" => 2027..2029
+            # "2027" or "2027..2029" => 2027..2029: four digits, nothing
+            # else read (no sign, space, underscore or leading zero).
             def years(text)
                 text!(text)
-                first, last = text.split("..", 2)
-                range = Integer(first, 10)..Integer(last || first, 10)
+                found = YEARS.match(text) or
+                    raise ParseError, "bad years #{text.inspect}"
+                range = found[:first].to_i..(found[:last] || found[:first]).to_i
                 raise ParseError, "#{text} ends before it starts" if
                     range.end < range.begin
                 range
-            rescue ArgumentError, TypeError
-                raise ParseError, "bad years #{text.inspect}"
             end
 
             # "2h", "90m", "1h30" (minutes when no unit) => seconds

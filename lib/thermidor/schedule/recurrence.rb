@@ -13,10 +13,11 @@ module Thermidor
         # by_day holds [ordinal or nil, wday] pairs, wday as in Date#wday.
         Recurrence = Data.define(:freq, :interval, :by_day, :by_month_day,
                                  :by_month, :until, :count) do
-            def initialize(by_day:, by_month_day:, by_month:, **)
+            def initialize(by_day:, by_month_day:, by_month:, **rest)
+                Recurrence.check(rest[:freq], rest[:interval])
                 super(by_day: by_day.map { it.dup.freeze }.freeze,
                       by_month_day: by_month_day.dup.freeze,
-                      by_month: by_month.dup.freeze, **)
+                      by_month: by_month.dup.freeze, **rest)
             end
 
             def self.parse(text) = Recurrence::Parser.new(text).rule
@@ -67,6 +68,16 @@ module Thermidor
         class Recurrence
             DAYS  = %w[SU MO TU WE TH FR SA].freeze
             FREQS = %i[daily weekly monthly yearly].freeze
+
+            # A rule built directly checks itself as parsing does: an
+            # interval below 1 would never move on.
+            def self.check(freq, interval)
+                known = FREQS.join(", ")
+                raise Error, "#{freq.inspect}: none of #{known}" unless
+                    FREQS.include?(freq)
+                return if interval.is_a?(Integer) && interval.positive?
+                raise Error, "#{interval.inspect} is no interval (1 or more)"
+            end
         end
     end
 end

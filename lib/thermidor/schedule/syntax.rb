@@ -72,7 +72,7 @@ module Thermidor
                 return Timetable::USUAL if text == "usual"
                 return name(text) unless text.include?("=")
                 as_parsed do
-                    Program.new(transitions: text.split(",")
+                    Program.new(transitions: text.split(",", -1)
                                                  .map { transition(it) })
                 end
             end
@@ -89,13 +89,15 @@ module Thermidor
             # "mon-fri" or "sat,sun" => [1, 2, 3, 4, 5] or [6, 0]
             def days(text)
                 text!(text)
-                days = text.split(",").flat_map { day_range(it) }.uniq
+                days = text.split(",", -1).flat_map { day_range(it) }.uniq
                 raise ParseError, "no day in #{text.inspect}" if days.empty?
                 days
             end
 
+            # "mon" or "mon-fri"; an empty piece is no day.
             def day_range(text)
                 first, last = text.split("-", 2).map { weekday(it) }
+                raise ParseError, "bad weekday \"\"" unless first
                 return [first] unless last
                 (0..((last - first) % 7)).map { (first + it) % 7 }
             end
@@ -112,16 +114,23 @@ module Thermidor
             # Weekdays as for #days, or else the name of a special day.
             def day_keys(text)
                 text!(text)
-                weekdays = text.split(/[,-]/).all? { weekday_index(it) }
-                weekdays ? days(text) : [name(text)]
+                weekdays?(text) ? days(text) : [name(text)]
             end
+
+            # Whether `text` reads as weekdays ("mon", "mon-fri", "sat,sun"):
+            # never then a special day's name, though "mon-fri" is one in
+            # form, or the same text would name two things.
+            def weekdays?(text) = text.split(/[,-]/).all? { weekday_index(it) }
 
             # A kind of day for the calendar: "sun" for any weekday
             # spelling, or the name of a special day.
             def day_kind(text)
                 text!(text)
                 index = weekday_index(text)
-                index ? WEEKDAYS[index] : name(text)
+                return WEEKDAYS[index] if index
+                raise ParseError, "#{text} is weekdays, no kind of day" if
+                    weekdays?(text)
+                name(text)
             end
         end
     end

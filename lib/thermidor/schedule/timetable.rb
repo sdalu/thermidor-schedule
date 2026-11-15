@@ -14,6 +14,7 @@ module Thermidor
         Timetable = Data.define(:days, :specials) do
             def initialize(days: {}, specials: {})
                 Timetable.check_days(days)
+                Timetable.check_specials(specials)
                 super(days: days.compact.freeze,
                       specials: specials.compact.freeze)
             end
@@ -106,6 +107,16 @@ module Thermidor
                 end
                 return unless days.value?(USUAL)
                 raise Error, "usual binds a special day, not a weekday"
+            end
+
+            # Special days are names a calendar entry can reach (ArgumentError
+            # otherwise): no weekday spelling ("mon", "mon-fri"), not usual.
+            def self.check_specials(specials)
+                specials.each_key do |key|
+                    next if Schedule.name?(key) && key != "usual" &&
+                            !Syntax.weekdays?(key)
+                    raise ArgumentError, "#{key.inspect} is no special day"
+                end
             end
 
             # Bound to a special day: a calendar entry for that day applies

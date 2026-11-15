@@ -92,11 +92,14 @@ One transition, part by part:
 | `day_kind("Sunday")` | `"sun"`               |
 
 Weekdays are `mon`..`sun` or the full English names, in any case; a
-range wraps around the week. No day at all (`""`, `","`) is refused.
-`days` takes weekdays only. `day_keys`
-gives weekdays, or else one special day's name. `day_kind` gives a
-calendar entry's day: `"sun"`..`"sat"` for any weekday spelling, or a
-special day's name.
+range wraps around the week. No day at all (`""`, `","`), or an empty
+piece of a list (`,mon`, `mon,,tue`, `mon,`), is refused; so is an empty
+transition in a program (`06:30=comfort,`). `days` takes weekdays only.
+`day_keys` gives weekdays, or else one special day's name. `day_kind`
+gives a calendar entry's day: `"sun"`..`"sat"` for any weekday
+spelling, or a special day's name; weekdays as a range or a list
+(`mon-fri`) are refused there, since the same text means weekdays to
+`day_keys`.
 
 ## Dates, times and durations
 
@@ -112,7 +115,9 @@ special day's name.
 | `duration("1h30")`                   | 5400 (seconds)                |
 | `duration("90m")`, `duration("45")`  | 5400, 2700: minutes without a unit |
 
-A range that ends before it starts is refused. A date is the whole
+Years are four digits, alone or as a range; a sign, a space, an
+underscore or a leading zero is refused. A range that ends before it
+starts is refused. A date is the whole
 `YYYY-MM-DD`: a reduced form (`2026-11`, `2026`), the basic form
 (`20261225`), a week or an ordinal date is refused, where `Date.iso8601`
 alone would read the first two as the first day.
