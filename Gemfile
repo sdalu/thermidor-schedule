@@ -12,3 +12,9 @@ group :development, :test do
     # with (test/recurrence_reference_test.rb).
     gem "rrule", "~> 0.8"
 end
+
+group :development do
+    # A sampling profiler, for what a resolution or a walk ahead costs;
+    # the suite does not load it.
+    gem "stackprof", "~> 0.2.28"
+end
