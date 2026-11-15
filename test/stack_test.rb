@@ -68,4 +68,30 @@ class StackTest < Minitest::Test
         assert_equal at("2026-11-02 08:30"),
                      stack.wake_at(@zone, at("2026-11-02 08:10"))
     end
+
+    # Counts how often the stack applies it, passing the decision on.
+    class Counting
+        attr_reader :count
+
+        def initialize = @count = 0
+
+        def apply(_zone, _now, below)
+            @count += 1
+            below
+        end
+    end
+
+    # A resolve and a wake_at at the same moment are one pass of the
+    # layers; another moment, or another zone, is another.
+    def test_the_last_decisions_are_kept
+        counting = Counting.new
+        stack = Schedule::Stack.new([base, counting])
+        now = at("2026-11-02 08:10")
+        stack.resolve(@zone, now)
+        stack.wake_at(@zone, now)
+        assert_equal 1, counting.count
+        stack.resolve(@zone, now + 60)
+        stack.resolve(workday_zone, now + 60)
+        assert_equal 3, counting.count
+    end
 end

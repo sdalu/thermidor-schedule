@@ -22,10 +22,19 @@ module Thermidor
                 decisions(zone, now).filter_map(&:until).min
             end
 
-            # The decision after each layer, bottom first.
+            # The decision after each layer, bottom first. Those of the last
+            # zone and moment asked are kept: a caller asks resolve and
+            # wake_at in turn, and a layer is a function of the zone, the
+            # moment and the decision below (and of what it was built
+            # with), so a second pass would only repeat the first.
             def decisions(zone, now)
+                last = @last
+                return last[2] if last && last[0].equal?(zone) &&
+                                  last[1] == now
                 below = nil
-                layers.map { below = it.apply(zone, now, below) }
+                found = layers.map { below = it.apply(zone, now, below) }
+                @last = [zone, now, found.freeze].freeze
+                found
             end
         end
     end

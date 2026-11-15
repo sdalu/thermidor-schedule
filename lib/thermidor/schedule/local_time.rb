@@ -11,7 +11,22 @@ module Thermidor
             # the moment they jump (02:30 is 03:00), so moments keep the
             # order of clock readings; of one that comes twice, when they
             # go back, the first.
+            #
+            # Kept per time zone (TZ, nil for the system's), as working one
+            # out is most of what resolving a time costs; a copy is given,
+            # a caller's Time#utc changing it and not the one kept.
             def at(date, minute)
+                memo = (@memo ||= {})
+                key = [ENV.fetch("TZ", nil), date, minute]
+                memo.clear if memo.size > KEPT
+                (memo[key] ||= worked_out(date, minute).freeze).dup
+            end
+
+            # A bound on the moments kept: past it, they are worked out
+            # afresh.
+            KEPT = 50_000
+
+            def worked_out(date, minute)
                 hour, min = minute.divmod(60)
                 time = Time.new(date.year, date.month, date.day, hour, min)
                 return jump(time) if time.to_date != date ||

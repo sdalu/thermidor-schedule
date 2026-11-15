@@ -57,6 +57,16 @@ class SyntaxAheadDaylightTest < Minitest::Test
         end
     end
 
+    # A caller turning a time it was given to UTC changes that Time, not
+    # one another caller gets: the second pass is still found.
+    def test_a_time_turned_to_utc_elsewhere_changes_nothing
+        in_zone("Europe/Paris") do
+            Syntax.time("2026-10-25 02:30").utc
+        end
+        assert_ahead [2026, 10, 25, 2, 30, CET], [2026, 10, 25, 2, 45, CEST],
+                     "02:30"
+    end
+
     private
 
     def assert_ahead(expected, now, text)

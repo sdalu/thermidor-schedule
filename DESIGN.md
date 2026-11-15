@@ -87,6 +87,14 @@ A layer is a duck (`apply(zone, now, below)`), not a subclass of
 anything, so a caller adds its own (ClimatControl's "external", a zone
 handed to its devices' own drivers, sits above the stack, not in it).
 
+A layer is a function of the zone, the moment, the decision below and
+the values it was built with, nothing else. That is what lets a stack
+keep the decisions of the last zone and moment asked: callers ask
+`resolve` and `wake_at` in turn, and a second pass of every layer
+would only repeat the first. A layer reading something live would be
+read once per zone and moment; it reads it when built instead, as the
+caller builds a stack per round.
+
 ## Values in, decisions out
 
 Every input is an immutable value (`Data`): presets, programs,
@@ -200,6 +208,12 @@ come), a first pass already gone gives the second: at 02:30 on the
 second pass, `02:45` is a quarter of an hour on, not the next day.
 What is in force and when it next changes are both worked out as
 moments, so a caller polling and one sleeping until `until` agree.
+
+Working a reading out as a moment is most of what resolving a time
+costs, and the same few readings come again at every step, so they
+are kept, per time zone (`TZ`), up to a bound. Each caller gets a copy:
+`Time#utc` changes the Time it is called on, and a kept one shared
+would have turned another caller's autumn 02:30 into the next day's.
 
 ## Strategies and the deadband: configured once
 

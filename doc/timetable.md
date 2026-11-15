@@ -181,7 +181,10 @@ Monday                                             Tuesday
 ```
 
 Both take `fallback:` (`Preset::FROST`) and an optional block giving
-the stack of a date: its `Timetable::Level`s, best first, the weekday's
+the stack of a date: its `Timetable::Level`s (`program`, nil for a
+weekday without one; `entry`, the calendar entry it runs for, nil for
+the weekday's own; `weekday`, true for the weekday's, also when an
+entry bound to `usual` runs it), best first, the weekday's
 last (`Timetable#weekday(date)`, the only one by default); that is how
 the calendar runs other days. `Timetable#resolver(fallback:, &levels)`
 gives the `Timetable::Resolver` both use, to ask several times about

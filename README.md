@@ -123,7 +123,11 @@ keeps them.
 | `Layers::Clamp`      | none                         | always: both sides within `limits:`            | the decision's below            |
 
 A layer is anything answering `apply(zone, now, below)` with a
-`Decision`: one of the caller's own fits in the stack as well.
+`Decision`: one of the caller's own fits in the stack as well. It must
+depend only on the zone, the moment, the decision below and what it was
+built with: a stack keeps the decisions of the last zone and moment
+asked, so `resolve` then `wake_at` run the layers once. A layer reading
+something live (a sensor) reads it when its stack is built.
 
 `Preset::SYSTEM` holds the presets the layers fall back on (frost, away,
 the three boosts, open window); a caller keeping presets should let
