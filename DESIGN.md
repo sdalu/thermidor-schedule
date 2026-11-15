@@ -153,6 +153,18 @@ holiday ending `23:30=pass` before an ordinary day put the keyword on
 that day's weekday program, where it means the fallback, until the
 morning; what the holiday said was "the usual night".
 
+```text
+       22:00    23:00    23:30    00:00                 06:45
+holiday  ━━━━━ comfort ━━━━┬╌╌╌╌╌╌╌ pass, carried ╌╌╌╌╌╌╌╌
+work     ── eco ──┼────────━━━━━━━━ night ━━━━━━━━━━━━━━━━┼ comfort ━
+result   ━━━━━ comfort ━━━━┼━━━━━━━━━━━ night ━━━━━━━━━━━━┼ comfort ━
+rejected ───── comfort ────┴ night ─┴─────── frost ───────┴ comfort ─
+```
+
+A holiday ending `23:30=pass` before an ordinary day (`━` decides, `─`
+is hidden, `╌` lets through): the carried `pass` reaches the weekday
+program's own night, where the first reading gave frost.
+
 A change is where the chain of transitions in force changes, not where
 the preset does. Every transition that comes to decide is a change as
 it always was (a timetable repeating `12:00=eco` a week apart changes
@@ -170,6 +182,19 @@ to make up a midnight transition whenever a carried keyword lands
 differently. The merged day is still there to show (`Calendar#day`),
 derived from the same resolver, so a view and a decision cannot
 disagree.
+
+## On time: a mark on the change
+
+Starting early so a room reaches its band by a program's time is the
+caller's (ClimatControl's early start), but whether a given change
+wants it belongs to the program: the same preset can be wanted on time
+in one program and only started at its time in another, so the mark
+is on the transition, not only on the preset. Unmarked, it is left to
+the preset's own flag, which the caller keeps; a band written inline
+has no preset to leave it to, so it must say. The schedule decides
+nothing with the mark: it carries it to the decision, from the
+transition that decided, through any keyword, so a caller looking at
+the changes ahead knows which want reaching on time.
 
 ## Recurrence: iCalendar's, for whole days
 

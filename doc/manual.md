@@ -55,6 +55,17 @@ Layers::Manual.ends_at(:for, below:, zone:, now:, duration: 5400)
 | `:next`    | the next change of the layers below, at that moment |
 | `:forever` | nil                                             |
 
+A setting of `+22..` made at 14:00 in each mode, over a timetable
+changing at 17:30 (`━` holds, `╌` nothing in force):
+
+```text
+        13:00    14:00        15:30          17:30
+timetable ──────────────── eco ────────────────┬── comfort ──
+:for 90m  ╌╌╌╌╌╌╌╌╌┼━━ +22.. ━━━┼╌╌╌╌╌╌╌╌╌╌ ended ╌╌╌╌╌╌╌╌╌╌╌
+:next     ╌╌╌╌╌╌╌╌╌┼━━━━━━━━━━ +22.. ━━━━━━━━━━┼╌╌╌ ended ╌╌╌
+:forever  ╌╌╌╌╌╌╌╌╌┴━━━━━━━━━ +22.., until cleared ━━━━━━━━━━
+```
+
 Each kind ends in its own modes (its `MODES`): a manual setting in the
 three above, a boost in `:for` only, an open window in `:for` and
 `:steady` (see [open window](open-window.md), where `ends_at` of a

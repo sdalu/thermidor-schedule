@@ -8,8 +8,7 @@ module Thermidor
         Preset = Data.define(:name, :setpoint, :strategy, :description) do
             def initialize(setpoint:, name: nil, strategy: nil,
                            description: nil)
-                raise Error, "#{name} is reserved, not a preset name" if
-                    THROUGH.map(&:to_s).include?(name)
+                Preset.check_name(name)
                 super(name:, setpoint:, strategy: Schedule.strategy(strategy),
                       description:)
             end
@@ -18,8 +17,17 @@ module Thermidor
             def label      = name || setpoint.to_s
         end
 
-        # The defaults the layers fall back on when given no preset.
         class Preset
+            # nil (anonymous) or a NAME, not one of THROUGH's keywords.
+            def self.check_name(name)
+                return if name.nil?
+                raise Error, "#{name.inspect} is no preset name" unless
+                    Schedule.name?(name)
+                raise Error, "#{name} is reserved, not a preset name" if
+                    THROUGH.map(&:to_s).include?(name)
+            end
+
+            # The defaults the layers fall back on when given no preset.
             FROST = new(name: "frost", setpoint: Setpoint.new(heat: 7),
                         description: "frost protection only")
             AWAY  = new(name: "away", strategy: :cheapest,

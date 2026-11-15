@@ -12,10 +12,9 @@ module Thermidor
         #             (a transition may hold pass, usual or fallback)
         #   days      mon  mon-fri  sat,sun   (or a special day: holiday)
         #
-        # Bands are in syntax/band.rb; dates, times and durations in
-        # syntax/time.rb.
+        # Bands are in syntax/band.rb; transitions in syntax/transition.rb;
+        # dates, times and durations in syntax/time.rb.
         module Syntax
-            NAME     = /\A[a-z][\w-]*\z/
             CLOCK    = /\A(?<hour>\d{1,2}):(?<min>\d{2})\z/
             WEEKDAYS = %w[sun mon tue wed thu fri sat].freeze
             FULL_DAYS = %w[sunday monday tuesday wednesday thursday friday
@@ -58,7 +57,7 @@ module Thermidor
 
             def name(text)
                 text!(text)
-                return text if NAME.match?(text)
+                return text if Schedule.name?(text)
                 raise ParseError, "bad name #{text.inspect}"
             end
 
@@ -72,23 +71,6 @@ module Thermidor
                     Program.new(transitions: text.split(",")
                                                  .map { transition(it) })
                 end
-            end
-
-            # "06:30=comfort/quick" => Transition, preset possibly a name;
-            # "22:00=pass" one holding a keyword of THROUGH instead.
-            def transition(text)
-                text!(text)
-                clock, value = text.split("=", 2)
-                raise ParseError, "bad transition #{text.inspect}" unless value
-                preset, strategy = preset_ref(value)
-                minute = minute(clock)
-                as_parsed { built_transition(minute, preset, strategy) }
-            end
-
-            def built_transition(minute, preset, strategy)
-                return Transition.new(minute:, preset:, strategy:) unless
-                    THROUGH.map(&:to_s).include?(preset)
-                Transition.new(minute:, through: preset, strategy:)
             end
 
             def minute(text)

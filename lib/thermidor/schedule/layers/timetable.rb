@@ -22,7 +22,7 @@ module Thermidor
                         found.preset, zone,
                         override: found.strategy, source:,
                         until: resolver.next_change(now)
-                    )
+                    ).with(on_time: found.on_time)
                 end
             end
         end

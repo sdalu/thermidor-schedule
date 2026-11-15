@@ -155,6 +155,18 @@ With `work` (06:45 comfort, 08:30 eco, 23:00 night) every day, and the
 | 24th 09:00  | comfort | `calendar:fr:holiday` | 24th 12:00  |
 | 24th 13:00  | eco     | `timetable:work`      | 24th 23:00  |
 
+The same day, each program on its lane: `━` decides, `─` is hidden
+under it, `╌` says nothing or lets through. Work's 06:45 comfort stays
+hidden, the night carried from the 23rd holding until the holiday
+speaks:
+
+```text
+       00:00      06:45    08:15 08:30  12:00           23:00
+holiday  ╌╌╌╌ nothing yet ╌╌╌┬━ comfort ━━┬╌╌╌╌╌╌╌╌╌ pass ╌╌╌╌╌╌╌╌╌╌
+work     ── night ──┼── comfort ───┼──────━━ eco ━━━━━━━━━┼━ night ━
+result   ━━━━━━━ night ━━━━━━┴━ comfort ━━┴━━━━━ eco ━━━━━┴━ night ━
+```
+
 Past midnight, the last transition of the day carries on, as ever. A
 keyword carried so falls into the next date's stack from above: a
 holiday ending `23:30=pass` before an ordinary day gives that day's

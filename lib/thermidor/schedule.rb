@@ -26,6 +26,19 @@ module Thermidor
         # zone's weekday one (usual), or the fallback preset (fallback).
         THROUGH = %i[pass usual fallback].freeze
 
+        # A name (a preset's, a program's, a special day's): ASCII and
+        # lowercase, a letter first, so a name is never read as a band nor
+        # as a transition's :by or :at, and reads the same in a source, a
+        # URL and a terminal; then letters, digits, _ and -.
+        NAME = /\A[a-z][a-z0-9_-]*\z/
+
+        # Whether `text` is a NAME; bytes NAME cannot read (invalid, or an
+        # encoding not keeping ASCII) are no name, not an encoding error.
+        def self.name?(text)
+            text.is_a?(String) && text.valid_encoding? &&
+                text.encoding.ascii_compatible? && NAME.match?(text)
+        end
+
         # nil stays nil (inherit); anything else must be a configured
         # strategy.
         def self.strategy(value)
@@ -63,6 +76,7 @@ require_relative "schedule/stack"
 require_relative "schedule/syntax"
 require_relative "schedule/syntax/band"
 require_relative "schedule/syntax/time"
+require_relative "schedule/syntax/transition"
 require_relative "schedule/holidays"
 require_relative "schedule/recurrence"
 require_relative "schedule/recurrence/parser"

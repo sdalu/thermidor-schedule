@@ -79,7 +79,7 @@ class HumidityTest < Minitest::Test
     def test_the_strategy_comes_last
         preset, strategy = Syntax.preset_ref("+20..+26@..60/quiet")
         assert_equal ["+20.0..+26.0@..60", :quiet], [preset.label, strategy]
-        transition = Syntax.transition("06:30=+20..+26@..60/quiet")
+        transition = Syntax.transition("06:30=+20..+26@..60/quiet:by")
         assert_equal 60.0, transition.preset.setpoint.humidity.high
     end
 

@@ -63,6 +63,18 @@ stack.wake_at(zone, now)
 `Stack#wake_at` the earliest change anywhere in the stack, when to look
 again.
 
+The example's morning, layer by layer (`━` decides, `─` is hidden
+under a layer above, `╌` has nothing in force): the manual setting
+holds its night over the timetable's comfort until 08:00, then lets it
+through again, with nothing to restore.
+
+```text
+        06:00      06:30      06:50           08:00
+manual    ╌╌╌╌╌╌╌╌ none ╌╌╌╌╌╌╌╌┬━━━━ night ━━━━┬╌╌ ended ╌╌╌
+timetable ━━ night ━━┼━━━━━━━━━━───── comfort ──━━━━━━━━━━━━━
+decision  ━━ night ━━┴ comfort ━┴━━━━ night ━━━━┴━ comfort ━━
+```
+
 ## Concepts
 
 | Term       | Value                                         | Meaning                                                    |

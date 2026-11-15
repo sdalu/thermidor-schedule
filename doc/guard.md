@@ -95,6 +95,24 @@ deadband, the cooling side gives way first, up to the ceiling, then
 the heating side, as in the clamp; since the guards are at least the
 deadband apart, every side stays within every guard.
 
+Under the bedroom's `+15..+25`, in °C (`[` a heat side, `]` a cool
+side, `▸` a side left open):
+
+```text
+       14  16  18  20  22  24  26  28  30
+        ├───┼───┼───┼───┼───┼───┼───┼───┤
+guards    [━━━━━━━━━━━━━━━━━━━]            +15..+25
+
+below               [───────]              +20..+24
+after               [━━━━━━━]              unchanged
+
+below                                      off
+after     [━━━━━━━━━━━━━━━━━━━]            the guards' bounds
+
+below                               [───▸  +28.., over the ceiling
+after                       [━]            +24..+25, deadband kept
+```
+
 A ceiling guard therefore cools even under an open window, whose
 preset leaves the cool side open, unless the window suspends it (see
 above); a floor-only guard (`+7..`) does not cool at all.

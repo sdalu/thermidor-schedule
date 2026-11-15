@@ -37,9 +37,11 @@ the `..`, and one decimal at most: `-2..+5`, `+20.5..+25`. At least one
 side is required, or `off`. Humidity bounds carry no sign, one
 decimal at most, 0 to 100, the floor below the ceiling; a single number
 is a ceiling (`@60` is `@..60`, and prints as `@..60`). The strategy
-comes last: `+20..+26@..60/quiet`. A name starts with a lowercase letter, then letters,
-digits, `_` or `-`. The strategy after `/` goes through
-`Schedule.strategy`.
+comes last: `+20..+26@..60/quiet`. A name is ASCII and lowercase: a
+letter, then letters, digits, `_` or `-` (`Schedule::NAME`, checked by
+`Schedule.name?`); a capital, an accent or another script is refused,
+not converted. `Preset.new` checks its name the same way. The strategy
+after `/` goes through `Schedule.strategy`.
 
 ## Programs
 
@@ -50,13 +52,34 @@ digits, `_` or `-`. The strategy after `/` goes through
 | `program("06:30=comfort,22:30=+17..+27/quiet")` | an anonymous `Program`        |
 | `transition("06:30=comfort/quick")`             | a `Transition`, preset `"comfort"` |
 | `transition("22:00=pass")`                      | a `Transition`, `through: :pass` |
+| `transition("06:30=comfort/quick:by")`          | a `Transition`, `on_time: true` |
+| `transition("22:00=+17..+27:at")`               | an inline band, `on_time: false` |
+| `transition("06:30=comfort:by/quick")`          | the same as `comfort/quick:by` |
 | `minute("06:30")`                               | 390                           |
 
 Times are `H:MM` or `HH:MM`, 00:00 to 23:59. `usual` is a keyword, a
 special day's binding to the zone's usual weekday, never a program's
 name. After `=`, `pass`, `usual` and `fallback` are keywords letting
 another program decide ([timetable.md](timetable.md#programs)), never
-a preset's name, and take no `/STRATEGY`.
+a preset's name, and take no `/STRATEGY`. A transition may end with
+`:by` (`on_time: true`: the band reached by the time, so started
+early enough) or `:at` (`on_time: false`: started at the time); an
+inline band must, a keyword may not. The `/STRATEGY` and the mark
+follow the preset in either order, once each (`comfort/quick:by` is
+`comfort:by/quick`), since no name nor band holds a `/` or a `:`; a
+printer writes the strategy first. Another word or a second mark is a
+`bad mark`.
+
+One transition, part by part:
+
+```text
+06:30=comfort/quick:by
+└─┬─┘ └──┬──┘└─┬──┘└┬┘
+  │      │     │    └─ :by reached by the time, :at started at it (optional)
+  │      │     └─ a strategy over the preset's (optional)
+  │      └─ a preset's name, a band, or pass, usual, fallback
+  └─ the time of day, H:MM or HH:MM
+```
 
 ## Days
 

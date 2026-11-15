@@ -133,11 +133,13 @@ module Thermidor
                 end
 
                 def decided(zone, found, change)
-                    Decision.from_preset(
+                    decision = Decision.from_preset(
                         found.preset, zone,
                         override: found.strategy,
                         source: source(found), until: change
-                    ).sooner(out_of_sight(found.chain.map(&:date).min))
+                    )
+                    decision.with(on_time: found.on_time)
+                            .sooner(out_of_sight(found.chain.map(&:date).min))
                 end
 
                 # What is in force owes nothing to a calendar entry, and it

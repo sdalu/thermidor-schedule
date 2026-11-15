@@ -13,18 +13,21 @@ module Thermidor
         # did). `guards` names, per side a guard moved (:heat, :cool,
         # :humidity_low, :humidity_high), the guard that bound it;
         # `suspended`, per guard set aside for a while, the source it was
-        # suspended by.
+        # suspended by. `on_time` is the mark of the program's transition
+        # that decided (Transition#on_time), nil for any other layer's or
+        # when the transition leaves it to its preset.
         Decision = Data.define(:setpoint, :strategy, :source, :label,
                                :until, :humidity_source, :guards, :suspended,
-                               :ends)
+                               :ends, :on_time)
 
         class Decision
             NO_GUARDS = {}.freeze
 
-            def initialize(humidity_source: nil, guards: NO_GUARDS,
-                           suspended: NO_GUARDS, ends: nil, **)
-                super
-            end
+            # What a decision holds when its layer says nothing of it.
+            UNSAID = { humidity_source: nil, guards: NO_GUARDS,
+                       suspended: NO_GUARDS, ends: nil, on_time: nil }.freeze
+
+            def initialize(**) = super(**UNSAID, **)
 
             # The decision with `until` brought forward to `time` (nil:
             # left alone), a change ahead it does not make itself.

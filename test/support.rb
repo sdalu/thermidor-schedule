@@ -25,13 +25,14 @@ module ScheduleSupport
     end
 
     # program("workday", "06:30" => COMFORT, "08:30" => [ECO, :quick],
-    #         "22:00" => :pass), a Symbol being a keyword of THROUGH.
+    #         "17:00" => [COMFORT, nil, true], "22:00" => :pass), a
+    # Symbol being a keyword of THROUGH, a third element the on_time mark.
     def program(name, steps)
-        transitions = steps.map do |clock, (preset, strategy)|
+        transitions = steps.map do |clock, (preset, strategy, on_time)|
             minute = Schedule::Syntax.minute(clock)
             next Schedule::Transition.new(minute:, through: preset) if
                 preset.is_a?(Symbol)
-            Schedule::Transition.new(minute:, preset:, strategy:)
+            Schedule::Transition.new(minute:, preset:, strategy:, on_time:)
         end
         Schedule::Program.new(name:, transitions:)
     end

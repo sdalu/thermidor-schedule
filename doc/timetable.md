@@ -102,6 +102,26 @@ given. They are sorted by time, and two at the same minute raise
 program without a name is anonymous (`label` is
 `(inline)`). `usual` is reserved and names no program.
 
+A transition may also be marked `on_time:`, saying whether its change
+is wanted reached by its time (`true`: a caller starts early enough),
+or only started then (`false`); nil leaves it to the preset, the caller
+keeping that flag. A band written inline has no preset to leave it to,
+so it must be marked (`Error` otherwise). The mark travels with the
+change: `Resolution#on_time`, and `Decision#on_time` from the timetable
+and calendar layers, are those of the transition that decided, through
+any keyword, and nil when no program did. The schedule only carries it;
+starting early is the caller's.
+
+`06:30=comfort:by` and `06:30=comfort:at` as a caller starting early
+might run them (its lead, here 45 minutes, is its own):
+
+```text
+       05:00       05:45       06:30       07:15
+program  ────────── eco ─────────┬━━━━━━━━━ comfort ━━━━━━━━━
+:by      ──── eco ───┼─ warming ─┼━━━━━━━ at comfort ━━━━━━━━
+:at      ────────── eco ─────────┴─ warming ─┴━ at comfort ━━
+```
+
 ```ruby
 work = Program.new(name: "work", transitions: [
     Transition.new(minute: 6 * 60 + 45, preset: comfort),

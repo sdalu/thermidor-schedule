@@ -60,7 +60,7 @@ class SyntaxTest < Minitest::Test
     end
 
     def test_inline_programs
-        program = Syntax.program("23:00=+19..,07:00=comfort")
+        program = Syntax.program("23:00=+19..:at,07:00=comfort")
         assert_predicate program.name, :nil?
         assert_equal [420, 1380], program.transitions.map(&:minute)
         assert_equal "workday", Syntax.program("workday")
