@@ -91,9 +91,11 @@ A layer is a function of the zone, the moment, the decision below and
 the values it was built with, nothing else. That is what lets a stack
 keep the decisions of the last zone and moment asked: callers ask
 `resolve` and `wake_at` in turn, and a second pass of every layer
-would only repeat the first. A layer reading something live would be
-read once per zone and moment; it reads it when built instead, as the
-caller builds a stack per round.
+would only repeat the first. The time zone (`TZ`) and the settings
+(`Schedule.configure`) are part of what was asked, since the layers
+read dates in the one and check bands against the other. A layer
+reading something live would be read once per zone and moment; it
+reads it when built instead, as the caller builds a stack per round.
 
 ## Values in, decisions out
 
@@ -126,7 +128,11 @@ back to a workday. A zone that does want such an entry to win while
 running its usual day binds the day to `usual`; that is a keyword, not
 a program, so it cannot be confused with one named alike. The binding
 makes the whole day the weekday's and ends the stack there; the `usual`
-a transition may hold (next section) hands one stretch over.
+a transition may hold (next section) hands one stretch over. The
+entries it leaves out of the day still cover it: one reached through a
+keyword the next morning carries on from what its own program said
+there, its range being its own and not the stack's, since a program
+answering alone must not depend on what decided above it.
 
 ## Programs that let another through
 
@@ -254,4 +260,8 @@ each caller would thread a deadband through `Setpoint`, `Syntax.band`
 and the clamp, and a value built without it would silently take the
 default. Values still check themselves when built, against the
 settings of the time; so the settings are made before anything is
-built, and a refused change leaves them as they were.
+built, and a refused change leaves them as they were. The gem's own
+presets (`Preset.system`) follow the same rule: kept as data and built
+when asked, for the settings then in force: a band built at load, under
+the default deadband, would not hold a wider one; a built-in band
+narrower than the deadband widens as the clamp would widen it.

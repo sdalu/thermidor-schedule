@@ -19,13 +19,17 @@ module Thermidor
 
                 DIRECTIONS = %i[both heat cool].freeze
 
-                DEFAULTS = { both: Preset::BOOST, heat: Preset::BOOST_HEAT,
-                             cool: Preset::BOOST_COOL }.freeze
+                # The built-in preset of each direction, for the settings in
+                # force.
+                def self.defaults
+                    { both: Preset.boost, heat: Preset.boost_heat,
+                      cool: Preset.boost_cool }
+                end
 
                 # defaults: { direction => Preset }, the built-in ones for
                 # any not given.
                 def initialize(entries, defaults: {})
-                    @defaults = DEFAULTS.merge(defaults)
+                    @defaults = Boost.defaults.merge(defaults)
                     super(entries, source: "boost")
                 end
 

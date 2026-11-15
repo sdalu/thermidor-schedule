@@ -34,7 +34,7 @@ module Thermidor
             # A Resolver whose levels are given by the block (a date's
             # Levels, the weekday one last), the weekday's alone by default.
             # Its keywords that reach the fallback give `fallback`.
-            def resolver(fallback: Preset::FROST, &levels)
+            def resolver(fallback: Preset.frost, &levels)
                 levels ||= ->(date) { [weekday(date)] }
                 Timetable::Resolver.new(fallback, &levels)
             end
@@ -44,13 +44,13 @@ module Thermidor
             # The Resolution in force at `time`. Transitions are compared
             # as moments, not clock readings, so one on a night clocks
             # change happens once, at its next_change.
-            def at(time, fallback: Preset::FROST, &)
+            def at(time, fallback: Preset.frost, &)
                 resolver(fallback:, &).at(time)
             end
 
             # When what is in force next changes after `time`, nil if
             # nothing does within REACH dates.
-            def next_change(time, fallback: Preset::FROST, &)
+            def next_change(time, fallback: Preset.frost, &)
                 resolver(fallback:, &).next_change(time)
             end
         end

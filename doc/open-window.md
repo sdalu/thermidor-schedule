@@ -15,7 +15,7 @@ shut.
 ## The layer
 
 ```ruby
-Layers::OpenWindow.new(entries, default: Preset::OPEN_WINDOW)
+Layers::OpenWindow.new(entries, default: Preset.open_window)
 ```
 
 An entry without a preset holds `default`, `+7..` (frost protection).

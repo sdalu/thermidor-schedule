@@ -17,8 +17,8 @@ module Thermidor
             # level reached through a keyword answers alone: its own last
             # transition, from its own earlier dates when it has none yet
             # (the weekday level from earlier weekdays, a calendar entry
-            # from the dates it covered before); one with nothing lets the
-            # next one answer.
+            # from the dates of its range before, even one it was left out
+            # of); one with nothing lets the next one answer.
             class Resolver
                 def initialize(fallback, &levels)
                     raise Error, "a timetable needs a fallback" unless fallback
@@ -89,14 +89,27 @@ module Thermidor
                 end
 
                 # The last transition by `time` of `level`, on its date or
-                # the latest earlier date it was on; nil if none.
+                # the latest earlier one it covers; nil if none. The weekday
+                # level is on every date, its program that date's; an entry
+                # covers its own range, its program the same throughout,
+                # whether on a date it decided, lay hidden, or was left out
+                # under an entry bound to usual: that says who runs the day,
+                # not what the entries below would have said.
                 def alone(level, time)
                     (0..REACH).each do |back|
                         date = time.to_date - back
-                        same = levels(date).find { it.same?(level) } or break
+                        same = on(level, date) or break
                         said = said_by(same, date, time) and return said
                     end
                     nil
+                end
+
+                # `level` as it stands on `date`, nil if it covers no such
+                # date.
+                def on(level, date)
+                    return levels(date).find(&:weekday) if level.weekday
+                    entry = level.entry
+                    level if (entry.first..entry.last).cover?(date)
                 end
 
                 def said_by(level, date, time)

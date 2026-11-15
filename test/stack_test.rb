@@ -94,4 +94,15 @@ class StackTest < Minitest::Test
         stack.resolve(workday_zone, now + 60)
         assert_equal 3, counting.count
     end
+
+    # The kept decisions are those of the zone, the moment, the time zone
+    # and the settings asked: another TZ is another answer.
+    def test_the_kept_decisions_follow_the_time_zone
+        stack = Schedule::Stack.new([base])
+        now   = Time.utc(2026, 11, 2, 6)
+        paris = in_zone("Europe/Paris") { stack.resolve(@zone, now) }
+        ny    = in_zone("America/New_York") { stack.resolve(@zone, now) }
+        refute_equal paris.until, ny.until
+        assert_equal %w[comfort night], [paris.label, ny.label]
+    end
 end

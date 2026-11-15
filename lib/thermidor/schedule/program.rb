@@ -32,14 +32,13 @@ module Thermidor
             # it and `preset` is given, and a strategy only with a preset.
             def self.through(through, preset, strategy)
                 return check_preset(preset) if through.nil?
-                word = through.to_s.to_sym if through.is_a?(String) ||
-                                              through.is_a?(Symbol)
-                unless THROUGH.include?(word)
-                    raise Error, "#{through.inspect} is none of " \
-                                 "#{THROUGH.join(", ")}"
-                end
+                word = THROUGH.find { it.to_s == through.to_s } if
+                    through.is_a?(String) || through.is_a?(Symbol)
+                known = THROUGH.join(", ")
+                raise Error, "#{through.inspect}: none of #{known}" unless word
                 raise Error, "#{word} holds no preset" if preset
-                raise Error, "#{word} takes no strategy" if strategy
+                raise Error, "#{word} takes no strategy" if
+                    Schedule.strategy?(strategy)
                 word
             end
 

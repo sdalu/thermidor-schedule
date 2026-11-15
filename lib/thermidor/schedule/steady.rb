@@ -48,7 +48,7 @@ module Thermidor
             # sharing it.
             def self.merged(readings)
                 readings.group_by(&:first).sort_by(&:first)
-                        .map { |time, at| [time, at.sum(&:last) / at.size] }
+                        .map { |time, at| [time, at.sum(&:last).fdiv(at.size)] }
             end
 
             private

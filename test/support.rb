@@ -48,7 +48,7 @@ module ScheduleSupport
                            timetable: Schedule::Timetable.new(days:))
     end
 
-    def base(fallback = Schedule::Preset::FROST)
+    def base(fallback = Schedule::Preset.frost)
         Schedule::Layers::Timetable.new(fallback:)
     end
 

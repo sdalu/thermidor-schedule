@@ -13,7 +13,7 @@ settings.
 ## Entries
 
 ```ruby
-Layers::Away.new(entries, default: Preset::AWAY, auto_since: nil)
+Layers::Away.new(entries, default: Preset.away, auto_since: nil)
 ```
 
 An `Away::Entry` is one zone's period:
@@ -44,7 +44,7 @@ empty office) win over the house's for as long as both run.
 
 ## Which band
 
-The entry's preset, else `default` (`Preset::AWAY`, `+16..+30/cheapest`,
+The entry's preset, else `default` (`Preset.away`, `+16..+30/cheapest`,
 unless the caller passes its own). The strategy follows the usual
 order: the preset's, then the zone's, then the configured default
 (`comfort`).

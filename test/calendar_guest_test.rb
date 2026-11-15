@@ -32,6 +32,18 @@ class CalendarGuestTest < Minitest::Test
                      resolve("2027-01-02 00:00", zone: guest, layers:).label
     end
 
+    # Havana's clocks go back at midnight: the first midnight eight dates
+    # on is when the carried special day is no longer seen, and that is
+    # the end announced.
+    def test_the_end_of_a_carried_special_day_on_a_repeated_midnight
+        in_zone("America/Havana") do
+            day = ScheduleSupport.holiday(Date.new(2026, 10, 24))
+            layers = calendar(day)
+            change = resolve("2026-10-24 12:00", zone: guest_room, layers:)
+            assert_equal Time.new(2026, 11, 1, 0, 0, 0, "-04:00"), change.until
+        end
+    end
+
     private
 
     def holiday = program("holiday", "08:15" => COMFORT)

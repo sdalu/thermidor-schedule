@@ -75,17 +75,23 @@ A `Preset` is a band, optionally named, with an optional strategy and
 description. A preset without a name is anonymous: written inline,
 belonging to the one place that uses it (`label` is then its band).
 
-`Preset::SYSTEM` holds the presets the layers fall back on, each also a
-constant:
+`Preset.system` gives the presets the layers fall back on, each also by
+its own method:
 
-| Constant      | Name          | Band                | Held by                      |
+| Method        | Name          | Band                | Held by                      |
 | :------------ | :------------ | :------------------ | :--------------------------- |
-| `FROST`       | `frost`       | `+7..`              | a zone with nothing in force |
-| `AWAY`        | `away`        | `+16..+30/cheapest` | an away period               |
-| `BOOST`       | `boost`       | `+23..+24/quick`    | a boost                      |
-| `BOOST_HEAT`  | `boost-heat`  | `+24../quick`       | a heating boost              |
-| `BOOST_COOL`  | `boost-cool`  | `..+22/quick`       | a cooling boost              |
-| `OPEN_WINDOW` | `open-window` | `+7..`              | an open window               |
+| `frost`       | `frost`       | `+7..`              | a zone with nothing in force |
+| `away`        | `away`        | `+16..+30/cheapest` | an away period               |
+| `boost`       | `boost`       | `+23..+24/quick`    | a boost                      |
+| `boost_heat`  | `boost-heat`  | `+24../quick`       | a heating boost              |
+| `boost_cool`  | `boost-cool`  | `..+22/quick`       | a cooling boost              |
+| `open_window` | `open-window` | `+7..`              | an open window               |
+
+They are built for the [settings](../README.md#configuration) in force
+when asked, not when the gem loads: under a deadband wider than a
+band's sides, the cool side gives way upward as the clamp's would
+(`boost` is `+23..+25` with a deadband of 2), and a strategy not
+configured is left out.
 
 Each layer takes its fallback as an argument (`fallback:`, `default:`,
 `defaults:`), so a caller keeping presets passes its own versions; a
@@ -200,7 +206,7 @@ With `work` every day:
 Monday                                             Tuesday
 ```
 
-Both take `fallback:` (`Preset::FROST`) and an optional block giving
+Both take `fallback:` (`Preset.frost`) and an optional block giving
 the stack of a date: its `Timetable::Level`s (`program`, nil for a
 weekday without one; `entry`, the calendar entry it runs for, nil for
 the weekday's own; `weekday`, true for the weekday's, also when an
@@ -223,7 +229,7 @@ through the repeated hour.
 
 ## The layer
 
-`Layers::Timetable.new(fallback: Preset::FROST)` decides from the
+`Layers::Timetable.new(fallback: Preset.frost)` decides from the
 zone's timetable: the transition's preset, the transition's strategy
 over the preset's, source `timetable:PROGRAM`, `until` the next change.
 A zone with no transition within the week before, or whose program's

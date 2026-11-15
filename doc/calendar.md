@@ -80,7 +80,7 @@ midnight eight dates later, and that end is announced too.
 
 ## Entries
 
-`Layers::Calendar.new(entries, fallback: Preset::FROST)` takes
+`Layers::Calendar.new(entries, fallback: Preset.frost)` takes
 `Calendar::Entry` values, and the preset a program's keyword lets
 through to ([below](#letting-another-program-through)), the same as
 the timetable layer's:
@@ -130,7 +130,11 @@ The office has no program for `leave`, so leave does not apply to it
 and the holiday does. The study takes leave as a usual day, which wins
 over the holiday by priority: on leave, its owner works there even on
 a public holiday. An entry bound to `usual` ends the stack there: the
-weekday runs, and the entries ranked below it are left out.
+weekday runs, and the entries ranked below it are left out. An entry
+left out so still covers the date: reached through a keyword later, it
+carries on from what its program would have said there, as it does
+from a date where a higher entry hid it; the binding says who runs the
+day, not what the entries below would have said.
 
 ## Letting another program through
 
@@ -287,7 +291,7 @@ Easter Sunday (Easter Monday is `1`, Good Friday `-2`).
 `Holidays.regions` lists those known. A region already known, no
 holiday, or a rule that is no date of every year is refused with
 `Error`, registering nothing: `[2, 30]`, `"May"`, `[1]`, an offset
-outside -80 to 249 days, which would leave Easter's year. Like the [configuration](../README.md#configuration),
+outside -80 to 250 days, which would leave Easter's year. Like the [configuration](../README.md#configuration),
 a registration is the process's.
 
 ```ruby

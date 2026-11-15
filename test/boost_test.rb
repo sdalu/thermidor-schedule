@@ -20,9 +20,9 @@ class BoostTest < Minitest::Test
     end
 
     def test_the_built_in_presets_are_the_system_ones
-        assert_equal [Schedule::Preset::BOOST, Schedule::Preset::BOOST_HEAT,
-                      Schedule::Preset::BOOST_COOL],
-                     Boost::DEFAULTS.values_at(:both, :heat, :cool)
+        assert_equal [Schedule::Preset.boost, Schedule::Preset.boost_heat,
+                      Schedule::Preset.boost_cool],
+                     Boost.defaults.values_at(:both, :heat, :cool)
     end
 
     def test_defaults_given_replace_only_their_direction

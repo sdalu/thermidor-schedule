@@ -114,6 +114,13 @@ class SteadyTest < Minitest::Test
         refute Steady.new.steady?([], OPENED)
     end
 
+    # Whole degrees read at one moment count as their mean, not its
+    # integer part: 18 and 19 are 18.5.
+    def test_whole_degree_readings_average_exactly
+        at = OPENED + 60
+        assert_equal [[at, 18.5]], Steady.merged([[at, 18], [at, 19]])
+    end
+
     private
 
     def steady?(*values) = Steady.new.steady?(readings(*values), OPENED)

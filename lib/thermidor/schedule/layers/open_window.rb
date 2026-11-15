@@ -17,7 +17,7 @@ module Thermidor
                 # with a limit: never until cleared, nor to a change below.
                 MODES = %i[for steady].freeze
 
-                def initialize(entries, default: Preset::OPEN_WINDOW)
+                def initialize(entries, default: Preset.open_window)
                     super(entries, source: "open-window", default:)
                 end
             end

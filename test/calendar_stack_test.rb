@@ -85,10 +85,26 @@ class CalendarStackTest < Minitest::Test
 
     def test_the_calendar_takes_its_fallback
         zone = zone_with({ "holiday" => special("07:00" => :fallback) })
-        away = Schedule::Preset::AWAY
+        away = Schedule::Preset.away
         layers = [base, Schedule::Layers::Calendar.new([holiday],
                                                        fallback: away)]
         assert_equal %w[away fallback], label_source("12:00", zone, layers)
+    end
+
+    # An entry left out of a date by one bound to usual still covers it:
+    # reached through a keyword later, it carries on from what its own
+    # program said there. Leave (3, usual in this zone) holds the 23rd;
+    # the guest day (5) covers the 22nd to the 24th.
+    def test_an_entry_left_out_by_usual_still_carries_on
+        zone = zone_with({ "guest" => special("08:00" => :pass,
+                                              "18:00" => COMFORT),
+                           "leave" => Schedule::Timetable::USUAL },
+                         work: special({ "06:30" => COMFORT,
+                                         "22:00" => :pass }, "work"))
+        guest = entry(2, "guest", 5).with(first: DAY - 2)
+        leave = entry(3, "leave", 3).with(first: DAY - 1, last: DAY - 1)
+        assert_equal %w[comfort calendar:guest:guest],
+                     label_source("03:00", zone, on(guest, leave))
     end
 
     private

@@ -46,7 +46,7 @@ module Thermidor
 
             # Days from Easter that stay within its year, whatever its date
             # (22 March to 25 April), or a [month, day] of every year.
-            EASTER_OFFSETS = (-80..249)
+            EASTER_OFFSETS = (-80..250)
 
             def check(region, name, rule)
                 return if date?(rule)

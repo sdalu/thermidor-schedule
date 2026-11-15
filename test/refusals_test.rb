@@ -28,7 +28,7 @@ class RefusalsTest < Minitest::Test
     end
 
     def test_a_transition_is_at_a_minute_of_the_day
-        preset = Schedule::Preset::FROST
+        preset = Schedule::Preset.frost
         [1440, -1, 3.5, nil, "06:30"].each do |minute|
             assert_raises(Schedule::Error, minute.inspect) do
                 Schedule::Transition.new(minute:, preset:)
@@ -67,6 +67,44 @@ class RefusalsTest < Minitest::Test
             assert_raises(Schedule::Error, limits.inspect) do
                 Schedule::Layers::Clamp.new(limits:)
             end
+        end
+    end
+
+    # Bytes no text form can read (invalid, or an encoding not keeping
+    # ASCII) are refused with ParseError, not an encoding error.
+    def test_a_text_form_refuses_unreadable_bytes
+        ["\xFFeco", "eco".encode("UTF-16LE")].each do |text|
+            TEXT_FORMS.each do |form|
+                assert_raises(Schedule::ParseError, "#{form}(#{text.dump})") do
+                    Syntax.public_send(form, text)
+                end
+            end
+        end
+    end
+
+    # A date that is none, or no text, is a ParseError like the rest.
+    def test_a_date_that_is_none_is_a_parse_error
+        ["2026-02-30", "2026-12", 5].each do |text|
+            assert_raises(Schedule::ParseError, text.inspect) do
+                Syntax.date(text)
+            end
+        end
+    end
+
+    # An exclusive or open-ended range is no limits: Error when built,
+    # not a Ruby error when applied.
+    def test_a_clamp_refuses_a_range_of_another_shape
+        [5...30, 5.0...30.0, 5.0.., ..30.0].each do |limits|
+            assert_raises(Schedule::Error, limits.inspect) do
+                Schedule::Layers::Clamp.new(limits:)
+            end
+        end
+    end
+
+    # Limits exactly one deadband wide hold a band, as a setpoint does.
+    def test_a_clamp_one_deadband_wide_is_accepted
+        [7.2..8.2, 7.7..8.7, 15.4..16.4, 15.9..16.9].each do |limits|
+            Schedule::Layers::Clamp.new(limits:)
         end
     end
 end

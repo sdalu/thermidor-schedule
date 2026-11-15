@@ -39,6 +39,9 @@ module Thermidor
                 text.encoding.ascii_compatible? && NAME.match?(text)
         end
 
+        # Whether `value` gives a strategy: nil and "" give none.
+        def self.strategy?(value) = !(value.nil? || value.to_s.empty?)
+
         # nil stays nil (inherit); anything else must be a configured
         # strategy.
         def self.strategy(value)
@@ -83,6 +86,7 @@ require_relative "schedule/recurrence/parser"
 require_relative "schedule/recurrence/expansion"
 require_relative "schedule/layers/timetable"
 require_relative "schedule/layers/calendar"
+require_relative "schedule/layers/calendar/entry"
 require_relative "schedule/layers/calendar/stretch"
 require_relative "schedule/layers/calendar/seen"
 require_relative "schedule/layers/away"

@@ -65,4 +65,12 @@ class HolidaysTest < Minitest::Test
             Holidays.for("xx", 2027)
         end
     end
+
+    # The latest Easter (25 April) plus 250 days is 31 December: still
+    # Easter's year.
+    def test_an_offset_of_250_days_stays_in_the_year
+        Holidays.register("test-late", "Saint-Sylvestre" => 250)
+        assert_includes Holidays.for("test-late", 2038).map(&:first),
+                        Date.new(2038, 12, 31)
+    end
 end

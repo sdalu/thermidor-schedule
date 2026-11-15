@@ -21,4 +21,15 @@ class CalendarOccurrencesTest < Minitest::Test
     def test_an_entry_without_a_rule_stands_alone
         assert_equal [CHRISTMAS], CHRISTMAS.occurrences(nil, Date.new(2030))
     end
+
+    # Alone, an entry is given only when it reaches the span asked, as
+    # its occurrences are with a rule.
+    def test_an_entry_alone_outside_the_span_is_not_given
+        assert_empty CHRISTMAS.occurrences(nil, Date.new(2030),
+                                           from: Date.new(2028))
+        assert_empty CHRISTMAS.occurrences(nil, Date.new(2026, 12, 1))
+        assert_equal [CHRISTMAS],
+                     CHRISTMAS.occurrences(nil, Date.new(2026, 12, 24),
+                                           from: Date.new(2026, 12, 25))
+    end
 end

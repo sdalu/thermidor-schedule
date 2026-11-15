@@ -173,5 +173,5 @@ The layers take plain values (`Data`). They read no store, no clock
   away layer;
 - work out which guards each zone holds, and which of them apply
   (always, away, occupied), and hand over those in force;
-- keep the system presets (`Preset::SYSTEM`), which the layers fall
+- keep the system presets (`Preset.system`), which the layers fall
   back on, from being deleted.

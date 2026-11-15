@@ -17,7 +17,7 @@ module Thermidor
                     end
                 end
 
-                def initialize(entries, default: Preset::AWAY,
+                def initialize(entries, default: Preset.away,
                                auto_since: nil)
                     raise Error, "an away layer needs a default" unless default
                     @entries    = entries.dup.freeze

@@ -113,9 +113,9 @@ negative deadband), or one that does not exist, are refused with
 `STRATEGIES`, `DEFAULT_STRATEGY` and `DEADBAND`. A value checks itself
 when built, so one built before a change keeps the old rules. A
 strategy outside the configured ones counts as not given when a
-decision resolves its strategy: the built-in presets (`Preset::SYSTEM`),
-built with the default strategies, then take the zone's or the
-default.
+decision resolves its strategy. The built-in presets (`Preset.system`)
+are built for the settings in force when asked, their bands widened to
+the deadband and a strategy not configured left out.
 
 ## The layers
 
@@ -138,10 +138,11 @@ A layer is anything answering `apply(zone, now, below)` with a
 `Decision`: one of the caller's own fits in the stack as well. It must
 depend only on the zone, the moment, the decision below and what it was
 built with: a stack keeps the decisions of the last zone and moment
-asked, so `resolve` then `wake_at` run the layers once. A layer reading
+asked (in the same time zone, under the same settings), so `resolve`
+then `wake_at` run the layers once. A layer reading
 something live (a sensor) reads it when its stack is built.
 
-`Preset::SYSTEM` holds the presets the layers fall back on (frost, away,
+`Preset.system` gives the presets the layers fall back on (frost, away,
 the three boosts, open window); a caller keeping presets should let
 those be changed but not deleted.
 

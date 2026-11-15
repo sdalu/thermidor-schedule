@@ -56,6 +56,13 @@ class ThroughTest < Minitest::Test
         end
     end
 
+    # An empty strategy is none, on a keyword as on a preset.
+    def test_an_empty_strategy_on_a_keyword_is_none
+        transition = Schedule::Transition.new(minute: 60, through: :pass,
+                                              strategy: "")
+        assert_nil transition.strategy
+    end
+
     private
 
     def zone_running(steps)

@@ -22,9 +22,13 @@ module Thermidor
 
             module_function
 
-            # Refuses what is no String: a text form reads text only.
+            # Refuses what is no String, or bytes no text form can read
+            # (invalid, or an encoding not keeping ASCII): a text form
+            # reads text only, and refuses with ParseError, never with an
+            # encoding error from deeper down.
             def text!(text)
-                return if text.is_a?(String)
+                return if text.is_a?(String) && text.valid_encoding? &&
+                          text.encoding.ascii_compatible?
                 raise ParseError, "#{text.inspect} is no text"
             end
 

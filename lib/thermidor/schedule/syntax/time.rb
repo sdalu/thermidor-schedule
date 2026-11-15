@@ -53,8 +53,12 @@ module Thermidor
             # "2026-12-25" => Date, the whole form only: Date.iso8601 alone
             # reads "2026-11" or "2026" as the first day.
             def date(text)
-                raise Date::Error, "not YYYY-MM-DD" unless DAY.match?(text)
+                text!(text)
+                raise ParseError, "bad date #{text.inspect}: YYYY-MM-DD" unless
+                    DAY.match?(text)
                 Date.iso8601(text)
+            rescue Date::Error
+                raise ParseError, "bad date #{text.inspect}: no such day"
             end
 
             # "2026-11-02 07:00" or "07:00" (on the day of `now`), read as

@@ -22,19 +22,29 @@ module Thermidor
                 decisions(zone, now).filter_map(&:until).min
             end
 
-            # The decision after each layer, bottom first. Those of the last
-            # zone and moment asked are kept: a caller asks resolve and
-            # wake_at in turn, and a layer is a function of the zone, the
-            # moment and the decision below (and of what it was built
-            # with), so a second pass would only repeat the first.
+            # The decision after each layer, bottom first. Those last asked
+            # are kept: a caller asks resolve and wake_at in turn, and a
+            # layer is a function of the zone, the moment and the decision
+            # below (and of what it was built with), so a second pass would
+            # only repeat the first. Dates are read in the process's time
+            # zone and bands checked against its settings, so those are
+            # part of what was asked too.
             def decisions(zone, now)
+                asked = [zone, now, ENV.fetch("TZ", nil), Schedule.config]
                 last = @last
-                return last[2] if last && last[0].equal?(zone) &&
-                                  last[1] == now
+                return last.last if last && Stack.same?(last, asked)
                 below = nil
                 found = layers.map { below = it.apply(zone, now, below) }
-                @last = [zone, now, found.freeze].freeze
+                @last = [*asked, found.freeze].freeze
                 found
+            end
+
+            # The zone and the settings the same objects (values are not
+            # compared field by field), the moment and the TZ equal.
+            def self.same?(last, asked)
+                zone, now, tz, config = asked
+                last[0].equal?(zone) && last[1] == now && last[2] == tz &&
+                    last[3].equal?(config)
             end
         end
     end

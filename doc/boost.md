@@ -32,9 +32,9 @@ asked for (one of `Boost::DIRECTIONS`), and so which default:
 
 | `mode`  | Default             | Band             | Pushes       |
 | :------ | :------------------ | :--------------- | :----------- |
-| `:both` | `Preset::BOOST`     | `+23..+24/quick` | either way   |
-| `:heat` | `Preset::BOOST_HEAT`| `+24../quick`    | heating only |
-| `:cool` | `Preset::BOOST_COOL`| `..+22/quick`    | cooling only |
+| `:both` | `Preset.boost`      | `+23..+24/quick` | either way   |
+| `:heat` | `Preset.boost_heat` | `+24../quick`    | heating only |
+| `:cool` | `Preset.boost_cool` | `..+22/quick`    | cooling only |
 
 Any other mode takes the `:both` default. `defaults:` replaces some or
 all of them, by direction (`{ heat: my_heat_preset }`); the built-in

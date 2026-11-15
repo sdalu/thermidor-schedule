@@ -7,7 +7,7 @@ module Thermidor
             # preset for a zone that has none, or whose program lets it
             # through.
             class Timetable
-                def initialize(fallback: Preset::FROST)
+                def initialize(fallback: Preset.frost)
                     raise Error, "a timetable layer needs a fallback" unless
                         fallback
                     @fallback = fallback

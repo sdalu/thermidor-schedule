@@ -80,7 +80,7 @@ class TimetableTest < Minitest::Test
     def test_empty_timetable
         timetable = Schedule::Timetable.new
         found = timetable.at(at("2026-11-02 12:00"))
-        assert_equal [Schedule::Preset::FROST, []], [found.preset, found.chain]
+        assert_equal [Schedule::Preset.frost, []], [found.preset, found.chain]
         assert_nil timetable.next_change(at("2026-11-02 12:00"))
         assert_predicate timetable, :empty?
     end
