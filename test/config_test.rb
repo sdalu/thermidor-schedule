@@ -12,9 +12,18 @@ class ConfigTest < Minitest::Test
     def test_defaults_are_the_constants
         config = Schedule.config
         assert_equal [Schedule::STRATEGIES, Schedule::DEFAULT_STRATEGY,
-                      Schedule::DEADBAND],
+                      Schedule::DEADBAND, Schedule::DEFAULT_ON_TIME],
                      [config.strategies, config.default_strategy,
-                      config.deadband]
+                      config.deadband, config.default_on_time]
+    end
+
+    def test_default_on_time_is_true_or_false
+        [nil, "true", 1].each do |value|
+            assert_raises(Schedule::Error, value.inspect) do
+                Schedule.configure(default_on_time: value)
+            end
+        end
+        assert Schedule.config.default_on_time
     end
 
     def test_the_deadband_holds_every_band_built_after

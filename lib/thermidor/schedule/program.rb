@@ -5,9 +5,10 @@ module Thermidor
         # From `minute` (after midnight) on, `preset` is in force, with
         # `strategy` overriding the preset's own when given, and `on_time`
         # saying whether the change is wanted reached by then (true) or
-        # only started then (false), nil leaving it to the preset; or,
-        # holding no preset, `through` (one of THROUGH) lets another
-        # program decide, with no strategy nor mark of its own.
+        # only started then (false), unmarked the default_on_time
+        # configured; or, holding no preset, `through` (one of THROUGH)
+        # lets another program decide, with no strategy nor mark of its
+        # own (on_time nil).
         Transition = Data.define(:minute, :preset, :strategy, :through,
                                  :on_time) do
             def initialize(minute:, preset: nil, strategy: nil, through: nil,
@@ -16,7 +17,7 @@ module Thermidor
                     raise Error, "#{minute.inspect} is no minute of the day"
                 end
                 through = Transition.through(through, preset, strategy)
-                Transition.check_on_time(on_time, preset, through)
+                on_time = Transition.on_time(on_time, through)
                 super(minute:, preset:, through:, on_time:,
                       strategy: Schedule.strategy(strategy))
             end
@@ -42,16 +43,16 @@ module Thermidor
                 word
             end
 
-            # A mark is true, false or nil; a keyword takes none, and an
-            # inline band, having no preset to leave it to, takes one.
-            def self.check_on_time(on_time, preset, through)
+            # A mark is true, false or nil, nil taking the default
+            # configured; a keyword takes none and holds none, the
+            # transition it leads to saying.
+            def self.on_time(on_time, through)
                 raise Error, "#{on_time.inspect} is no on-time mark" unless
                     [true, false, nil].include?(on_time)
                 raise Error, "#{through} takes no on-time mark" if
                     through && !on_time.nil?
-                return unless on_time.nil? && preset.is_a?(Preset) &&
-                              preset.anonymous?
-                raise Error, "an inline band says whether it is on time"
+                return if through
+                on_time.nil? ? Schedule.config.default_on_time : on_time
             end
 
             def self.check_preset(preset)

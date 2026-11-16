@@ -21,6 +21,10 @@ module Thermidor
         STRATEGIES       = %i[comfort cheapest quiet quick].freeze
         DEFAULT_STRATEGY = :comfort
 
+        # Whether a program change is wanted reached by its time when its
+        # transition does not say; the default of Config#default_on_time.
+        DEFAULT_ON_TIME = true
+
         # What a program transition may hold instead of a preset, letting
         # another program decide: the next one in the day's stack (pass), the
         # zone's weekday one (usual), or the fallback preset (fallback).

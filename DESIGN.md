@@ -195,9 +195,13 @@ Starting early so a room reaches its band by a program's time is the
 caller's (ClimatControl's early start), but whether a given change
 wants it belongs to the program: the same preset can be wanted on time
 in one program and only started at its time in another, so the mark
-is on the transition, not only on the preset. Unmarked, it is left to
-the preset's own flag, which the caller keeps; a band written inline
-has no preset to leave it to, so it must say. The schedule decides
+is on the transition, and only there: a preset holds no flag. A flag
+on the preset as well would be a second place to look, a fallback chain
+every caller resolves, and would mean nothing for the layers deciding
+now (manual, boost), since only a program's change is known ahead.
+Unmarked, a transition takes the house's default (`default_on_time`,
+configured once, true unless set), which a home where most changes are
+only started at their time turns off. The schedule decides
 nothing with the mark: it carries it to the decision, from the
 transition that decided, through any keyword, so a caller looking at
 the changes ahead knows which want reaching on time.

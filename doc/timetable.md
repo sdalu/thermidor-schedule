@@ -110,9 +110,11 @@ program without a name is anonymous (`label` is
 
 A transition may also be marked `on_time:`, saying whether its change
 is wanted reached by its time (`true`: a caller starts early enough),
-or only started then (`false`); nil leaves it to the preset, the caller
-keeping that flag. A band written inline has no preset to leave it to,
-so it must be marked (`Error` otherwise). The mark travels with the
+or only started then (`false`); unmarked, the transition takes
+`default_on_time` from the configuration in force when it is built
+(`true` unless configured), a named preset and an inline band alike: a
+preset holds no such flag. A keyword holds none (`on_time` nil), the
+transition it leads to saying. The mark travels with the
 change: `Resolution#on_time`, and `Decision#on_time` from the timetable
 and calendar layers, are those of the transition that decided, through
 any keyword, and nil when no program did. The schedule only carries it;

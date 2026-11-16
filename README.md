@@ -97,20 +97,23 @@ preset's, else the zone's, else the default strategy (`:comfort`).
 
 ## Configuration
 
-The strategies, the default one and the deadband are the process's,
-set once at boot, before any value is built:
+The strategies, the default one, the deadband and whether an unmarked
+program change is wanted on time are the process's, set once at boot,
+before any value is built:
 
 ```ruby
 Thermidor::Schedule.configure(strategies: %i[comfort eco boost],
-                              default_strategy: :comfort, deadband: 1.5)
+                              default_strategy: :comfort, deadband: 1.5,
+                              default_on_time: true)
 Thermidor::Schedule.config.deadband   # => 1.5
 ```
 
 A setting left out keeps its value; settings that cannot hold together
 (no strategy, one named twice, a default that is none of them, a
-negative deadband), or one that does not exist, are refused with
-`Error`, changing nothing. Without a call, they are
-`STRATEGIES`, `DEFAULT_STRATEGY` and `DEADBAND`. A value checks itself
+negative deadband, a `default_on_time` neither true nor false), or one
+that does not exist, are refused with `Error`, changing nothing.
+Without a call, they are `STRATEGIES`, `DEFAULT_STRATEGY`, `DEADBAND`
+and `DEFAULT_ON_TIME`. A value checks itself
 when built, so one built before a change keeps the old rules. A
 strategy outside the configured ones counts as not given when a
 decision resolves its strategy. The built-in presets (`Preset.system`)

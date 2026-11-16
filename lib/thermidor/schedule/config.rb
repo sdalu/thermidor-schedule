@@ -3,15 +3,22 @@
 module Thermidor
     module Schedule
         # The vocabulary of one process: the strategies a band may be held
-        # by, the one given when none is, and the least gap between the
-        # heat and cool sides of a band. Set once, at boot, before any
-        # value is built: a value checks itself when built, against the
-        # configuration of the time.
-        Config = Data.define(:strategies, :default_strategy, :deadband) do
-            def initialize(strategies:, default_strategy:, deadband:)
+        # by, the one given when none is, the least gap between the heat
+        # and cool sides of a band, and whether a program change its
+        # transition does not mark is wanted on time. Set once, at boot,
+        # before any value is built: a value checks itself when built,
+        # against the configuration of the time.
+        Config = Data.define(:strategies, :default_strategy, :deadband,
+                             :default_on_time) do
+            def initialize(strategies:, default_strategy:, deadband:,
+                           default_on_time:)
                 strategies = Array(strategies).map { Config.name(it) }.freeze
                 default_strategy = Config.name(default_strategy)
                 deadband = Config.deadband(deadband)
+                unless [true, false].include?(default_on_time)
+                    raise Error, "default_on_time #{default_on_time.inspect} " \
+                                 "is neither true nor false"
+                end
                 Config.check(strategies, default_strategy)
                 super
             end
@@ -43,7 +50,8 @@ module Thermidor
         class Config
             DEFAULT = new(strategies: STRATEGIES,
                           default_strategy: DEFAULT_STRATEGY,
-                          deadband: DEADBAND)
+                          deadband: DEADBAND,
+                          default_on_time: DEFAULT_ON_TIME)
         end
 
         @config = Config::DEFAULT

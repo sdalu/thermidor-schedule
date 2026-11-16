@@ -97,7 +97,7 @@ needs nothing below (the timetable) can go first.
 | `humidity_source` | `"timetable:work"`     | which layer gave the band's humidity bounds (`"guard"`: the guards, none being in force); nil: none did |
 | `guards`   | `{ heat: "frost" }`           | the guard that bound each side it moved; `{}`: none |
 | `suspended` | `{ "bamboo-ceiling" => "boost" }` | each guard set aside for a while, and by which source; `{}`: none |
-| `on_time`  | `true`                        | the mark of the program transition that decided ([timetable.md](timetable.md#programs)); nil: unmarked (its preset says), or no program decided |
+| `on_time`  | `true`                        | the mark of the program transition that decided ([timetable.md](timetable.md#programs)); unmarked, `default_on_time`; nil when no program decided |
 
 A band's humidity bounds (`setpoint.humidity`) are not replaced as its
 sides are. A manual setting, a boost, an open window or away whose

@@ -4,25 +4,40 @@ require "test_helper"
 require "support"
 
 # A transition's on-time mark: whether the change is wanted reached by
-# its time (true), only started then (false), or as its preset says
-# (nil). December 2026: every day runs `work`, the 24th a holiday.
+# its time (true) or only started then (false), unmarked the
+# default_on_time configured. December 2026: every day runs `work`, the
+# 24th a holiday.
 class OnTimeTest < Minitest::Test
     include ScheduleSupport
 
     Syntax = Thermidor::Schedule::Syntax
     BAND   = Schedule::Preset.new(setpoint: Schedule::Setpoint.new(heat: 19))
 
-    def test_a_named_preset_may_say_nothing
-        [nil, true, false].each do |mark|
-            found = transition(preset: COMFORT, on_time: mark)
-            assert_equal mark, found.on_time
-        end
-        assert_nil transition(preset: "comfort").on_time
+    def teardown
+        Schedule.configure(**Schedule::Config::DEFAULT.to_h)
     end
 
-    def test_an_inline_band_says_it
-        assert_raises(Schedule::Error) { transition(preset: BAND) }
-        assert transition(preset: BAND, on_time: true).on_time
+    def test_a_mark_is_kept
+        [true, false].each do |mark|
+            [COMFORT, "comfort", BAND].each do |preset|
+                assert_equal mark, transition(preset:, on_time: mark).on_time
+            end
+        end
+    end
+
+    # A named preset, its name or an inline band alike: the slot says,
+    # never the preset.
+    def test_unmarked_takes_the_default_configured
+        [true, false].each do |default|
+            Schedule.configure(default_on_time: default)
+            [COMFORT, "comfort", BAND].each do |preset|
+                assert_equal default, transition(preset:).on_time
+            end
+        end
+    end
+
+    def test_a_keyword_holds_none
+        assert_nil transition(through: :pass).on_time
     end
 
     def test_a_keyword_or_another_value_is_refused
@@ -35,7 +50,9 @@ class OnTimeTest < Minitest::Test
     def test_read_from_text
         { "06:30=comfort/quick:by" => ["comfort", :quick, true],
           "22:00=+17..+27:at" => ["+17.0..+27.0", nil, false],
-          "06:30=comfort" => ["comfort", nil, nil] }.each do |text, expected|
+          "06:30=comfort" => ["comfort", nil, true],
+          "22:00=+17..+27" => ["+17.0..+27.0", nil, true] }
+            .each do |text, expected|
             found = Syntax.transition(text)
             preset = found.preset
             preset = preset.setpoint.to_s if preset.is_a?(Schedule::Preset)
@@ -44,7 +61,7 @@ class OnTimeTest < Minitest::Test
     end
 
     def test_text_refused
-        %w[06:30=+20..+25 22:00=pass:by 06:30=comfort/quick/quiet:by
+        %w[22:00=pass:by 06:30=comfort/quick/quiet:by
            06:30=comfort/:by 06:30=:by 06:30=comfort+on-time].each do |text|
             assert_raises(Schedule::ParseError, text) do
                 Syntax.transition(text)

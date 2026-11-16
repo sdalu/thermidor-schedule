@@ -63,8 +63,9 @@ name. After `=`, `pass`, `usual` and `fallback` are keywords letting
 another program decide ([timetable.md](timetable.md#programs)), never
 a preset's name, and take no `/STRATEGY`. A transition may end with
 `:by` (`on_time: true`: the band reached by the time, so started
-early enough) or `:at` (`on_time: false`: started at the time); an
-inline band must, a keyword may not. The `/STRATEGY` and the mark
+early enough) or `:at` (`on_time: false`: started at the time);
+unmarked, it takes `Schedule.config.default_on_time`, and a keyword
+may not be marked. The `/STRATEGY` and the mark
 follow the preset in either order, once each (`comfort/quick:by` is
 `comfort:by/quick`), since no name nor band holds a `/` or a `:`; a
 printer writes the strategy first. Another word or a second mark is a
