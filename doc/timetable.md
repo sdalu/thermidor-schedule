@@ -113,11 +113,14 @@ is wanted reached by its time (`true`: a caller starts early enough),
 or only started then (`false`); unmarked, the transition takes
 `default_on_time` from the configuration in force when it is built
 (`true` unless configured), a named preset and an inline band alike: a
-preset holds no such flag. A keyword holds none (`on_time` nil), the
-transition it leads to saying. The mark travels with the
+preset holds no such flag. A keyword takes no mark and holds the
+default: the transition it leads to says, unless it reaches the
+fallback, a change of the program like any other, which then takes
+the default (`22:00=fallback`). The mark travels with the
 change: `Resolution#on_time`, and `Decision#on_time` from the timetable
 and calendar layers, are those of the transition that decided, through
-any keyword, and nil when no program did. The schedule only carries it;
+any keyword, or of the keyword that reached the fallback; nil when no
+program is in force at all. The schedule only carries it;
 starting early is the caller's.
 
 `06:30=comfort:by` and `06:30=comfort:at` as a caller starting early

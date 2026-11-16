@@ -36,8 +36,13 @@ class OnTimeTest < Minitest::Test
         end
     end
 
-    def test_a_keyword_holds_none
-        assert_nil transition(through: :pass).on_time
+    # A keyword takes no mark but holds the default, said when it
+    # reaches the fallback.
+    def test_a_keyword_holds_the_default
+        [true, false].each do |default|
+            Schedule.configure(default_on_time: default)
+            assert_equal default, transition(through: :pass).on_time
+        end
     end
 
     def test_a_keyword_or_another_value_is_refused
@@ -93,14 +98,32 @@ class OnTimeTest < Minitest::Test
     end
 
     # The decision carries the mark of the transition that decided: a
-    # holiday's own, the weekday's it lets through, none for the
-    # fallback.
+    # holiday's own, the weekday's it lets through, and the default for
+    # the fallback a keyword reaches.
     def test_the_decision_carries_the_deciding_mark
         layers = [base, Schedule::Layers::Calendar.new([holiday])]
         marks = %w[09:00 13:00 23:30].map do |clock|
             resolve("2026-12-24 #{clock}", layers:).on_time
         end
-        assert_equal [true, false, nil], marks
+        assert_equal [true, false, true], marks
+    end
+
+    # Reached through a keyword, the fallback is a change of the program
+    # and takes the default configured when the program was built.
+    def test_the_fallback_reached_by_a_keyword_takes_the_default
+        Schedule.configure(default_on_time: false)
+        setup
+        found = @zone.timetable.at(at("2026-12-23 23:30"))
+        assert_equal [true, false], [found.fallback?, found.on_time]
+        assert_equal false, resolve("2026-12-23 23:30").on_time
+    end
+
+    # With no program in force at all, there is no change to mark.
+    def test_the_fallback_of_no_program_holds_none
+        empty = Schedule::Zone.new(name: "attic")
+        assert_nil Schedule::Stack.new([base]).resolve(
+            empty, at("2026-12-23 23:30")
+        ).on_time
     end
 
     def test_the_resolution_carries_it_too

@@ -85,7 +85,10 @@ module Thermidor
                 def level     = said&.level
                 def program   = level&.program
                 def transition = said&.transition
-                def on_time    = transition&.on_time
+
+                # The deciding transition's, or the keyword's that reached
+                # the fallback; nil when nothing is in force at all.
+                def on_time = chain.last&.transition&.on_time
 
                 # The transition holding the preset; nil for the fallback.
                 def said

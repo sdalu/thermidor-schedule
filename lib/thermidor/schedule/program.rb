@@ -8,7 +8,7 @@ module Thermidor
         # only started then (false), unmarked the default_on_time
         # configured; or, holding no preset, `through` (one of THROUGH)
         # lets another program decide, with no strategy nor mark of its
-        # own (on_time nil).
+        # own (on_time the default, said when it reaches the fallback).
         Transition = Data.define(:minute, :preset, :strategy, :through,
                                  :on_time) do
             def initialize(minute:, preset: nil, strategy: nil, through: nil,
@@ -44,14 +44,14 @@ module Thermidor
             end
 
             # A mark is true, false or nil, nil taking the default
-            # configured; a keyword takes none and holds none, the
-            # transition it leads to saying.
+            # configured; a keyword takes none and holds the default,
+            # said when it reaches the fallback (the transition it leads
+            # to saying otherwise).
             def self.on_time(on_time, through)
                 raise Error, "#{on_time.inspect} is no on-time mark" unless
                     [true, false, nil].include?(on_time)
                 raise Error, "#{through} takes no on-time mark" if
                     through && !on_time.nil?
-                return if through
                 on_time.nil? ? Schedule.config.default_on_time : on_time
             end
 
