@@ -30,10 +30,11 @@ The layer only reads `ends_at`; what ends a window is the caller's:
 | `:steady` | when `Steady` says it has settled, at `ends_at` at the latest |
 | `:for`    | at `ends_at`                                               |
 
-For a steady window, `ends_at` is a safety limit, `OpenWindow::LIMIT`
-(60 minutes) unless asked otherwise. The caller ends the entry earlier
-once the room's readings settle. Either way, `OpenWindow::LONGEST`
-(2 hours) is the most a caller should allow: a window left open longer
+For a steady window, `ends_at` is a safety limit, `OpenWindow.limit`
+(the `open_window_limit` configured, 60 minutes) unless asked
+otherwise. The caller ends the entry earlier once the room's readings
+settle. Either way, `OpenWindow.longest` (`open_window_longest`, 2
+hours) is the most a caller should allow: a window left open longer
 than that was forgotten, and the room should not sit at frost
 protection by accident. `OpenWindow.ends_at(:steady, ..., duration:)`
 checks it, as for [manual settings](manual.md#how-long); the layer
@@ -65,13 +66,16 @@ through three phases, in order:
    sensor read less often than `span` must hold steady across two readings,
    not pass on one.
 
-| Parameter   | Default | Meaning                                |
-| :---------- | :------ | :------------------------------------- |
-| `span`      | 600     | seconds the readings must settle over  |
-| `tolerance` | 0.2     | °C they may spread over that span      |
-| `change`    | 2.0     | °C the move must reach                 |
-| `rebound`   | 0.5     | share of the move it must come back by |
-| `after`     | 900     | seconds open at the least              |
+| Parameter   | Setting            | Default | Meaning                                |
+| :---------- | :----------------- | :------ | :------------------------------------- |
+| `span`      | `steady_span`      | 600     | seconds the readings must settle over  |
+| `tolerance` | `steady_tolerance` | 0.2     | °C they may spread over that span      |
+| `change`    | `steady_change`    | 2.0     | °C the move must reach                 |
+| `rebound`   | `steady_rebound`   | 0.5     | share of the move it must come back by |
+| `after`     | `steady_after`     | 900     | seconds open at the least              |
+
+`Steady.new` takes each parameter not given from its setting, in force
+when it is built.
 
 A threshold met exactly counts: readings at the tenth make differences
 such as 20.6 - 20.4 = 0.20000000000000284, so each comparison allows a

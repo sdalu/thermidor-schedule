@@ -56,14 +56,16 @@ is none. The layer does not work it out; `AutoAway` does, from
 everyone's presence:
 
 ```ruby
-AutoAway.new(leave: 20 * 60).start(statuses)
+AutoAway.new.start(statuses)              # auto_away_leave, 20 minutes
+AutoAway.new(leave: 5 * 60).start(statuses)
 ```
 
 A status answers `since`, the Time its state began, and `close?`,
 whether its person is home or as good as (not known to be away, or near
 on the way back). `start` is nil while anyone is close, or with no
 statuses at all; otherwise it is the last departure plus `leave`
-seconds (20 minutes unless set), long enough to ride out a phone
+seconds (`auto_away_leave` unless given, 20 minutes unless
+configured), long enough to ride out a phone
 dropping off the home network for a moment.
 
 From `auto_since` on, every zone without an active entry of its own

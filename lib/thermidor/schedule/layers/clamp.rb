@@ -4,26 +4,19 @@ module Thermidor
     module Schedule
         module Layers
             # The last word: keeps both setpoints within what the devices
-            # are allowed to aim for, and the configured deadband between
-            # them.
+            # are allowed to aim for (the clamp_limits configured unless
+            # given), and the configured deadband between them.
             class Clamp
-                LIMITS = (5.0..30.0)
-
-                # Limits narrower than the configured deadband (to the
-                # tenth, as a setpoint's sides), backwards, of no numbers,
-                # open-ended or excluding their end would hold no band:
-                # refused.
-                def initialize(limits: LIMITS)
+                # Limits holding no band under the configured deadband
+                # (Config.limits?) are refused.
+                def initialize(limits: Schedule.config.clamp_limits)
                     raise Error, "limits #{limits.inspect} hold no band" unless
                         Clamp.band?(limits)
                     @limits = limits
                 end
 
                 def self.band?(limits)
-                    limits.is_a?(Range) && !limits.exclude_end? &&
-                        [limits.begin, limits.end].all?(Numeric) &&
-                        (limits.end - limits.begin).round(1) >=
-                            Schedule.config.deadband
+                    Config.limits?(limits, Schedule.config.deadband)
                 end
 
                 def apply(_zone, _now, below)

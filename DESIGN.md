@@ -250,7 +250,7 @@ are kept, per time zone (`TZ`), up to a bound. Each caller gets a copy:
 `Time#utc` changes the Time it is called on, and a kept one shared
 would have turned another caller's autumn 02:30 into the next day's.
 
-## Strategies and the deadband: configured once
+## The house's settings: configured once
 
 The strategies are the planner's vocabulary, and the deadband a choice
 about the devices sharing a room: both belong to the house, not to the
@@ -269,3 +269,14 @@ presets (`Preset.system`) follow the same rule: kept as data and built
 when asked, for the settings then in force: a band built at load, under
 the default deadband, would not hold a wider one; a built-in band
 narrower than the deadband widens as the clamp would widen it.
+
+The same holds for every other choice of the house the gem makes: the
+clamp's limits, how long a setting by hand may last, when everyone gone
+starts an away, when an open window's room counts as shut. They are
+settings too, not constants of a layer, so a house sets them in one
+place, at boot. A layer or rule that takes one as an argument
+(`Clamp.new(limits:)`, `AutoAway.new(leave:)`, `Steady.new`'s
+thresholds) keeps it, defaulting to the setting: the argument is for
+one that differs, the setting for the house. A constant beside a
+setting would be read by a caller and silently ignore the
+configuration, so there is none: `Config::DEFAULT` holds the defaults.

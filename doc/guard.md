@@ -158,6 +158,7 @@ sides it moved over those the lower one named, and its suspended
 guards to the lower one's.
 
 The clamp above still applies: a guard's floor above the clamp's
-limits (`Clamp::LIMITS`, 5 to 30 °C) is brought back within them, and
+limits (`clamp_limits`, 5 to 30 °C unless configured) is brought back
+within them, and
 `guards` still names the guard. A caller had better refuse such a bound
 where the guard is given.

@@ -97,23 +97,41 @@ preset's, else the zone's, else the default strategy (`:comfort`).
 
 ## Configuration
 
-The strategies, the default one, the deadband and whether an unmarked
-program change is wanted on time are the process's, set once at boot,
-before any value is built:
+The house's settings are the process's, set once at boot, before any
+value is built:
 
 ```ruby
 Thermidor::Schedule.configure(strategies: %i[comfort eco boost],
                               default_strategy: :comfort, deadband: 1.5,
-                              default_on_time: true)
+                              clamp_limits: 7.0..28.0)
 Thermidor::Schedule.config.deadband   # => 1.5
 ```
 
-A setting left out keeps its value; settings that cannot hold together
+| Setting               | Default                         | What it is                                                      |
+| :-------------------- | :------------------------------ | :-------------------------------------------------------------- |
+| `strategies`          | `STRATEGIES`                    | the strategies a band may be held by                            |
+| `default_strategy`    | `DEFAULT_STRATEGY` (`:comfort`) | the one given when none is                                      |
+| `deadband`            | `DEADBAND` (1.0 °C)             | the least gap between a band's heat and cool sides              |
+| `default_on_time`     | `DEFAULT_ON_TIME` (`true`)      | an unmarked program change wanted reached by its time           |
+| `clamp_limits`        | `5.0..30.0`                     | what both setpoints are kept within ([clamp](doc/clamp.md))     |
+| `manual_longest`      | 12 hours                        | the longest duration of a manual setting ([manual](doc/manual.md#how-long)) |
+| `boost_duration`      | 30 minutes                      | a boost's length when none is asked ([boost](doc/boost.md))     |
+| `boost_longest`       | 1 hour                          | the longest duration of a boost                                 |
+| `open_window_limit`   | 1 hour                          | a steady window's safety limit when none is asked ([open window](doc/open-window.md)) |
+| `open_window_longest` | 2 hours                         | the longest an open window is held                              |
+| `auto_away_leave`     | 20 minutes                      | how long everyone is gone before an automatic away ([away](doc/away.md#automatic-away)) |
+| `steady_span`, `steady_tolerance`, `steady_change`, `steady_rebound`, `steady_after` | 600 s, 0.2 °C, 2.0 °C, 0.5, 900 s | when an open window's room counts as shut again ([Steady](doc/open-window.md#steady-shut-again)) |
+
+Durations are whole seconds. `Config::DEFAULT` holds the defaults. A
+setting left out keeps its value; settings that cannot hold together
 (no strategy, one named twice, a default that is none of them, a
-negative deadband, a `default_on_time` neither true nor false), or one
-that does not exist, are refused with `Error`, changing nothing.
-Without a call, they are `STRATEGIES`, `DEFAULT_STRATEGY`, `DEADBAND`
-and `DEFAULT_ON_TIME`. A value checks itself
+negative deadband, a `default_on_time` neither true nor false, limits
+holding no band under the deadband, a duration of nothing or over its
+kind's longest, a threshold negative or a rebound over 1), or one that
+does not exist, are refused with `Error`, changing nothing. A layer
+or rule built without its argument (`Clamp.new`, `AutoAway.new`,
+`Steady.new`) takes the setting in force then; an argument still says
+otherwise for its own. A value checks itself
 when built, so one built before a change keeps the old rules. A
 strategy outside the configured ones counts as not given when a
 decision resolves its strategy. The built-in presets (`Preset.system`)

@@ -3,11 +3,12 @@
 module Thermidor
     module Schedule
         # When an automatic away period starts, from everyone's presence:
-        # everyone away for `leave` seconds. A status answers `since`, the
-        # Time its state began, and `close?`, whether its person is home
-        # or as good as (not known to be away, or near on the way back).
+        # everyone away for `leave` seconds (auto_away_leave as configured
+        # unless given). A status answers `since`, the Time its state
+        # began, and `close?`, whether its person is home or as good as
+        # (not known to be away, or near on the way back).
         AutoAway = Data.define(:leave) do
-            def initialize(leave: 20 * 60)
+            def initialize(leave: Schedule.config.auto_away_leave)
                 super
             end
 

@@ -8,14 +8,16 @@ module Thermidor
             # for some minutes, or (mode :steady) until the temperature
             # steadies, with an end time as a safety limit.
             class OpenWindow < Manual
-                # The safety limit of a :steady window when not told, and
-                # the longest a window may be held for, in seconds.
-                LIMIT   = 60 * 60
-                LONGEST = 2 * 60 * 60
-                NOUN    = "an open window"
+                NOUN = "an open window"
                 # A window is held for a while, or until the room steadies,
                 # with a limit: never until cleared, nor to a change below.
                 MODES = %i[for steady].freeze
+
+                # The safety limit of a :steady window when not told, and
+                # the longest a window may be held for, in seconds, as
+                # configured.
+                def self.limit   = Schedule.config.open_window_limit
+                def self.longest = Schedule.config.open_window_longest
 
                 def initialize(entries, default: Preset.open_window)
                     super(entries, source: "open-window", default:)

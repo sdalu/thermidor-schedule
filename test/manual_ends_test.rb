@@ -82,7 +82,7 @@ class ManualEndsTest < Minitest::Test
         ends  = Schedule::Layers::Manual.ends_at(
             :next, below: Schedule::Stack.new([base]), zone: empty, now:
         )
-        assert_equal now + Schedule::Layers::Manual::LONGEST, ends
+        assert_equal now + Schedule::Layers::Manual.longest, ends
     end
 
     private

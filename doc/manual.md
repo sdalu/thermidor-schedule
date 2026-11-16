@@ -51,7 +51,7 @@ Layers::Manual.ends_at(:for, below:, zone:, now:, duration: 5400)
 
 | `mode`     | `ends_at`                                       |
 | :--------- | :---------------------------------------------- |
-| `:for`     | the end of a duration, up to `Manual::LONGEST` (12 h) |
+| `:for`     | the end of a duration, up to `Manual.longest` (`manual_longest`, 12 h) |
 | `:next`    | the next change of the layers below, at that moment |
 | `:forever` | nil                                             |
 
@@ -72,16 +72,17 @@ three above, a boost in `:for` only, an open window in `:for` and
 `:steady` window is its limit, worked out as for `:for`).
 
 `:next` is the next change of what the stack below the manual layer
-decides at that moment, or `LONGEST` ahead when that does not change:
+decides at that moment, or `longest` ahead when that does not change:
 not the next change of a layer it hides. On the eve of a holiday whose
 program starts at 09:00, the calendar hides the timetable's 06:30, so
 the setting ends at 09:00. Worked out live instead, it would never end:
 there is always a next change.
 
 `:for` checks its duration: `check_duration(seconds)` refuses one
-outside 0 to `LONGEST` with `Error`, naming the kind (`a manual setting
+outside 0 to `longest` with `Error`, naming the kind and the longest
+configured, in hours when whole, else in minutes (`a manual setting
 lasts 0 to 12 hours`). Boosts and open windows answer both with their
-own `LONGEST` and name. A mode no kind has raises `Error`; another
+own `longest` and name. A mode no kind has raises `Error`; another
 kind's mode raises `ArgumentError`, naming the kind and the mode (`a
 manual setting takes no :steady end`).
 The layer itself reads only `ends_at`: entries built otherwise are not checked.

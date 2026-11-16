@@ -10,10 +10,8 @@ module Thermidor
             # preset holds the layer's default (see Boost); without one
             # either, the entry is refused.
             class Manual
-                # The longest a manual setting may be given a duration for,
-                # and what it is called when it is refused.
-                LONGEST = 12 * 3600
-                NOUN    = "a manual setting"
+                # What it is called when it is refused.
+                NOUN = "a manual setting"
                 # The modes its end may be asked by: for a while, to the
                 # next change below, or until cleared. :steady, a window's,
                 # is not a manual setting's.
@@ -37,12 +35,26 @@ module Thermidor
                     end
                 end
 
-                # Refuses a duration (seconds) outside 0..LONGEST.
+                # The longest a manual setting may be given a duration for,
+                # in seconds, as configured.
+                def self.longest = Schedule.config.manual_longest
+
+                # Refuses a duration (seconds) outside 0..longest.
                 def self.check_duration(seconds)
-                    return if seconds && (0..self::LONGEST).cover?(seconds)
-                    hours = self::LONGEST / 3600
-                    raise Error, "#{self::NOUN} lasts 0 to #{hours} " \
-                                 "hour#{"s" if hours > 1}"
+                    return if seconds && (0..longest).cover?(seconds)
+                    raise Error, "#{self::NOUN} lasts 0 to " \
+                                 "#{Manual.spoken(longest)}"
+                end
+
+                # Seconds as whole hours when they are, else as minutes.
+                def self.spoken(seconds)
+                    hours, rest = seconds.divmod(3600)
+                    return plural(hours, "hour") if rest.zero?
+                    plural(seconds.fdiv(60).round, "minute")
+                end
+
+                def self.plural(count, unit)
+                    "#{count} #{unit}#{"s" if count > 1}"
                 end
 
                 # Refuses a mode no kind has with Error, another kind's
@@ -58,7 +70,7 @@ module Thermidor
                 # The end of a setting made at `now`, fixed then: :for (or
                 # :steady, a window's limit) a checked duration; :next, the
                 # next change of what `below` (a Stack of the layers under
-                # this one) decides, not of a layer it hides, or LONGEST
+                # this one) decides, not of a layer it hides, or longest
                 # ahead when that does not change;
                 # :forever, nil. A mode not in the kind's MODES raises
                 # ArgumentError (Error if no kind has it).
@@ -69,7 +81,7 @@ module Thermidor
                         check_duration(duration)
                         now + duration
                     when :next
-                        below.resolve(zone, now).until || (now + self::LONGEST)
+                        below.resolve(zone, now).until || (now + longest)
                     when :forever then nil
                     else raise Error, "unknown mode #{mode}"
                     end

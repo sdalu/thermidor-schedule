@@ -26,8 +26,11 @@ module Thermidor
         # comparison allows for MARGIN, far below any reading's precision.
         Steady = Data.define(:span, :tolerance, :change, :rebound,
                              :after) do
-            def initialize(span: 600, tolerance: 0.2, change: 2.0,
-                           rebound: 0.5, after: 900)
+            def initialize(span: Schedule.config.steady_span,
+                           tolerance: Schedule.config.steady_tolerance,
+                           change: Schedule.config.steady_change,
+                           rebound: Schedule.config.steady_rebound,
+                           after: Schedule.config.steady_after)
                 super
             end
 

@@ -8,16 +8,17 @@ module Thermidor
             # was asked for, and so which default preset: :both (boost),
             # :heat (boost-heat) or :cool (boost-cool).
             class Boost < Manual
-                # How long a boost lasts when not told, and at most, in
-                # seconds.
-                DEFAULT = 30 * 60
-                LONGEST = 60 * 60
-                NOUN    = "a boost"
+                NOUN = "a boost"
                 # A boost is short: it always has an end of its own, a
                 # duration.
                 MODES = %i[for].freeze
 
                 DIRECTIONS = %i[both heat cool].freeze
+
+                # How long a boost lasts when not told, and at most, in
+                # seconds, as configured.
+                def self.duration = Schedule.config.boost_duration
+                def self.longest  = Schedule.config.boost_longest
 
                 # The built-in preset of each direction, for the settings in
                 # force.
