@@ -80,7 +80,7 @@ there is always a next change.
 
 `:for` checks its duration: `check_duration(seconds)` refuses one
 outside 0 to `longest` with `Error`, naming the kind and the longest
-configured, in hours when whole, else in minutes (`a manual setting
+configured, in whole hours, else whole minutes, else seconds (`a manual setting
 lasts 0 to 12 hours`). Boosts and open windows answer both with their
 own `longest` and name. A mode no kind has raises `Error`; another
 kind's mode raises `ArgumentError`, naming the kind and the mode (`a

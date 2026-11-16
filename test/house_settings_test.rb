@@ -55,6 +55,17 @@ class HouseSettingsTest < Minitest::Test
             .each { |layer, message| assert_equal message, refusal(layer) }
     end
 
+    # A longest neither whole hours nor whole minutes is said in seconds,
+    # never rounded to a limit it is not.
+    def test_a_longest_not_whole_minutes_says_seconds
+        { 20 => "a boost lasts 0 to 20 seconds",
+          90 => "a boost lasts 0 to 90 seconds",
+          60 => "a boost lasts 0 to 1 minute" }.each do |longest, message|
+            Schedule.configure(boost_duration: 10, boost_longest: longest)
+            assert_equal message, refusal(Layers::Boost)
+        end
+    end
+
     def test_refuses_limits_holding_no_band
         [{ clamp_limits: 20.0..20.5 }, { clamp_limits: 5.0...30.0 },
          { clamp_limits: (5.0..) }, { clamp_limits: 30 },

@@ -46,11 +46,14 @@ module Thermidor
                                  "#{Manual.spoken(longest)}"
                 end
 
-                # Seconds as whole hours when they are, else as minutes.
+                # Seconds in the largest unit they are a whole number of:
+                # hours, minutes, else seconds; never rounded.
                 def self.spoken(seconds)
-                    hours, rest = seconds.divmod(3600)
-                    return plural(hours, "hour") if rest.zero?
-                    plural(seconds.fdiv(60).round, "minute")
+                    [[3600, "hour"], [60, "minute"], [1, "second"]]
+                        .each do |size, unit|
+                            count, rest = seconds.divmod(size)
+                            return plural(count, unit) if rest.zero?
+                        end
                 end
 
                 def self.plural(count, unit)
